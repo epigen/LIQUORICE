@@ -154,7 +154,7 @@ using GNU parallel (http://dx.doi.org/10.5281/zenodo.16303), which is automatica
     # Replace the paths and file name according to your file locations.
     echo 'LIQUORICE --bamfile "PATH_TO_BAMFILES/${1}.bam" --refgenome_fasta PATH_TO_REFERENCE_GENOME/hg38.fa --mappability_bigwig PATH_TO_MAPPABILITY_BW/hg38_mappability_75bp.bigwig --bedpathlist "PATH_TO_REGIONSETS/YOUR_REGIONSET_OF_INTEREST.bed" --blacklist hg38 --n_cpus 1 --cna_seg_file "PATH_TO_SEGFILES/${1}.seg"' >LIQUORICE_command.sh
 
-    parallel --results logs -j "{$NR_OF_CORES_TO_BE_USED}" bash LIQUORICE_command.sh  ::: ${SAMPLES}
+    parallel --results logs -j ${NR_OF_CORES_TO_BE_USED} bash LIQUORICE_command.sh  ::: ${SAMPLES}
 
 Note that the memory usage will increase with the number of parallel jobs (set by the `-j` parameter of parallel).
 We usually allow for 3GB of RAM for each job executed in parallel and set the `-j` parameter accordingly ( `j` = <Total available Memory on the Computer/Server>/3 GB) when running LIQUORICE with default settings on a region-set of 6000 regions.
