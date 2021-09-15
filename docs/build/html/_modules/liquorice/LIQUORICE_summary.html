@@ -1,0 +1,955 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>liquorice.LIQUORICE_summary &mdash; LIQUORICE 0.5.0 documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/underscore.js"></script>
+        <script src="../../_static/doctools.js"></script>
+    
+    <script type="text/javascript" src="../../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../index.html">
+          
+
+          
+            
+            <img src="../../_static/liquorice_logo_fitted_transparent.png" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../intro.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../intro.html#installation">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../intro.html#citation">Citation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../liquorice.html">The <cite>liquorice</cite> python package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../liquorice_commandline_tool.html">The LIQUORICE command-line-tool</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../liquorice_commandline_tool.html#liquorice-s-summary-tool">LIQUORICE’s summary tool</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../liquorice_commandline_tool.html#usage-parameters-and-examples">Usage, Parameters, and Examples</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">LIQUORICE</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="../index.html">Module code</a> &raquo;</li>
+        
+      <li>liquorice.LIQUORICE_summary</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for liquorice.LIQUORICE_summary</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">argparse</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">import</span> <span class="nn">glob</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">import</span> <span class="nn">matplotlib</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<span class="kn">from</span> <span class="nn">matplotlib.backends.backend_pdf</span> <span class="kn">import</span> <span class="n">PdfPages</span>
+<span class="kn">from</span> <span class="nn">matplotlib.lines</span> <span class="kn">import</span> <span class="n">Line2D</span>
+<span class="n">matplotlib</span><span class="o">.</span><span class="n">rcParams</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s1">&#39;font.size&#39;</span><span class="p">:</span> <span class="mi">20</span><span class="p">})</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">from</span> <span class="nn">scipy</span> <span class="kn">import</span> <span class="n">ndimage</span>
+<span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">defaultdict</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">import</span> <span class="nn">typing</span>
+<span class="kn">import</span> <span class="nn">json</span>
+<span class="kn">import</span> <span class="nn">seaborn</span> <span class="k">as</span> <span class="nn">sns</span>
+<span class="kn">import</span> <span class="nn">matplotlib.patches</span> <span class="k">as</span> <span class="nn">mpatches</span>
+
+<div class="viewcode-block" id="check_difference_to_control"><a class="viewcode-back" href="../../liquorice.html#liquorice.LIQUORICE_summary.check_difference_to_control">[docs]</a><span class="k">def</span> <span class="nf">check_difference_to_control</span><span class="p">(</span><span class="n">row</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">,</span> <span class="n">control_df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">col</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">negative_is_strong</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span>
+                                <span class="n">zscore_treshold</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span><span class="mi">2</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    For a row in a `pandas.DataFrame`, find control values for the same regionset and return if sample is significantly</span>
+<span class="sd">    different compared to the controls, as measured by metric **col**. Assumes controls are normally distributed.</span>
+
+<span class="sd">    :param row: A `pandas.Series` with the columns &#39;region-set&#39;, &#39;is control&#39;, and **col**, corresponding to a single</span>
+<span class="sd">        sample.</span>
+<span class="sd">    :param control_df: A `pandas.DataFrame` with at least the columns &#39;region-set&#39;, and **col**. Should only</span>
+<span class="sd">        contain data of control samples.</span>
+<span class="sd">    :param col: Use this column as a metric to determine differences.</span>
+<span class="sd">    :param negative_is_strong:  Set to `True` if a very negative value of the metric is associated with a strong dip</span>
+<span class="sd">        signal, such as for the dip area.</span>
+<span class="sd">    :param zscore_treshold: Use this number as a treshold for significance: Significant samples must have a signal that</span>
+<span class="sd">        is outside &lt;mean of controls&gt; +- &lt;zscore_treshold&gt;*&lt;standard deviation of controls&gt;. The default of 2 roughly</span>
+<span class="sd">        corresponds to alpha=0.05 if the signal in the controls is normally distributed.</span>
+<span class="sd">    :return: A string indicating the result of the comparison, or np.nan if row[col] is NaN.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">mean_ctrl</span> <span class="o">=</span> <span class="n">control_df</span><span class="p">[</span><span class="n">control_df</span><span class="p">[</span><span class="s2">&quot;region-set&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="n">row</span><span class="p">[</span><span class="s2">&quot;region-set&quot;</span><span class="p">]]</span><span class="o">.</span><span class="n">mean</span><span class="p">()[</span><span class="n">col</span><span class="p">]</span>
+    <span class="n">std_ctrl</span> <span class="o">=</span> <span class="n">control_df</span><span class="p">[</span><span class="n">control_df</span><span class="p">[</span><span class="s2">&quot;region-set&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="n">row</span><span class="p">[</span><span class="s2">&quot;region-set&quot;</span><span class="p">]]</span><span class="o">.</span><span class="n">std</span><span class="p">()[</span><span class="n">col</span><span class="p">]</span>
+    <span class="k">if</span> <span class="n">row</span><span class="p">[</span><span class="s2">&quot;is control&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;yes&quot;</span> <span class="ow">or</span> <span class="n">std_ctrl</span><span class="o">!=</span><span class="n">std_ctrl</span><span class="p">:</span>
+        <span class="k">return</span> <span class="s2">&quot;N/A&quot;</span>
+
+    <span class="c1"># If a strong sample should have a very negative value, a sing. stronger sample needs to have a more negative</span>
+    <span class="c1"># value than controls MINUS Std</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="n">col</span><span class="p">]</span> <span class="o">&lt;</span> <span class="p">(</span><span class="n">mean_ctrl</span> <span class="o">-</span> <span class="n">zscore_treshold</span> <span class="o">*</span> <span class="n">std_ctrl</span><span class="p">))</span> <span class="ow">and</span> <span class="n">negative_is_strong</span><span class="p">:</span>
+        <span class="k">return</span> <span class="s2">&quot;Significantly stronger coverage drop&quot;</span>
+    <span class="c1"># If a strong sample should have a very negative value, a sing. weaker sample needs to have a more positive value</span>
+    <span class="c1"># than controls PLUS Std</span>
+    <span class="k">elif</span> <span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="n">col</span><span class="p">]</span> <span class="o">&gt;</span> <span class="p">(</span><span class="n">mean_ctrl</span> <span class="o">+</span> <span class="n">zscore_treshold</span> <span class="o">*</span> <span class="n">std_ctrl</span><span class="p">))</span> <span class="ow">and</span> <span class="n">negative_is_strong</span><span class="p">:</span>
+        <span class="k">return</span> <span class="s2">&quot;Significantly weaker coverage drop&quot;</span>
+
+    <span class="c1"># If a strong sample should have a very positive value, a sing. stronger sample needs to have a more positive value</span>
+    <span class="c1"># than controls PLUS Std</span>
+    <span class="k">elif</span> <span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="n">col</span><span class="p">]</span> <span class="o">&gt;</span> <span class="p">(</span><span class="n">mean_ctrl</span> <span class="o">+</span> <span class="n">zscore_treshold</span> <span class="o">*</span> <span class="n">std_ctrl</span><span class="p">))</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">negative_is_strong</span><span class="p">:</span>
+        <span class="k">return</span> <span class="s2">&quot;Significantly stronger coverage drop&quot;</span>
+
+    <span class="c1"># If a strong sample should have a very positive value, a sing. weaker sample needs to have a more negative value</span>
+    <span class="c1"># than controls MINUS Std</span>
+    <span class="k">elif</span> <span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="n">col</span><span class="p">]</span> <span class="o">&lt;</span> <span class="p">(</span><span class="n">mean_ctrl</span> <span class="o">-</span> <span class="n">zscore_treshold</span> <span class="o">*</span> <span class="n">std_ctrl</span><span class="p">))</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">negative_is_strong</span><span class="p">:</span>
+        <span class="k">return</span> <span class="s2">&quot;Significantly weaker coverage drop&quot;</span>
+
+    <span class="k">elif</span> <span class="n">row</span><span class="p">[</span><span class="n">col</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">mean_ctrl</span> <span class="ow">and</span> <span class="n">negative_is_strong</span><span class="p">:</span>
+        <span class="k">return</span> <span class="s2">&quot;n.s.&quot;</span>
+    <span class="k">elif</span> <span class="n">row</span><span class="p">[</span><span class="n">col</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">mean_ctrl</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">negative_is_strong</span><span class="p">:</span>
+        <span class="k">return</span> <span class="s2">&quot;n.s.&quot;</span>
+    <span class="k">elif</span> <span class="n">row</span><span class="p">[</span><span class="n">col</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">mean_ctrl</span> <span class="ow">and</span> <span class="n">negative_is_strong</span><span class="p">:</span>
+        <span class="k">return</span> <span class="s2">&quot;n.s.&quot;</span>
+    <span class="k">elif</span> <span class="n">row</span><span class="p">[</span><span class="n">col</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">mean_ctrl</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">negative_is_strong</span><span class="p">:</span>
+        <span class="k">return</span> <span class="s2">&quot;n.s.&quot;</span>
+    <span class="k">elif</span> <span class="n">row</span><span class="p">[</span><span class="n">col</span><span class="p">]</span> <span class="o">==</span> <span class="n">mean_ctrl</span><span class="p">:</span>
+        <span class="k">return</span> <span class="s2">&quot;equal to control mean&quot;</span>
+    <span class="k">elif</span> <span class="n">row</span><span class="p">[</span><span class="n">col</span><span class="p">]</span> <span class="o">!=</span> <span class="n">row</span><span class="p">[</span><span class="n">col</span><span class="p">]:</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span></div>
+
+
+<div class="viewcode-block" id="zscore_to_control"><a class="viewcode-back" href="../../liquorice.html#liquorice.LIQUORICE_summary.zscore_to_control">[docs]</a><span class="k">def</span> <span class="nf">zscore_to_control</span><span class="p">(</span><span class="n">row</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">,</span> <span class="n">control_df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">col</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span>  <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    For a row in a dataframe, find control values for the same regionset and return the zscore of the sample compared to</span>
+<span class="sd">    these controls, as measured by metric &quot;col&quot;.</span>
+
+<span class="sd">    :param row: A pd.Series with the columns &#39;region-set&#39;, &#39;is control&#39;, and **col**, corresponding to a single sample.</span>
+<span class="sd">    :param control_df: A `pandas.DataFrame` with at least the columns &#39;region-set&#39;, and **col**. Should only</span>
+<span class="sd">        contain data of control samples.</span>
+<span class="sd">    :param col: Calculate z-score by comparing this metric between the sample and controls.</span>
+<span class="sd">    :return: z-score, rounded to 2 decimals</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">mean_ctrl</span> <span class="o">=</span> <span class="n">control_df</span><span class="p">[</span><span class="n">control_df</span><span class="p">[</span><span class="s2">&quot;region-set&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="n">row</span><span class="p">[</span><span class="s2">&quot;region-set&quot;</span><span class="p">]]</span><span class="o">.</span><span class="n">mean</span><span class="p">()[</span><span class="n">col</span><span class="p">]</span>
+    <span class="n">std_ctrl</span> <span class="o">=</span> <span class="n">control_df</span><span class="p">[</span><span class="n">control_df</span><span class="p">[</span><span class="s2">&quot;region-set&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="n">row</span><span class="p">[</span><span class="s2">&quot;region-set&quot;</span><span class="p">]]</span><span class="o">.</span><span class="n">std</span><span class="p">()[</span><span class="n">col</span><span class="p">]</span>
+    <span class="k">return</span> <span class="nb">round</span><span class="p">((</span><span class="n">row</span><span class="p">[</span><span class="n">col</span><span class="p">]</span> <span class="o">-</span> <span class="n">mean_ctrl</span><span class="p">)</span> <span class="o">/</span> <span class="n">std_ctrl</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="get_list_of_coveragefiles"><a class="viewcode-back" href="../../liquorice.html#liquorice.LIQUORICE_summary.get_list_of_coveragefiles">[docs]</a><span class="k">def</span> <span class="nf">get_list_of_coveragefiles</span><span class="p">(</span><span class="n">dirname</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">regionset</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">use_uncorrected_coverage</span><span class="p">:</span><span class="nb">bool</span> <span class="o">=</span><span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Return a list of &#39;corrected_coverage_mean_per_bin.csv&#39; or &#39;uncorrected_coverage_mean_per_bin.csv&#39; files, or</span>
+<span class="sd">    return an error if no such files could be found.</span>
+
+<span class="sd">    :param dirname: path to LIQUORICE output directory</span>
+<span class="sd">    :param regionset: Name of the regionset of interest</span>
+<span class="sd">    :param use_uncorrected_coverage: If True, load &#39;uncorrected_coverage_mean_per_bin.csv&#39; files, else, load</span>
+<span class="sd">        &#39;corrected_coverage_mean_per_bin.csv files</span>
+<span class="sd">    :return: A list of &#39;corrected_coverage_mean_per_bin.csv&#39; or &#39;uncorrected_coverage_mean_per_bin.csv&#39; file paths</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">use_uncorrected_coverage</span><span class="p">:</span>
+        <span class="n">coverage_filelist</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">glob</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%s</span><span class="s2">/*/</span><span class="si">%s</span><span class="s2">/corrected_coverage_mean_per_bin.csv&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">dirname</span><span class="p">,</span> <span class="n">regionset</span><span class="p">)))</span> <span class="o">+</span> \
+                            <span class="nb">sorted</span><span class="p">(</span><span class="n">glob</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%s</span><span class="s2">/</span><span class="si">%s</span><span class="s2">/corr_coverageerage_mean_per_bin.csv&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">dirname</span><span class="p">,</span> <span class="n">regionset</span><span class="p">)))</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">coverage_filelist</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span>
+            <span class="n">glob</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%s</span><span class="s2">/*/</span><span class="si">%s</span><span class="s2">/uncorrected_coverage_mean_per_bin.csv&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">dirname</span><span class="p">,</span> <span class="n">regionset</span><span class="p">)))</span> <span class="o">+</span> <span class="nb">sorted</span><span class="p">(</span>
+            <span class="n">glob</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%s</span><span class="s2">/</span><span class="si">%s</span><span class="s2">/uncorrected_coverage_mean_per_bin.csv&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">dirname</span><span class="p">,</span> <span class="n">regionset</span><span class="p">)))</span>
+
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">coverage_filelist</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">filename</span> <span class="o">=</span> <span class="s1">&#39;corrected_coverage_mean_per_bin.csv&#39;</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">use_uncorrected_coverage</span> <span class="k">else</span> <span class="s1">&#39;coverage_mean_per_bin.csv&#39;</span>
+        <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;ERROR: could not find any files with the name </span><span class="si">{</span><span class="n">filename</span><span class="si">}</span><span class="s2">. Please check that you specified the &quot;</span>
+                 <span class="sa">f</span><span class="s2">&quot;correct directory and check the --use_uncorrected_coverage setting.&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">coverage_filelist</span></div>
+
+
+<div class="viewcode-block" id="verify_consistant_binning_settings"><a class="viewcode-back" href="../../liquorice.html#liquorice.LIQUORICE_summary.verify_consistant_binning_settings">[docs]</a><span class="k">def</span> <span class="nf">verify_consistant_binning_settings</span><span class="p">(</span><span class="n">dirname</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">regionset</span><span class="p">:</span><span class="nb">str</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Asserts that, for the given regionset, all samples have the same binning settings.</span>
+<span class="sd">    Calls `sys.exit()` with an error message if settings are inconsistent or cannot be found.</span>
+
+<span class="sd">    :param regionset_list: A list of region-sets to be analyzed.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">binsize</span><span class="o">=</span><span class="kc">None</span>
+    <span class="n">extend_to</span><span class="o">=</span><span class="kc">None</span>
+    <span class="n">binning_settings_glob</span><span class="o">=</span><span class="n">glob</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%s</span><span class="s2">/*/</span><span class="si">%s</span><span class="s2">/binning_settings.json&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">dirname</span><span class="p">,</span> <span class="n">regionset</span><span class="p">))</span>
+
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">binning_settings_glob</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">glob</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">dirname</span><span class="si">}</span><span class="s2">/*/</span><span class="si">{</span><span class="n">regionset</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)):</span>
+        <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Could not detect a binning_settings.json file for every sample-directory in </span><span class="si">{</span><span class="n">regionset</span><span class="si">}</span><span class="s2">. Aborting.&quot;</span>
+                 <span class="sa">f</span><span class="s2">&quot;You can specify --extend_to and --binsize manually, add the missing files, or remove the incomplete&quot;</span>
+                 <span class="sa">f</span><span class="s2">&quot;sample-directories.&quot;</span><span class="p">)</span>
+    <span class="n">sample</span><span class="o">=</span><span class="kc">None</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">binning_setting</span> <span class="ow">in</span> <span class="n">binning_settings_glob</span><span class="p">:</span>
+            <span class="n">sample</span><span class="o">=</span><span class="n">binning_setting</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;/&quot;</span><span class="p">)[</span><span class="o">-</span><span class="mi">3</span><span class="p">]</span>
+            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">binning_setting</span><span class="p">)</span> <span class="k">as</span> <span class="n">json_file</span><span class="p">:</span>
+                <span class="n">settings_dict</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">json_file</span><span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">binsize</span><span class="p">:</span>
+                <span class="n">binsize</span><span class="o">=</span><span class="n">settings_dict</span><span class="p">[</span><span class="s2">&quot;binsize&quot;</span><span class="p">]</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">extend_to</span><span class="p">:</span>
+                <span class="n">extend_to</span><span class="o">=</span><span class="n">settings_dict</span><span class="p">[</span><span class="s2">&quot;extend_to&quot;</span><span class="p">]</span>
+            <span class="k">assert</span> <span class="n">binsize</span><span class="o">==</span><span class="n">settings_dict</span><span class="p">[</span><span class="s2">&quot;binsize&quot;</span><span class="p">]</span>
+            <span class="k">assert</span> <span class="n">extend_to</span><span class="o">==</span><span class="n">settings_dict</span><span class="p">[</span><span class="s2">&quot;extend_to&quot;</span><span class="p">]</span>
+
+    <span class="k">except</span> <span class="ne">AssertionError</span><span class="p">:</span>
+        <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Found binning settings that are inconsistant between samples for regionset </span><span class="si">{</span><span class="n">regionset</span><span class="si">}</span><span class="s2">.&quot;</span>
+                 <span class="sa">f</span><span class="s2">&quot;The conflicting samples include: </span><span class="si">{</span><span class="n">sample</span><span class="si">}</span><span class="s2"> and </span><span class="si">{</span><span class="n">binning_settings_glob</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s2"> (and maybe more).&quot;</span>
+                 <span class="sa">f</span><span class="s2">&quot;Seems like LIQUORICE has been called with different --extend_to and/or --binsize parameters in&quot;</span>
+                 <span class="sa">f</span><span class="s2">&quot;the same working directory and for the same region-set (or the same region-set-name). &quot;</span>
+                 <span class="sa">f</span><span class="s2">&quot;Re-run LIQUORICE with consistant&quot;</span>
+                 <span class="sa">f</span><span class="s2">&quot;settings or move the inconsistent result folders to a different directory. &quot;</span>
+                 <span class="sa">f</span><span class="s2">&quot;The summary table has been generated regardless, but summary plots cannot be generated.&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="get_binsize_and_extendto_from_saved_settings"><a class="viewcode-back" href="../../liquorice.html#liquorice.LIQUORICE_summary.get_binsize_and_extendto_from_saved_settings">[docs]</a><span class="k">def</span> <span class="nf">get_binsize_and_extendto_from_saved_settings</span><span class="p">(</span><span class="n">dirname</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">regionset</span><span class="p">:</span><span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span><span class="nb">int</span><span class="p">]:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Calls :func:`verify_consistant_binning_settings` and returns the binsize and extend_to settings used by LIQUORICE</span>
+<span class="sd">    for a given regionset, if no error is raised.</span>
+
+<span class="sd">    :param dirname: Path to LIQUORICE&#39;s working directory.</span>
+<span class="sd">    :param regionset: Name of the regionset of interest.</span>
+<span class="sd">    :return: A tuple with two integers: binsize and extend_to.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">verify_consistant_binning_settings</span><span class="p">(</span><span class="n">dirname</span><span class="o">=</span><span class="n">dirname</span><span class="p">,</span><span class="n">regionset</span><span class="o">=</span><span class="n">regionset</span><span class="p">)</span>
+    <span class="n">binning_settings_glob</span><span class="o">=</span><span class="n">glob</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%s</span><span class="s2">/*/</span><span class="si">%s</span><span class="s2">/binning_settings.json&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">dirname</span><span class="p">,</span> <span class="n">regionset</span><span class="p">))</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">binning_settings_glob</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="k">as</span> <span class="n">json_file</span><span class="p">:</span>
+        <span class="n">settings_dict</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">json_file</span><span class="p">)</span>
+        <span class="n">binsize</span><span class="o">=</span><span class="n">settings_dict</span><span class="p">[</span><span class="s2">&quot;binsize&quot;</span><span class="p">]</span>
+        <span class="n">extend_to</span><span class="o">=</span><span class="n">settings_dict</span><span class="p">[</span><span class="s2">&quot;extend_to&quot;</span><span class="p">]</span>
+
+    <span class="k">return</span> <span class="n">binsize</span><span class="p">,</span><span class="n">extend_to</span></div>
+
+
+<div class="viewcode-block" id="plot_overlay"><a class="viewcode-back" href="../../liquorice.html#liquorice.LIQUORICE_summary.plot_overlay">[docs]</a><span class="k">def</span> <span class="nf">plot_overlay</span><span class="p">(</span><span class="n">dirname</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">summary_df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">control_name_list</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
+                 <span class="n">extend_to</span> <span class="p">:</span> <span class="nb">int</span> <span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">binsize</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">normalize_by_intercept</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">smooth_sigma</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span><span class="mi">3</span><span class="p">,</span>
+                 <span class="n">significance_col</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;Dip area: interpretation vs controls in same region set&quot;</span><span class="p">,</span>
+                 <span class="n">use_uncorrected_coverage</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span><span class="kc">False</span><span class="p">,</span><span class="n">alpha</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">linewidth</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span><span class="mi">3</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Summarize plots, create one plot per regionset. Control samples are compared to case samples, significant changes</span>
+<span class="sd">    (based on z-scores; assumes normal distribution of controls) are marked by color.</span>
+<span class="sd">    **smooth_sigma** can be used to make the plots smoother and easier to compare - this is a visual</span>
+<span class="sd">    effect only.</span>
+
+<span class="sd">    :param dirname: Path to LIQUORICE&#39;s working directory.</span>
+<span class="sd">    :param summary_df: The output of the function :func:`create_summary_table_LIQUORICE`.</span>
+<span class="sd">    :param control_name_list: List of names of samples that should be plotted as controls.  Can be empty.</span>
+<span class="sd">    :param extend_to: *extend_to* setting that was used when running LIQUORICE. If None, infer from the</span>
+<span class="sd">        binning_settings.json files that are saved by LIQUORICE by default.</span>
+<span class="sd">    :param binsize: *binsize* setting that was used when running LIQUORICE. If None, infer from the</span>
+<span class="sd">        binning_settings.json files that are saved by LIQUORICE by default.</span>
+<span class="sd">    :param normalize_by_intercept: If True, extract the intercept from the fitted model to normalize the dips between</span>
+<span class="sd">        samples (intercept of each sample is positioned at y=0). Otherwise, the mean coverage of each sample is</span>
+<span class="sd">        positioned at y=0.</span>
+<span class="sd">    :param smooth_sigma: Visually smooth the coverage signals, using this strength of smoothing. Higher values indicate</span>
+<span class="sd">        stronger smoothing. Set to 0 for no smoothing.</span>
+<span class="sd">    :param significance_col: Use this columns as an indicator for significant differences between case and control</span>
+<span class="sd">        samples. Can contain the following values: &quot;Significantly stronger coverage drop&quot;,</span>
+<span class="sd">        &quot;Significantly weaker coverage drop&quot;, &quot;n.s.&quot;, and &quot;N/A&quot;.</span>
+<span class="sd">    :param use_uncorrected_coverage: If True, plot the coverage profile that is not corrected for biases by LIQUORICE.</span>
+<span class="sd">    :param alpha: Alpha (transparency) parameter for plotting.</span>
+<span class="sd">    :param linewidth: Linewidth parameter for plotting</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">regionset_list</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">summary_df</span><span class="p">[</span><span class="s2">&quot;region-set&quot;</span><span class="p">]))</span>
+
+    <span class="k">for</span> <span class="n">regionset</span> <span class="ow">in</span> <span class="n">regionset_list</span><span class="p">:</span>
+
+        <span class="k">if</span> <span class="n">binsize</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">extend_to</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">inferred_binsize</span><span class="p">,</span> <span class="n">inferred_extend_to</span> <span class="o">=</span> <span class="n">get_binsize_and_extendto_from_saved_settings</span><span class="p">(</span>
+                <span class="n">dirname</span><span class="o">=</span><span class="n">dirname</span><span class="p">,</span><span class="n">regionset</span><span class="o">=</span><span class="n">regionset</span><span class="p">)</span>
+        <span class="n">binsize</span> <span class="o">=</span> <span class="n">binsize</span> <span class="k">if</span> <span class="n">binsize</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">inferred_binsize</span>
+        <span class="n">extend_to</span> <span class="o">=</span> <span class="n">extend_to</span> <span class="k">if</span> <span class="n">extend_to</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">inferred_extend_to</span>
+
+
+        <span class="n">coverage_filelist</span><span class="o">=</span><span class="n">get_list_of_coveragefiles</span><span class="p">(</span><span class="n">dirname</span><span class="p">,</span> <span class="n">regionset</span><span class="p">,</span>
+                                                    <span class="n">use_uncorrected_coverage</span><span class="o">=</span><span class="n">use_uncorrected_coverage</span><span class="p">)</span>
+
+        <span class="n">nr_samples</span> <span class="o">=</span> <span class="n">defaultdict</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+
+        <span class="n">fig</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">frameon</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="n">ax1</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="n">ctrl_ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">sharex</span><span class="o">=</span><span class="n">ax1</span><span class="p">,</span> <span class="n">sharey</span><span class="o">=</span><span class="n">ax1</span><span class="p">)</span>
+        <span class="n">case_ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="n">sharex</span><span class="o">=</span><span class="n">ax1</span><span class="p">,</span> <span class="n">sharey</span><span class="o">=</span><span class="n">ax1</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">coveragefile</span> <span class="ow">in</span> <span class="n">coverage_filelist</span><span class="p">:</span>
+
+            <span class="n">samplename</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="n">coveragefile</span><span class="p">)</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">parent</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;/&quot;</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+
+           <span class="c1"># avg_centersize=150</span>
+            <span class="n">regions_df</span><span class="o">=</span><span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s2">&quot;/&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">coveragefile</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;/&quot;</span><span class="p">)[:</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span><span class="o">+</span><span class="s2">&quot;/regions.bed&quot;</span><span class="p">,</span><span class="n">sep</span><span class="o">=</span><span class="s2">&quot;</span><span class="se">\t</span><span class="s2">&quot;</span><span class="p">,</span><span class="n">header</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+            <span class="n">avg_centersize</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="nb">round</span><span class="p">((</span><span class="n">regions_df</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">-</span><span class="n">regions_df</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span><span class="o">.</span><span class="n">mean</span><span class="p">()))</span>
+
+            <span class="n">summary_df_this_sample_and_region</span> <span class="o">=</span> <span class="n">summary_df</span><span class="p">[</span>
+                <span class="p">(</span><span class="n">summary_df</span><span class="p">[</span><span class="s2">&quot;sample&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="n">samplename</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">summary_df</span><span class="p">[</span><span class="s2">&quot;region-set&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="n">regionset</span><span class="p">)]</span>
+            <span class="k">if</span> <span class="n">summary_df_this_sample_and_region</span><span class="o">.</span><span class="n">empty</span><span class="p">:</span>
+                <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;ERROR: Could not find an entry corresponding to </span><span class="si">{</span><span class="n">samplename</span><span class="si">}</span><span class="s2"> in the &quot;</span>
+                         <span class="sa">f</span><span class="s2">&quot;summary_across_samples_and_ROIS.csv file. Please ensure that the folder names and the&quot;</span>
+                         <span class="sa">f</span><span class="s2">&quot; sample name entry in </span><span class="si">{</span><span class="n">samplename</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">regionset</span><span class="si">}</span><span class="s2">/fitted_gaussians_parameter_summary.csv are&quot;</span>
+                         <span class="sa">f</span><span class="s2">&quot;consistant - i.e. do not rename the sample-wise output directories of LIQUORICE (or edit the&quot;</span>
+                         <span class="sa">f</span><span class="s2">&quot; fitted_gaussians_parameter_summary.csv file accordingly).&quot;</span><span class="p">)</span>
+            <span class="n">df_cov</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">coveragefile</span><span class="p">)</span>
+            <span class="n">cov_col</span><span class="o">=</span><span class="n">df_cov</span><span class="o">.</span><span class="n">columns</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+
+
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">normalize_by_intercept</span><span class="p">:</span>
+                <span class="n">y_norm</span> <span class="o">=</span> <span class="p">[</span><span class="n">y</span> <span class="o">-</span> <span class="n">df_cov</span><span class="p">[</span><span class="n">cov_col</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span> <span class="k">for</span> <span class="n">y</span> <span class="ow">in</span> <span class="n">df_cov</span><span class="p">[</span><span class="n">cov_col</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">intercept</span> <span class="o">=</span> <span class="n">summary_df_this_sample_and_region</span><span class="p">[</span><span class="s2">&quot;Intercept&quot;</span><span class="p">]</span>
+                <span class="n">y_norm</span> <span class="o">=</span> <span class="p">[</span><span class="n">y</span> <span class="o">-</span> <span class="n">intercept</span> <span class="k">for</span> <span class="n">y</span> <span class="ow">in</span> <span class="n">df_cov</span><span class="p">[</span><span class="n">cov_col</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">smooth_sigma</span><span class="p">:</span>
+                <span class="n">y_norm</span> <span class="o">=</span> <span class="n">ndimage</span><span class="o">.</span><span class="n">gaussian_filter</span><span class="p">(</span><span class="n">y_norm</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;nearest&quot;</span><span class="p">,</span> <span class="n">sigma</span><span class="o">=</span><span class="n">smooth_sigma</span><span class="p">)</span>
+
+
+            <span class="n">central_bin_x_values</span><span class="o">=</span><span class="p">[</span><span class="n">x</span><span class="o">*</span><span class="n">avg_centersize</span><span class="o">-</span><span class="n">avg_centersize</span><span class="o">/</span><span class="mi">2</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="p">[</span><span class="mf">0.05</span><span class="p">,</span><span class="mf">0.175</span><span class="p">,</span><span class="mf">0.5</span><span class="p">,</span><span class="mf">0.825</span><span class="p">,</span><span class="mf">0.95</span><span class="p">]]</span>
+            <span class="n">x</span><span class="o">=</span><span class="nb">list</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="o">-</span><span class="n">extend_to</span><span class="p">,</span><span class="n">extend_to</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span> <span class="n">binsize</span><span class="p">))</span> <span class="c1"># set x such that all bins have the same size</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="o">!=</span><span class="nb">len</span><span class="p">(</span><span class="n">y_norm</span><span class="p">):</span> <span class="c1"># check if this fits the actual data</span>
+                <span class="c1"># if not, assume that the core region has been split differently, as given in central_bin_x_values.</span>
+                <span class="n">x</span><span class="o">=</span><span class="nb">list</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="o">-</span><span class="n">extend_to</span><span class="o">+</span><span class="p">(</span><span class="n">binsize</span><span class="o">/</span><span class="mi">2</span><span class="p">)</span><span class="o">-</span><span class="n">avg_centersize</span><span class="o">/</span><span class="mi">2</span><span class="p">,(</span><span class="n">binsize</span><span class="o">/</span><span class="mi">2</span><span class="p">)</span><span class="o">-</span><span class="n">avg_centersize</span><span class="o">/</span><span class="mi">2</span><span class="p">,</span><span class="n">binsize</span><span class="p">))</span><span class="o">+</span><span class="n">central_bin_x_values</span><span class="o">+</span><span class="nb">list</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">avg_centersize</span><span class="o">/</span><span class="mi">2</span><span class="o">+</span><span class="p">(</span><span class="n">binsize</span><span class="o">/</span><span class="mi">2</span><span class="p">),</span><span class="n">extend_to</span><span class="o">+</span><span class="n">avg_centersize</span><span class="o">/</span><span class="mi">2</span><span class="o">+</span><span class="p">(</span><span class="n">binsize</span><span class="o">/</span><span class="mi">2</span><span class="p">),</span><span class="n">binsize</span><span class="p">))</span>
+
+            <span class="k">try</span><span class="p">:</span>
+                <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">y_norm</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">AssertionError</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="p">),</span><span class="nb">len</span><span class="p">(</span><span class="n">y_norm</span><span class="p">))</span>
+                <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;ERROR: --binsize and/or --extend_to does not fit to the df </span><span class="si">{</span><span class="n">coveragefile</span><span class="si">}</span><span class="s2">. &quot;</span>
+                         <span class="s2">&quot;Are you sure you entered the same parameters as originally used for LIQUOIRCE? &quot;</span>
+                         <span class="s2">&quot;Please adjust them accordingly. Aborting&quot;</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">samplename</span> <span class="ow">in</span> <span class="n">control_name_list</span><span class="p">:</span>
+                <span class="n">plt</span><span class="o">.</span><span class="n">sca</span><span class="p">(</span><span class="n">ctrl_ax</span><span class="p">)</span>
+                <span class="n">plt</span><span class="o">.</span><span class="n">gca</span><span class="p">()</span><span class="o">.</span><span class="n">spines</span><span class="p">[</span><span class="s1">&#39;top&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">set_visible</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+                <span class="n">plt</span><span class="o">.</span><span class="n">gca</span><span class="p">()</span><span class="o">.</span><span class="n">spines</span><span class="p">[</span><span class="s1">&#39;right&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">set_visible</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+                <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y_norm</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="n">alpha</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;seagreen&quot;</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="n">linewidth</span><span class="p">,</span> <span class="n">zorder</span><span class="o">=</span><span class="mi">9</span><span class="p">)</span>
+                <span class="n">nr_samples</span><span class="p">[</span><span class="s2">&quot;ctrl&quot;</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">plt</span><span class="o">.</span><span class="n">sca</span><span class="p">(</span><span class="n">case_ax</span><span class="p">)</span>
+                <span class="n">plt</span><span class="o">.</span><span class="n">gca</span><span class="p">()</span><span class="o">.</span><span class="n">yaxis</span><span class="o">.</span><span class="n">set_visible</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+                <span class="n">plt</span><span class="o">.</span><span class="n">gca</span><span class="p">()</span><span class="o">.</span><span class="n">spines</span><span class="p">[</span><span class="s1">&#39;top&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">set_visible</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+                <span class="n">plt</span><span class="o">.</span><span class="n">gca</span><span class="p">()</span><span class="o">.</span><span class="n">spines</span><span class="p">[</span><span class="s1">&#39;right&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">set_visible</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+                <span class="n">plt</span><span class="o">.</span><span class="n">gca</span><span class="p">()</span><span class="o">.</span><span class="n">spines</span><span class="p">[</span><span class="s1">&#39;left&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">set_visible</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+
+                <span class="k">if</span> <span class="n">summary_df_this_sample_and_region</span><span class="p">[</span><span class="n">significance_col</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">!=</span> \
+                                 <span class="n">summary_df_this_sample_and_region</span><span class="p">[</span><span class="n">significance_col</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span>
+                    <span class="n">significance_status</span><span class="o">=</span><span class="s2">&quot;n.s.&quot;</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">significance_status</span><span class="o">=</span><span class="n">summary_df_this_sample_and_region</span><span class="p">[</span><span class="n">significance_col</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                <span class="n">nr_samples</span><span class="p">[</span><span class="n">significance_status</span><span class="p">]</span><span class="o">+=</span><span class="mi">1</span>
+                <span class="n">sign_to_color_dict</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;Significantly stronger coverage drop&quot;</span><span class="p">:</span><span class="s2">&quot;firebrick&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;Significantly weaker coverage drop&quot;</span><span class="p">:</span><span class="s2">&quot;darkblue&quot;</span><span class="p">,</span> <span class="s2">&quot;n.s.&quot;</span><span class="p">:</span><span class="s2">&quot;grey&quot;</span><span class="p">,</span><span class="s2">&quot;N/A&quot;</span><span class="p">:</span><span class="s2">&quot;grey&quot;</span><span class="p">}</span>
+                <span class="n">color</span><span class="o">=</span><span class="n">sign_to_color_dict</span><span class="p">[</span><span class="n">significance_status</span><span class="p">]</span>
+
+                <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="p">[</span><span class="n">val_list</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">val_list</span> <span class="ow">in</span> <span class="n">y_norm</span><span class="p">]</span> <span class="k">if</span> <span class="n">normalize_by_intercept</span> <span class="k">else</span> <span class="n">y_norm</span><span class="p">,</span>
+                         <span class="n">alpha</span><span class="o">=</span><span class="n">alpha</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">color</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="n">linewidth</span><span class="p">,</span> <span class="n">zorder</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">legend_elems</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">Line2D</span><span class="p">([</span><span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">lw</span><span class="o">=</span><span class="mf">1.5</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;firebrick&quot;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;Case samples with significantly stronger coverage drop, &#39;</span>
+                                                              <span class="sa">f</span><span class="s1">&#39;n=</span><span class="si">{</span><span class="n">nr_samples</span><span class="p">[</span><span class="s2">&quot;Significantly stronger coverage drop&quot;</span><span class="p">]</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">markersize</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span>
+            <span class="n">Line2D</span><span class="p">([</span><span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">lw</span><span class="o">=</span><span class="mf">1.5</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;darkblue&quot;</span><span class="p">,</span><span class="n">label</span><span class="o">=</span><span class="s1">&#39;Case samples with significantly weaker coverage drop, &#39;</span>
+                                                            <span class="sa">f</span><span class="s1">&#39;n=</span><span class="si">{</span><span class="n">nr_samples</span><span class="p">[</span><span class="s2">&quot;Significantly weaker coverage drop&quot;</span><span class="p">]</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">markersize</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span>
+            <span class="n">Line2D</span><span class="p">([</span><span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">lw</span><span class="o">=</span><span class="mf">1.5</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;silver&quot;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;Case samples not sign. different &#39;</span>
+                                                           <span class="s1">&#39;(or if no ctrls available), &#39;</span>
+                                                           <span class="sa">f</span><span class="s1">&#39;n=</span><span class="si">{</span><span class="n">nr_samples</span><span class="p">[</span><span class="s2">&quot;n.s.&quot;</span><span class="p">]</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">markersize</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span>
+            <span class="n">Line2D</span><span class="p">([</span><span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">lw</span><span class="o">=</span><span class="mf">1.2</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;darkseagreen&quot;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;Control samples, n=</span><span class="si">{</span><span class="n">nr_samples</span><span class="p">[</span><span class="s2">&quot;ctrl&quot;</span><span class="p">]</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">,</span>
+                   <span class="n">markersize</span><span class="o">=</span><span class="mi">1</span><span class="p">)]</span>
+
+        <span class="n">plt</span><span class="o">.</span><span class="n">suptitle</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Overlay plot for region-set </span><span class="si">{</span><span class="n">regionset</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">ttl</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">gca</span><span class="p">()</span><span class="o">.</span><span class="n">title</span>
+        <span class="n">ttl</span><span class="o">.</span><span class="n">set_position</span><span class="p">([</span><span class="mf">.5</span><span class="p">,</span> <span class="mf">1.05</span><span class="p">])</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">xlim</span><span class="p">([</span><span class="o">-</span><span class="n">extend_to</span><span class="p">,</span> <span class="n">extend_to</span><span class="p">])</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">sca</span><span class="p">(</span><span class="n">ctrl_ax</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">handles</span><span class="o">=</span><span class="n">legend_elems</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">13</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Bias corrected coverage, normalized by </span><span class="si">{</span><span class="s1">&#39;intercept&#39;</span> <span class="k">if</span> <span class="n">normalize_by_intercept</span> <span class="k">else</span> <span class="s1">&#39;mean&#39;</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">labelpad</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s2">&quot;Relative distance to center of ROI [bp]&quot;</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">sca</span><span class="p">(</span><span class="n">case_ax</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s2">&quot;Relative distance to center of ROI [bp]&quot;</span><span class="p">)</span>
+
+        <span class="n">fig</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">gcf</span><span class="p">()</span>
+        <span class="n">fig</span><span class="o">.</span><span class="n">set_size_inches</span><span class="p">(</span><span class="mi">16</span><span class="p">,</span> <span class="mi">9</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">subplots_adjust</span><span class="p">(</span><span class="n">left</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span> <span class="n">right</span><span class="o">=</span><span class="mf">0.965</span><span class="p">,</span> <span class="n">bottom</span><span class="o">=</span><span class="mf">0.14</span><span class="p">,</span> <span class="n">top</span><span class="o">=</span><span class="mf">0.9</span><span class="p">,</span> <span class="n">hspace</span><span class="o">=</span><span class="mf">0.25</span><span class="p">)</span>
+       <span class="c1"># plt.locator_params(axis=&#39;y&#39;, nbins=5)</span>
+        <span class="n">fname</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">regionset</span><span class="si">}</span><span class="s2">_summary_plot_overlay_of_samples_by_</span><span class="si">{</span><span class="s1">&#39;_&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">significance_col</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39; &#39;</span><span class="p">)[:</span><span class="mi">2</span><span class="p">])</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;:&#39;</span><span class="p">,</span><span class="s1">&#39;&#39;</span><span class="p">)</span><span class="o">+</span><span class="p">(</span><span class="s1">&#39;_using_uncorrected_coverage&#39;</span> <span class="k">if</span> <span class="n">use_uncorrected_coverage</span> <span class="k">else</span> <span class="s1">&#39;&#39;</span><span class="p">)</span><span class="si">}</span><span class="s2">.pdf&quot;</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="n">fname</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="get_ymin_ymax_over_all_samples"><a class="viewcode-back" href="../../liquorice.html#liquorice.LIQUORICE_summary.get_ymin_ymax_over_all_samples">[docs]</a><span class="k">def</span> <span class="nf">get_ymin_ymax_over_all_samples</span><span class="p">(</span><span class="n">coverage_filelist</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
+                                   <span class="n">normalize_by_intercept</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span> <span class="n">regionset</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">summary_df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">)</span> \
+        <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span><span class="nb">float</span><span class="p">]:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Get the the upper and lower limits for the y-axis for a given regionset, such that the same scale is used for all</span>
+<span class="sd">    samples.</span>
+
+<span class="sd">    :param coverage_filelist: List of &#39;corrected_coverage_mean_per_bin.csv&#39; (or &#39;uncorrected_coverage_mean_per_bin.csv&#39;)</span>
+<span class="sd">     files</span>
+<span class="sd">    :param normalize_by_intercept: f True, extract the intercept from the fitted model to normalize the dips between</span>
+<span class="sd">        samples (intercept of each sample is positioned at y=0). Otherwise, the mean coverage of each sample is</span>
+<span class="sd">        positioned at y=0.</span>
+<span class="sd">    :param regionset: Name of the regionset of intest as given in the summary_df</span>
+<span class="sd">    :param summary_df: pd.DataFrame with columns &#39;sample&#39;, &#39;region-set&#39;, and &#39;Intercept&#39;.</span>
+<span class="sd">    :return: A tuple of floats: y_min,y_max</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Figure out the min and max over all samples such that they can be drawn to same scale</span>
+    <span class="n">y_min_list</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">y_max_list</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">coveragefile</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">coverage_filelist</span><span class="p">):</span>
+        <span class="n">df_cov</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">coveragefile</span><span class="p">)</span>
+        <span class="n">cov_col</span> <span class="o">=</span> <span class="n">df_cov</span><span class="o">.</span><span class="n">columns</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">normalize_by_intercept</span><span class="p">:</span>
+            <span class="n">y_max_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">max</span><span class="p">([</span><span class="n">y</span> <span class="o">-</span> <span class="n">df_cov</span><span class="p">[</span><span class="n">cov_col</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span> <span class="k">for</span> <span class="n">y</span> <span class="ow">in</span> <span class="n">df_cov</span><span class="p">[</span><span class="n">cov_col</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">]))</span>
+            <span class="n">y_min_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">min</span><span class="p">([</span><span class="n">y</span> <span class="o">-</span> <span class="n">df_cov</span><span class="p">[</span><span class="n">cov_col</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span> <span class="k">for</span> <span class="n">y</span> <span class="ow">in</span> <span class="n">df_cov</span><span class="p">[</span><span class="n">cov_col</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">]))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">samplename</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="n">coveragefile</span><span class="p">)</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">parent</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;/&quot;</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+            <span class="n">summary_df_this_sample_and_region</span> <span class="o">=</span> <span class="n">summary_df</span><span class="p">[</span>
+                <span class="p">(</span><span class="n">summary_df</span><span class="p">[</span><span class="s2">&quot;sample&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="n">samplename</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">summary_df</span><span class="p">[</span><span class="s2">&quot;region-set&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="n">regionset</span><span class="p">)]</span>
+            <span class="n">intercept</span> <span class="o">=</span> <span class="n">summary_df_this_sample_and_region</span><span class="p">[</span><span class="s2">&quot;Intercept&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">y_max_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">max</span><span class="p">([</span><span class="n">y</span> <span class="o">-</span> <span class="n">intercept</span> <span class="k">for</span> <span class="n">y</span> <span class="ow">in</span> <span class="n">df_cov</span><span class="p">[</span><span class="n">cov_col</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">]))</span>
+            <span class="n">y_min_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">min</span><span class="p">([</span><span class="n">y</span> <span class="o">-</span> <span class="n">intercept</span> <span class="k">for</span> <span class="n">y</span> <span class="ow">in</span> <span class="n">df_cov</span><span class="p">[</span><span class="n">cov_col</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">]))</span>
+    <span class="n">y_min</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">y_min_list</span><span class="p">)</span>
+    <span class="n">y_max</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">y_max_list</span><span class="p">)</span>
+    <span class="n">enlarge</span> <span class="o">=</span> <span class="p">(</span><span class="n">y_max</span> <span class="o">-</span> <span class="n">y_min</span><span class="p">)</span> <span class="o">*</span> <span class="mf">0.05</span>
+    <span class="n">y_min</span> <span class="o">=</span> <span class="n">y_min</span> <span class="o">-</span> <span class="n">enlarge</span>
+    <span class="n">y_max</span> <span class="o">=</span> <span class="n">y_max</span> <span class="o">+</span> <span class="n">enlarge</span>
+    <span class="k">return</span> <span class="n">y_min</span><span class="p">,</span> <span class="n">y_max</span></div>
+
+
+<div class="viewcode-block" id="plot_as_subplots"><a class="viewcode-back" href="../../liquorice.html#liquorice.LIQUORICE_summary.plot_as_subplots">[docs]</a><span class="k">def</span> <span class="nf">plot_as_subplots</span><span class="p">(</span><span class="n">dirname</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">summary_df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">control_name_list</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
+                     <span class="n">extend_to</span> <span class="p">:</span> <span class="nb">int</span> <span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">binsize</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                     <span class="n">normalize_by_intercept</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">smooth_sigma</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+                     <span class="n">significance_col</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;Dip area: interpretation vs controls in same region set&quot;</span><span class="p">,</span>
+                     <span class="n">use_uncorrected_coverage</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span><span class="kc">False</span><span class="p">,</span><span class="n">y_min_fixed</span><span class="p">:</span> <span class="nb">float</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">y_max_fixed</span><span class="p">:</span><span class="nb">float</span> <span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Summarize plots, create one set of plots per regionset. Control samples are compared to case samples, significant</span>
+<span class="sd">    changes are marked by color. **smooth_sigma** can be used to make the plots smoother and easier to compare, this is</span>
+<span class="sd">    a visual effect only.</span>
+
+<span class="sd">    :param dirname: Path to LIQUORICE&#39;s working directory.</span>
+<span class="sd">    :param summary_df: The output of the function :func:`create_summary_table_LIQUORICE`.</span>
+<span class="sd">    :param control_name_list: List of names of samples that should be plotted as controls.  Can be empty.</span>
+<span class="sd">    :param extend_to: *extend_to* setting that was used when running LIQUORICE. If None, infer from the</span>
+<span class="sd">        binning_settings.json files that are saved by LIQUORICE by default.</span>
+<span class="sd">    :param binsize: *binsize* setting that was used when running LIQUORICE. If None, infer from the</span>
+<span class="sd">        binning_settings.json files that are saved by LIQUORICE by default.</span>
+<span class="sd">    :param normalize_by_intercept: If True, extract the intercept from the fitted model to normalize the dips between</span>
+<span class="sd">        samples (intercept of each sample is positioned at y=0). Otherwise, the mean coverage of each sample is</span>
+<span class="sd">        positioned at y=0.</span>
+<span class="sd">    :param smooth_sigma: Visually smooth the coverage signals, using this strength of smoothing. Higher values indicate</span>
+<span class="sd">        stronger smoothing. Set to 0 for no smoothing.</span>
+<span class="sd">    :param significance_col: Use this columns as an indicator for significant differences between case and control</span>
+<span class="sd">        samples. Can contain the following values: &quot;Significantly stronger coverage drop&quot;,</span>
+<span class="sd">        &quot;Significantly weaker coverage drop&quot;, &quot;n.s.&quot;, and &quot;N/A&quot;.</span>
+<span class="sd">    :param use_uncorrected_coverage: If True, plot the coverage profile that is not corrected for biases by LIQUORICE.</span>
+<span class="sd">    :param y_min_fixed: If specified, use this value as the minimum value for the y axis.</span>
+<span class="sd">    :param y_min_fixed: If specified, use this value as the maximum value for the y axis.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">regionset_list</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">summary_df</span><span class="p">[</span><span class="s2">&quot;region-set&quot;</span><span class="p">]))</span>
+    <span class="k">for</span> <span class="n">regionnr</span><span class="p">,</span> <span class="n">regionset</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">regionset_list</span><span class="p">):</span>
+
+        <span class="k">if</span> <span class="n">binsize</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">extend_to</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">inferred_binsize</span><span class="p">,</span> <span class="n">inferred_extend_to</span> <span class="o">=</span> <span class="n">get_binsize_and_extendto_from_saved_settings</span><span class="p">(</span>
+                <span class="n">dirname</span><span class="o">=</span><span class="n">dirname</span><span class="p">,</span><span class="n">regionset</span><span class="o">=</span><span class="n">regionset</span><span class="p">)</span>
+        <span class="n">binsize</span> <span class="o">=</span> <span class="n">binsize</span> <span class="k">if</span> <span class="n">binsize</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">inferred_binsize</span>
+        <span class="n">extend_to</span> <span class="o">=</span> <span class="n">extend_to</span> <span class="k">if</span> <span class="n">extend_to</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">inferred_extend_to</span>
+
+        <span class="n">coverage_filelist</span><span class="o">=</span><span class="n">get_list_of_coveragefiles</span><span class="p">(</span><span class="n">dirname</span><span class="p">,</span> <span class="n">regionset</span><span class="p">,</span> <span class="n">use_uncorrected_coverage</span><span class="o">=</span><span class="n">use_uncorrected_coverage</span><span class="p">)</span>
+
+        <span class="n">fig</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">frameon</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+        <span class="n">y_min_auto</span><span class="p">,</span> <span class="n">y_max_auto</span> <span class="o">=</span> <span class="n">get_ymin_ymax_over_all_samples</span><span class="p">(</span><span class="n">coverage_filelist</span><span class="p">,</span> <span class="n">normalize_by_intercept</span><span class="p">,</span> <span class="n">regionset</span><span class="p">,</span>
+                                                                <span class="n">summary_df</span><span class="p">)</span>
+        <span class="n">y_min</span> <span class="o">=</span> <span class="n">y_min_fixed</span> <span class="k">if</span> <span class="n">y_min_fixed</span> <span class="k">else</span> <span class="n">y_min_auto</span>
+        <span class="n">y_max</span> <span class="o">=</span> <span class="n">y_max_fixed</span> <span class="k">if</span> <span class="n">y_max_fixed</span> <span class="k">else</span> <span class="n">y_max_auto</span>
+
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">coverage_filelist</span><span class="p">)</span><span class="o">&gt;=</span><span class="mi">40</span><span class="p">:</span>
+            <span class="n">n_rows_on_pdf</span><span class="o">=</span><span class="mi">5</span>
+            <span class="n">n_cols_on_pdf</span><span class="o">=</span><span class="mi">8</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">n_cols_on_pdf</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">ceil</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">coverage_filelist</span><span class="p">)</span><span class="o">/</span><span class="mi">2</span><span class="p">))</span>
+            <span class="n">n_rows_on_pdf</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">ceil</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">coverage_filelist</span><span class="p">)</span><span class="o">/</span><span class="mi">2</span><span class="p">))</span>
+        <span class="n">fname</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">regionset</span><span class="si">}</span><span class="s2">_summary_plot_subplots_of_samples_by_</span><span class="si">{</span><span class="s1">&#39;_&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">significance_col</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39; &#39;</span><span class="p">)[:</span><span class="mi">2</span><span class="p">])</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;:&#39;</span><span class="p">,</span><span class="s1">&#39;&#39;</span><span class="p">)</span><span class="o">+</span><span class="p">(</span><span class="s1">&#39;_using_uncorrected_coverage&#39;</span> <span class="k">if</span> <span class="n">use_uncorrected_coverage</span> <span class="k">else</span> <span class="s1">&#39;&#39;</span><span class="p">)</span><span class="si">}</span><span class="s2">.pdf&quot;</span>
+        <span class="k">with</span> <span class="n">PdfPages</span><span class="p">(</span><span class="n">fname</span><span class="p">)</span> <span class="k">as</span> <span class="n">pdf</span><span class="p">:</span>
+            <span class="n">counter</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">coveragefile</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">coverage_filelist</span><span class="p">):</span>
+
+                <span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="n">n_rows_on_pdf</span><span class="p">,</span> <span class="n">n_cols_on_pdf</span><span class="p">,</span> <span class="n">counter</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+
+                <span class="n">samplename</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="n">coveragefile</span><span class="p">)</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">parent</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;/&quot;</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+
+                <span class="c1"># avg_centersize=150</span>
+                <span class="n">regions_df</span><span class="o">=</span><span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s2">&quot;/&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">coveragefile</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;/&quot;</span><span class="p">)[:</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span><span class="o">+</span><span class="s2">&quot;/regions.bed&quot;</span><span class="p">,</span><span class="n">sep</span><span class="o">=</span><span class="s2">&quot;</span><span class="se">\t</span><span class="s2">&quot;</span><span class="p">,</span><span class="n">header</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+                <span class="n">avg_centersize</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="nb">round</span><span class="p">((</span><span class="n">regions_df</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">-</span><span class="n">regions_df</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span><span class="o">.</span><span class="n">mean</span><span class="p">()))</span>
+
+                <span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="n">samplename</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;_trainonRandom_allBinSameSize_extto15k_bs150_autoML_800maxrepaired&quot;</span><span class="p">,</span><span class="s2">&quot;&quot;</span><span class="p">))</span>
+
+                <span class="n">summary_df_this_sample_and_region</span> <span class="o">=</span> <span class="n">summary_df</span><span class="p">[</span>
+                    <span class="p">(</span><span class="n">summary_df</span><span class="p">[</span><span class="s2">&quot;sample&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="n">samplename</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">summary_df</span><span class="p">[</span><span class="s2">&quot;region-set&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="n">regionset</span><span class="p">)]</span>
+                <span class="n">df_cov</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">coveragefile</span><span class="p">)</span>
+                <span class="n">cov_col</span> <span class="o">=</span> <span class="n">df_cov</span><span class="o">.</span><span class="n">columns</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">normalize_by_intercept</span><span class="p">:</span>
+                    <span class="n">y</span> <span class="o">=</span> <span class="p">[</span><span class="n">y</span> <span class="o">-</span> <span class="n">df_cov</span><span class="p">[</span><span class="n">cov_col</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span> <span class="k">for</span> <span class="n">y</span> <span class="ow">in</span> <span class="n">df_cov</span><span class="p">[</span><span class="n">cov_col</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">]</span>
+                <span class="k">if</span> <span class="n">normalize_by_intercept</span><span class="p">:</span>
+                    <span class="n">intercept</span> <span class="o">=</span> <span class="n">summary_df_this_sample_and_region</span><span class="p">[</span><span class="s2">&quot;Intercept&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                    <span class="n">y</span> <span class="o">=</span> <span class="p">[</span><span class="n">y</span> <span class="o">-</span> <span class="n">intercept</span> <span class="k">for</span> <span class="n">y</span> <span class="ow">in</span> <span class="n">df_cov</span><span class="p">[</span><span class="n">cov_col</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">]</span>
+                <span class="k">if</span> <span class="n">smooth_sigma</span><span class="p">:</span>
+                    <span class="n">y</span> <span class="o">=</span> <span class="n">ndimage</span><span class="o">.</span><span class="n">gaussian_filter</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;nearest&quot;</span><span class="p">,</span> <span class="n">sigma</span><span class="o">=</span><span class="n">smooth_sigma</span><span class="p">)</span>
+
+                <span class="n">central_bin_x_values</span><span class="o">=</span><span class="p">[</span><span class="n">x</span><span class="o">*</span><span class="n">avg_centersize</span><span class="o">-</span><span class="n">avg_centersize</span><span class="o">/</span><span class="mi">2</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="p">[</span><span class="mf">0.05</span><span class="p">,</span><span class="mf">0.175</span><span class="p">,</span><span class="mf">0.5</span><span class="p">,</span><span class="mf">0.825</span><span class="p">,</span><span class="mf">0.95</span><span class="p">]]</span>
+                <span class="n">x</span><span class="o">=</span><span class="nb">list</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="o">-</span><span class="n">extend_to</span><span class="p">,</span><span class="n">extend_to</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span> <span class="n">binsize</span><span class="p">))</span> <span class="c1"># set x such that all bins have the same size</span>
+                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="o">!=</span><span class="nb">len</span><span class="p">(</span><span class="n">y</span><span class="p">):</span>  <span class="c1"># check if this fits the actual data</span>
+                    <span class="c1"># if not, assume that the core region has been split differently, as given in central_bin_x_values.</span>
+                    <span class="n">x</span><span class="o">=</span><span class="nb">list</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="o">-</span><span class="n">extend_to</span><span class="o">+</span><span class="p">(</span><span class="n">binsize</span><span class="o">/</span><span class="mi">2</span><span class="p">)</span><span class="o">-</span><span class="n">avg_centersize</span><span class="o">/</span><span class="mi">2</span><span class="p">,(</span><span class="n">binsize</span><span class="o">/</span><span class="mi">2</span><span class="p">)</span><span class="o">-</span><span class="n">avg_centersize</span><span class="o">/</span><span class="mi">2</span><span class="p">,</span><span class="n">binsize</span><span class="p">))</span><span class="o">+</span><span class="n">central_bin_x_values</span><span class="o">+</span><span class="nb">list</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">avg_centersize</span><span class="o">/</span><span class="mi">2</span><span class="o">+</span><span class="p">(</span><span class="n">binsize</span><span class="o">/</span><span class="mi">2</span><span class="p">),</span><span class="n">extend_to</span><span class="o">+</span><span class="n">avg_centersize</span><span class="o">/</span><span class="mi">2</span><span class="o">+</span><span class="p">(</span><span class="n">binsize</span><span class="o">/</span><span class="mi">2</span><span class="p">),</span><span class="n">binsize</span><span class="p">))</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">y</span><span class="p">)</span>
+                <span class="k">except</span> <span class="ne">AssertionError</span><span class="p">:</span>
+                    <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;ERROR: --binsize and/or --extend_to does not fit to the df </span><span class="si">{</span><span class="n">coveragefile</span><span class="si">}</span><span class="s2">. &quot;</span>
+                             <span class="s2">&quot;Are you sure you entered the same parameters as originally used for LIQUOIRCE? &quot;</span>
+                             <span class="s2">&quot;Please adjust them accordingly. Aborting&quot;</span><span class="p">)</span>
+
+                <span class="n">plt</span><span class="o">.</span><span class="n">gca</span><span class="p">()</span><span class="o">.</span><span class="n">spines</span><span class="p">[</span><span class="s1">&#39;top&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">set_visible</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+                <span class="n">plt</span><span class="o">.</span><span class="n">gca</span><span class="p">()</span><span class="o">.</span><span class="n">spines</span><span class="p">[</span><span class="s1">&#39;right&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">set_visible</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">samplename</span> <span class="ow">in</span> <span class="n">control_name_list</span><span class="p">:</span>
+                    <span class="n">color</span><span class="o">=</span><span class="s2">&quot;darkseagreen&quot;</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">summary_df_this_sample_and_region</span><span class="p">[</span><span class="n">significance_col</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">!=</span> \
+                            <span class="n">summary_df_this_sample_and_region</span><span class="p">[</span><span class="n">significance_col</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span>
+                        <span class="n">significance_status</span><span class="o">=</span><span class="s2">&quot;n.s.&quot;</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">significance_status</span><span class="o">=</span><span class="n">summary_df_this_sample_and_region</span><span class="p">[</span><span class="n">significance_col</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                    <span class="n">sign_to_color_dict</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;Significantly stronger coverage drop&quot;</span><span class="p">:</span><span class="s2">&quot;firebrick&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;Significantly weaker coverage drop&quot;</span><span class="p">:</span><span class="s2">&quot;darkblue&quot;</span><span class="p">,</span> <span class="s2">&quot;n.s.&quot;</span><span class="p">:</span><span class="s2">&quot;grey&quot;</span><span class="p">,</span><span class="s2">&quot;N/A&quot;</span><span class="p">:</span><span class="s2">&quot;black&quot;</span><span class="p">}</span>
+                    <span class="n">color</span><span class="o">=</span><span class="n">sign_to_color_dict</span><span class="p">[</span><span class="n">significance_status</span><span class="p">]</span>
+
+                <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.6</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">color</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">zorder</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+                <span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Bias corrected coverage,</span><span class="se">\n</span><span class="s2"> &quot;</span>
+                           <span class="sa">f</span><span class="s2">&quot;normalized by </span><span class="si">{</span><span class="s1">&#39;intercept&#39;</span> <span class="k">if</span> <span class="n">normalize_by_intercept</span> <span class="k">else</span> <span class="s1">&#39;mean&#39;</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">labelpad</span><span class="o">=</span><span class="mi">12</span><span class="p">)</span>
+                <span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s2">&quot;Relative distance to center of ROI [bp]&quot;</span><span class="p">)</span>
+                <span class="n">plt</span><span class="o">.</span><span class="n">ylim</span><span class="p">(</span><span class="n">y_min</span><span class="p">,</span> <span class="n">y_max</span><span class="p">)</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">i</span> <span class="o">&gt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">coverage_filelist</span><span class="p">)</span> <span class="o">-</span> <span class="n">n_cols_on_pdf</span> <span class="o">-</span> <span class="mi">1</span><span class="p">:</span>
+                    <span class="n">plt</span><span class="o">.</span><span class="n">gca</span><span class="p">()</span><span class="o">.</span><span class="n">label_outer</span><span class="p">()</span>
+                <span class="k">elif</span> <span class="n">counter</span> <span class="o">%</span> <span class="n">n_cols_on_pdf</span><span class="p">:</span>
+                    <span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
+                    <span class="n">plt</span><span class="o">.</span><span class="n">yticks</span><span class="p">([])</span>
+                <span class="n">plt</span><span class="o">.</span><span class="n">locator_params</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="s1">&#39;y&#39;</span><span class="p">,</span> <span class="n">nbins</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
+                <span class="n">plt</span><span class="o">.</span><span class="n">locator_params</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="s1">&#39;x&#39;</span><span class="p">,</span> <span class="n">nbins</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+
+                <span class="k">if</span> <span class="n">counter</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">and</span> <span class="p">(</span><span class="n">significance_col</span> <span class="ow">in</span> <span class="n">summary_df_this_sample_and_region</span><span class="o">.</span><span class="n">columns</span><span class="p">):</span>
+                    <span class="n">legend_elems</span> <span class="o">=</span> <span class="p">[</span>
+                        <span class="n">Line2D</span><span class="p">([</span><span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">lw</span><span class="o">=</span><span class="mf">1.5</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;firebrick&quot;</span><span class="p">,</span><span class="n">label</span><span class="o">=</span><span class="s1">&#39;Case samples with significantly stronger &#39;</span>
+                                                                         <span class="s1">&#39;coverage drop&#39;</span><span class="p">,</span><span class="n">markersize</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span>
+                        <span class="n">Line2D</span><span class="p">([</span><span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">lw</span><span class="o">=</span><span class="mf">1.5</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;darkblue&quot;</span><span class="p">,</span><span class="n">label</span><span class="o">=</span><span class="s1">&#39;Case samples with significantly weaker &#39;</span>
+                                                                        <span class="s1">&#39;coverage drop&#39;</span><span class="p">,</span><span class="n">markersize</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span>
+                        <span class="n">Line2D</span><span class="p">([</span><span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">lw</span><span class="o">=</span><span class="mf">1.5</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;grey&quot;</span><span class="p">,</span><span class="n">label</span><span class="o">=</span><span class="s1">&#39;Case samples not sign. different &#39;</span>
+                                                                    <span class="s1">&#39;(or if no ctrls available)&#39;</span><span class="p">,</span><span class="n">markersize</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span>
+                        <span class="n">Line2D</span><span class="p">([</span><span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">lw</span><span class="o">=</span><span class="mf">1.2</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;darkseagreen&quot;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;Control samples&#39;</span><span class="p">,</span> <span class="n">markersize</span><span class="o">=</span><span class="mi">1</span><span class="p">)]</span>
+                    <span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">handles</span><span class="o">=</span><span class="n">legend_elems</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">loc</span><span class="o">=</span><span class="s2">&quot;lower left&quot;</span><span class="p">,</span> <span class="n">bbox_to_anchor</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mf">1.15</span><span class="p">),</span> <span class="n">ncol</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+                <span class="k">if</span> <span class="n">counter</span> <span class="o">+</span> <span class="mi">1</span> <span class="o">==</span> <span class="n">n_rows_on_pdf</span><span class="o">*</span><span class="n">n_cols_on_pdf</span> <span class="ow">or</span> <span class="n">i</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">coverage_filelist</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">:</span>
+                    <span class="n">plt</span><span class="o">.</span><span class="n">suptitle</span><span class="p">(</span><span class="s2">&quot;Coverage plots for region-set </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">regionset</span><span class="p">),</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">40</span><span class="p">)</span>
+                    <span class="n">ttl</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">gca</span><span class="p">()</span><span class="o">.</span><span class="n">title</span>
+                    <span class="n">ttl</span><span class="o">.</span><span class="n">set_position</span><span class="p">([</span><span class="mf">.5</span><span class="p">,</span> <span class="mf">1.05</span><span class="p">])</span>
+
+                    <span class="n">plt</span><span class="o">.</span><span class="n">xlim</span><span class="p">([</span><span class="o">-</span><span class="n">extend_to</span><span class="p">,</span> <span class="n">extend_to</span><span class="p">])</span>
+
+                    <span class="c1"># plt.legend(handles=legend_elems,fontsize=13)</span>
+
+                    <span class="n">fig</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">gcf</span><span class="p">()</span>
+                    <span class="n">fig</span><span class="o">.</span><span class="n">set_size_inches</span><span class="p">(</span><span class="mi">48</span><span class="p">,</span> <span class="mi">27</span><span class="p">)</span>
+                    <span class="n">plt</span><span class="o">.</span><span class="n">subplots_adjust</span><span class="p">(</span><span class="n">left</span><span class="o">=</span><span class="mf">0.05</span><span class="p">,</span> <span class="n">right</span><span class="o">=</span><span class="mf">0.95</span><span class="p">,</span> <span class="n">bottom</span><span class="o">=</span><span class="mf">0.05</span><span class="p">,</span> <span class="n">top</span><span class="o">=</span><span class="mf">0.90</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">coverage_filelist</span><span class="p">)</span><span class="o">&gt;=</span><span class="mi">40</span> <span class="k">else</span> <span class="mf">0.8</span><span class="p">,</span> <span class="n">hspace</span><span class="o">=</span><span class="mf">0.25</span><span class="p">)</span>
+                    <span class="n">pdf</span><span class="o">.</span><span class="n">savefig</span><span class="p">()</span>
+                    <span class="n">plt</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+                    <span class="n">counter</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
+                <span class="n">counter</span> <span class="o">+=</span> <span class="mi">1</span></div>
+
+
+<div class="viewcode-block" id="create_summary_table_LIQUORICE"><a class="viewcode-back" href="../../liquorice.html#liquorice.LIQUORICE_summary.create_summary_table_LIQUORICE">[docs]</a><span class="k">def</span> <span class="nf">create_summary_table_LIQUORICE</span><span class="p">(</span><span class="n">dirname</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">control_name_list</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
+                                   <span class="n">these_regionsets_only</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
+                                   <span class="n">use_uncorrected_coverage</span><span class="p">:</span><span class="nb">bool</span> <span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                                   <span class="n">zscore_treshold</span><span class="p">:</span> <span class="nb">int</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    For a LIQUORICE result directory, creates and writes to csv a pd.DataFrame summarizing the coverage drop metrics</span>
+<span class="sd">    for all samples and</span>
+<span class="sd">    region-sets. If **control_name_list** is given, compares the case samples to control samples, separately for each</span>
+<span class="sd">    region-set.</span>
+
+<span class="sd">    :param use_uncorrected_coverage: If True, summarize the coverage profile that is not corrected for biases by</span>
+<span class="sd">     LIQUORICE instead of the corrected coverage.</span>
+<span class="sd">    :param these_regionsets_only: Summarize only data for these regionsets.</span>
+<span class="sd">    :param dirname: Output directory of LIQUORICE in which to search for fitted_gaussians_parameter_summary.csv</span>
+<span class="sd">        (or uncorrected_fitted_gaussians_parameter_summary.csv) files</span>
+<span class="sd">    :param control_name_list: Sample names of the controls, which will be used as reference for generating z-scores.</span>
+<span class="sd">    :param zscore_treshold: Use this number as a treshold for significance: Significant samples must have a signal that</span>
+<span class="sd">        is outside &lt;mean of controls&gt; +- &lt;zscore_treshold&gt;*&lt;standard deviation of controls&gt;. The default of 2 roughly</span>
+<span class="sd">        corresponds to alpha=0.05 if the signal in the controls is normally distributed.</span>
+<span class="sd">    :return: A `pandas.DataFrame` in which all parameters saved in the &#39;fitted_gaussians_parameter_summary.csv&#39;</span>
+<span class="sd">        (or uncorrected_fitted_gaussians_parameter_summary.csv) files</span>
+<span class="sd">        are summarized over all samples and region-sets. If control_name_list is not empty, additional columns of the</span>
+<span class="sd">        DataFame contain metric comparisons to the the control samples in the form of z-scores of dip area and depth.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">parameter_filename</span><span class="o">=</span><span class="s2">&quot;fitted_gaussians_parameter_summary.csv&quot;</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">use_uncorrected_coverage</span> <span class="k">else</span> \
+        <span class="s2">&quot;uncorrected_fitted_gaussians_parameter_summary.csv&quot;</span>
+    <span class="n">param_summaries</span> <span class="o">=</span> <span class="n">glob</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">dirname</span><span class="si">}</span><span class="s2">/*/*/</span><span class="si">{</span><span class="n">parameter_filename</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span> <span class="o">+</span> <span class="n">glob</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">dirname</span><span class="si">}</span><span class="s2">/*/</span><span class="si">{</span><span class="n">parameter_filename</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">these_regionsets_only</span><span class="p">:</span>
+        <span class="n">param_summaries</span> <span class="o">=</span> <span class="p">[</span><span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">param_summaries</span> <span class="k">if</span> <span class="n">x</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;/&quot;</span><span class="p">)[</span><span class="o">-</span><span class="mi">2</span><span class="p">]</span> <span class="ow">in</span> <span class="n">these_regionsets_only</span><span class="p">]</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">param_summaries</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="s2">&quot;Could not find any &#39;fitted_gaussians_parameter_summary.csv&#39; files in this directory. Exiting&quot;</span><span class="p">)</span>
+
+    <span class="n">summary_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span>
+    <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">param_summary</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">param_summaries</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">idx</span><span class="p">:</span>
+            <span class="n">summary_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">param_summary</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">summary_df</span> <span class="o">=</span> <span class="n">summary_df</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">param_summary</span><span class="p">))</span>
+
+    <span class="n">control_summary_df</span> <span class="o">=</span> <span class="n">summary_df</span><span class="p">[</span><span class="n">summary_df</span><span class="p">[</span><span class="s2">&quot;sample&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">control_name_list</span><span class="p">)]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+    <span class="n">summary_df</span> <span class="o">=</span> <span class="n">summary_df</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="o">**</span><span class="p">{</span>
+        <span class="s2">&quot;is control&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;yes&quot;</span> <span class="k">if</span> <span class="n">sample</span> <span class="ow">in</span> <span class="n">control_name_list</span> <span class="k">else</span> <span class="s2">&quot;no&quot;</span> <span class="k">for</span> <span class="n">sample</span> <span class="ow">in</span> <span class="n">summary_df</span><span class="p">[</span><span class="s2">&quot;sample&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">]})</span>
+    <span class="n">summary_df</span> <span class="o">=</span> <span class="n">summary_df</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="o">**</span><span class="p">{</span>
+        <span class="s2">&quot;Dip area: z-score vs controls in same region set&quot;</span><span class="p">:</span> <span class="n">summary_df</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span>
+        <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">zscore_to_control</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">control_summary_df</span><span class="p">,</span> <span class="s2">&quot;Total dip area (AOC combined model)&quot;</span><span class="p">),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span>
+        <span class="s2">&quot;Dip area: interpretation vs controls in same region set&quot;</span><span class="p">:</span> <span class="n">summary_df</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span>
+            <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">check_difference_to_control</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">control_summary_df</span><span class="p">,</span> <span class="s2">&quot;Total dip area (AOC combined model)&quot;</span><span class="p">,</span>
+                                                  <span class="kc">True</span><span class="p">,</span><span class="n">zscore_treshold</span><span class="o">=</span><span class="n">zscore_treshold</span><span class="p">),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span>
+        <span class="s2">&quot;Dip depth: z-score vs controls in same region set&quot;</span><span class="p">:</span> <span class="n">summary_df</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span>
+            <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">zscore_to_control</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">control_summary_df</span><span class="p">,</span> <span class="s2">&quot;Total dip depth&quot;</span><span class="p">),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span>
+        <span class="s2">&quot;Dip depth: interpretation vs controls in same region set&quot;</span><span class="p">:</span> <span class="n">summary_df</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span>
+            <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">check_difference_to_control</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">control_summary_df</span><span class="p">,</span> <span class="s2">&quot;Total dip depth&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">,</span>
+            <span class="n">zscore_treshold</span><span class="o">=</span><span class="n">zscore_treshold</span><span class="p">),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)})</span>
+
+    <span class="k">return</span> <span class="n">summary_df</span></div>
+
+<div class="viewcode-block" id="boxplot_score_summary"><a class="viewcode-back" href="../../liquorice.html#liquorice.LIQUORICE_summary.boxplot_score_summary">[docs]</a><span class="k">def</span> <span class="nf">boxplot_score_summary</span><span class="p">(</span><span class="n">summary_df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span><span class="n">comparison_col</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+                          <span class="n">use_uncorrected_coverage</span><span class="p">:</span> <span class="nb">bool</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Summarize scores via boxplots, with one box per group (case/control) - region-set combination.</span>
+
+<span class="sd">    :param summary_df: The output of the function :func:`create_summary_table_LIQUORICE`.</span>
+<span class="sd">    :param comparison_col: Use this column for the y axis of the boxplots.</span>
+<span class="sd">    :param use_uncorrected_coverage: If True, indicate in the output filename that the uncorrected coverage scores are</span>
+<span class="sd">        shown.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">sns</span><span class="o">.</span><span class="n">set_style</span><span class="p">(</span><span class="s2">&quot;whitegrid&quot;</span><span class="p">)</span>
+    <span class="n">alpha</span><span class="o">=</span><span class="mf">0.6</span>
+
+    <span class="n">summary_df</span><span class="p">[</span><span class="s2">&quot;Case/Control&quot;</span><span class="p">]</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;Case&quot;</span> <span class="k">if</span> <span class="n">x</span> <span class="o">==</span><span class="s2">&quot;no&quot;</span> <span class="k">else</span> <span class="s2">&quot;Control&quot;</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">summary_df</span><span class="p">[</span><span class="s2">&quot;is control&quot;</span><span class="p">]]</span>
+    <span class="n">summary_df</span><span class="o">=</span><span class="n">summary_df</span><span class="o">.</span><span class="n">rename</span><span class="p">({</span><span class="s2">&quot;region-set&quot;</span><span class="p">:</span><span class="s2">&quot;Region-set&quot;</span><span class="p">},</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+    <span class="c1"># summary_df=summary_df.replace({&quot;sknmc_specific&quot;:&quot;EwS-specific DHSs&quot;,</span>
+    <span class="c1">#                                   &quot;concat_haem_clusters_v2.0_LOhg38&quot;:&quot;Blood-specific DHSs&quot;,</span>
+    <span class="c1">#                                   &quot;liverDHS_LOhg38&quot;:&quot;Liver-specific DHSs&quot;})</span>
+
+    <span class="n">sns</span><span class="o">.</span><span class="n">violinplot</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="s2">&quot;Region-set&quot;</span><span class="p">,</span><span class="n">y</span><span class="o">=</span><span class="n">comparison_col</span><span class="p">,</span><span class="n">hue</span><span class="o">=</span><span class="s2">&quot;Case/Control&quot;</span><span class="p">,</span><span class="n">data</span><span class="o">=</span><span class="n">summary_df</span><span class="p">,</span>
+                   <span class="n">palette</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;Control&quot;</span><span class="p">:</span><span class="s2">&quot;seagreen&quot;</span><span class="p">,</span><span class="s2">&quot;Case&quot;</span><span class="p">:</span><span class="s2">&quot;firebrick&quot;</span><span class="p">},</span><span class="n">cut</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="n">inner</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">linewidth</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="n">scale</span><span class="o">=</span><span class="s2">&quot;area&quot;</span><span class="p">,</span>
+                   <span class="n">scale_hue</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">violin</span> <span class="ow">in</span> <span class="n">plt</span><span class="o">.</span><span class="n">gca</span><span class="p">()</span><span class="o">.</span><span class="n">collections</span><span class="p">:</span>
+        <span class="n">violin</span><span class="o">.</span><span class="n">set_alpha</span><span class="p">(</span><span class="n">alpha</span><span class="p">)</span>
+
+    <span class="n">sns</span><span class="o">.</span><span class="n">swarmplot</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="s2">&quot;Region-set&quot;</span><span class="p">,</span><span class="n">y</span><span class="o">=</span><span class="n">comparison_col</span><span class="p">,</span><span class="n">hue</span><span class="o">=</span><span class="s2">&quot;Case/Control&quot;</span><span class="p">,</span><span class="n">data</span><span class="o">=</span><span class="n">summary_df</span><span class="p">,</span><span class="n">dodge</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span><span class="n">palette</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;Control&quot;</span><span class="p">:</span><span class="s2">&quot;gainsboro&quot;</span><span class="p">,</span><span class="s2">&quot;Case&quot;</span><span class="p">:</span><span class="s2">&quot;gainsboro&quot;</span><span class="p">},</span><span class="n">size</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span><span class="n">edgecolor</span><span class="o">=</span><span class="s2">&quot;grey&quot;</span><span class="p">)</span>
+
+    <span class="n">legend_elems</span><span class="o">=</span><span class="p">[</span>
+        <span class="n">mpatches</span><span class="o">.</span><span class="n">Patch</span><span class="p">(</span><span class="n">color</span><span class="o">=</span><span class="s2">&quot;seagreen&quot;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;Case samples&#39;</span><span class="p">,</span><span class="n">alpha</span><span class="o">=</span><span class="n">alpha</span><span class="p">,</span><span class="n">linewidth</span><span class="o">=</span><span class="mi">0</span><span class="p">),</span>
+        <span class="n">mpatches</span><span class="o">.</span><span class="n">Patch</span><span class="p">(</span><span class="n">color</span><span class="o">=</span><span class="s2">&quot;#CA4B47&quot;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;Control samples&#39;</span><span class="p">,</span><span class="n">alpha</span><span class="o">=</span><span class="n">alpha</span><span class="p">,</span><span class="n">linewidth</span><span class="o">=</span><span class="mi">0</span><span class="p">)]</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">handles</span><span class="o">=</span><span class="n">legend_elems</span><span class="p">,</span><span class="n">loc</span><span class="o">=</span><span class="s2">&quot;best&quot;</span><span class="p">)</span>
+
+    <span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s2">&quot;Total dip area</span><span class="se">\n</span><span class="s2">(AOC combined model)&quot;</span> <span class="k">if</span> <span class="n">comparison_col</span><span class="o">==</span><span class="s2">&quot;Total dip area (AOC combined model)&quot;</span> <span class="k">else</span>
+               <span class="s2">&quot;Total dip depth&quot;</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">gcf</span><span class="p">()</span><span class="o">.</span><span class="n">set_size_inches</span><span class="p">(</span><span class="mi">13</span><span class="p">,</span> <span class="mf">6.5</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
+    <span class="n">sns</span><span class="o">.</span><span class="n">despine</span><span class="p">(</span><span class="n">left</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span><span class="n">bottom</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+
+    <span class="n">fname</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;boxplot_summary_by_dip_</span><span class="si">{</span><span class="s1">&#39;area&#39;</span> <span class="k">if</span> <span class="n">comparison_col</span><span class="o">==</span><span class="s1">&#39;Total dip area (AOC combined model)&#39;</span> <span class="k">else</span> <span class="s1">&#39;depth&#39;</span><span class="si">}{</span><span class="s1">&#39;_using_uncorrected_coverage&#39;</span> <span class="k">if</span> <span class="n">use_uncorrected_coverage</span> <span class="k">else</span> <span class="s1">&#39;&#39;</span><span class="si">}</span><span class="s2">.pdf&quot;</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="n">fname</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="parse_args"><a class="viewcode-back" href="../../liquorice.html#liquorice.LIQUORICE_summary.parse_args">[docs]</a><span class="k">def</span> <span class="nf">parse_args</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Parses the arguments from the command line. For a full list of arguments,</span>
+<span class="sd">    see the documentation of the LIQUORICE_summary command line tool.</span>
+
+<span class="sd">    :return: An `argparse.ArgumentParser` object storing the arguments.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">parser</span> <span class="o">=</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">(</span>
+            <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Summarize output of LIQUORICE for multiple samples and regions of interests in a table and &quot;</span>
+                        <span class="s2">&quot;plots. Please make sure that for for any given region-set LIQUORICE has been run with &quot;</span>
+                        <span class="s2">&quot;consistent &#39;binsize&#39; and &#39;extend_to&#39; settings across samples.)&quot;</span><span class="p">,</span>
+            <span class="n">formatter_class</span><span class="o">=</span><span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentDefaultsHelpFormatter</span><span class="p">)</span>
+
+    <span class="n">optional_keyword_args</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">add_argument_group</span><span class="p">(</span><span class="s1">&#39;Optional named arguments&#39;</span><span class="p">)</span>
+
+    <span class="n">optional_keyword_args</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;--dirname&quot;</span><span class="p">,</span>
+                                       <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Directory in which LIQUORICE&#39;s output is contained. Can contain output &quot;</span>
+                                            <span class="s2">&quot;of multiple samples.&quot;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span>
+                                       <span class="n">default</span><span class="o">=</span><span class="s2">&quot;.&quot;</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+    <span class="n">optional_keyword_args</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--control_name_list&#39;</span><span class="p">,</span>
+                                       <span class="n">help</span><span class="o">=</span><span class="s1">&#39;List of samples that serve as reference control samples. Used to&#39;</span>
+                                            <span class="s1">&#39;infer z-scores.&#39;</span><span class="p">,</span>
+                                       <span class="n">required</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">nargs</span><span class="o">=</span><span class="s2">&quot;+&quot;</span><span class="p">,</span>
+                                       <span class="n">default</span><span class="o">=</span><span class="p">[])</span>
+
+    <span class="n">optional_keyword_args</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--comparison_metric&#39;</span><span class="p">,</span>
+                                       <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Which metric should be used for determining significantly different &#39;</span>
+                                            <span class="s1">&#39;samples in the overlay plot.&#39;</span><span class="p">,</span>
+                                       <span class="n">required</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="s2">&quot;area&quot;</span><span class="p">,</span> <span class="n">choices</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;area&quot;</span><span class="p">,</span> <span class="s2">&quot;depth&quot;</span><span class="p">])</span>
+
+    <span class="n">optional_keyword_args</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--binsize&#39;</span><span class="p">,</span>
+                                       <span class="n">help</span><span class="o">=</span><span class="s2">&quot;--binsize setting that was used for LIQUORICE. Default: infer &quot;</span>
+                                            <span class="s2">&quot;automatically&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">)</span>
+
+    <span class="n">optional_keyword_args</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s1">&#39;--extend_to&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;--extend_to that was used for LIQUORICE. Default: infer automatically&quot;</span><span class="p">,</span>
+                                       <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">)</span>
+
+    <span class="n">optional_keyword_args</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s1">&#39;--smooth_sigma&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Determines how strong the coverage drops should be smoothed for the overlay plot. Set &quot;</span>
+                               <span class="s2">&quot;to 0 for no smoothing.&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mf">2.0</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
+
+    <span class="n">optional_keyword_args</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s1">&#39;--use_uncorrected_coverage&#39;</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Per default the corrected coverages will be plotted. Set if you want to plot/summarize the uncorrected  &quot;</span>
+             <span class="s2">&quot;coverage instead.&quot;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_true&quot;</span><span class="p">)</span>
+
+    <span class="n">optional_keyword_args</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--table_only&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Only generate overview table, don&#39;t plot&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                                       <span class="nb">type</span><span class="o">=</span><span class="nb">bool</span><span class="p">)</span>
+
+    <span class="n">optional_keyword_args</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--these_regionsets_only&#39;</span><span class="p">,</span>
+                                       <span class="n">help</span><span class="o">=</span><span class="s1">&#39;List of region sets for which a summary should be calculated. Default: &#39;</span>
+                                            <span class="s1">&#39;summarize all detected region-sets&#39;</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">nargs</span><span class="o">=</span><span class="s2">&quot;+&quot;</span><span class="p">,</span>
+                                       <span class="n">default</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+    <span class="n">optional_keyword_args</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--zscore_treshold&#39;</span><span class="p">,</span>
+                                       <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Use this number as a treshold for significance: Significant samples must&#39;</span>
+                                            <span class="s1">&#39;have a signal that is outside &#39;</span>
+                                            <span class="s1">&#39;&lt;mean of controls&gt; +- &lt;zscore_treshold&gt;*&lt;standard deviation of controls&gt;.&#39;</span>
+                                            <span class="s1">&#39;The default of 2 roughly corresponds to alpha=0.05 if the signal in the &#39;</span>
+                                            <span class="s1">&#39;controls is normally distributed&#39;</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span><span class="nb">type</span><span class="o">=</span><span class="nb">float</span><span class="p">,</span>
+                                       <span class="n">default</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">parser</span></div>
+
+
+<div class="viewcode-block" id="main"><a class="viewcode-back" href="../../liquorice.html#liquorice.LIQUORICE_summary.main">[docs]</a><span class="k">def</span> <span class="nf">main</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Main function for the LIQUOIRCE_summary tool. Calls the argument parser, checks user input, and calls the functions</span>
+<span class="sd">    :func:`verify_consistant_binning_settings`</span>
+<span class="sd">    :func:`create_summary_table_LIQUORICE` (saving output to .csv),</span>
+<span class="sd">    :func:`plot_overlay`, :func:`plot_as_subplots`, and :func:`boxplot_score_summary`.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">parser</span><span class="o">=</span><span class="n">parse_args</span><span class="p">()</span>
+    <span class="n">args</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">()</span>
+    <span class="n">dirname</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">dirname</span>
+    <span class="n">control_name_list</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">control_name_list</span>
+    <span class="n">comparison_metric</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">comparison_metric</span>
+    <span class="n">binsize</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">binsize</span>
+    <span class="n">extend_to</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">extend_to</span>
+    <span class="n">table_only</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">table_only</span>
+    <span class="n">these_regionsets_only</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">these_regionsets_only</span>
+    <span class="n">use_uncorrected_coverage</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">use_uncorrected_coverage</span>
+    <span class="n">smooth_sigma</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">smooth_sigma</span>
+
+    <span class="k">if</span> <span class="p">(</span><span class="n">binsize</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">extend_to</span><span class="p">)</span> <span class="ow">or</span> <span class="p">(</span><span class="ow">not</span> <span class="n">binsize</span> <span class="ow">and</span> <span class="n">extend_to</span><span class="p">):</span>
+        <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="s2">&quot;ERROR: Please specify either both --binsize AND --extend_to or set none of them and let the script &quot;</span>
+                 <span class="s2">&quot;extract these parameters from the &lt;dirname&gt;/&lt;samplename&gt;/&lt;regionset name&gt;/binning_settings.json &quot;</span>
+                 <span class="s2">&quot;file.&quot;</span><span class="p">)</span>
+
+    <span class="n">summary_df</span> <span class="o">=</span> <span class="n">create_summary_table_LIQUORICE</span><span class="p">(</span><span class="n">dirname</span><span class="o">=</span><span class="n">dirname</span><span class="p">,</span> <span class="n">control_name_list</span><span class="o">=</span><span class="n">control_name_list</span><span class="p">,</span>
+                                                <span class="n">these_regionsets_only</span><span class="o">=</span><span class="n">these_regionsets_only</span><span class="p">,</span>
+                                                <span class="n">use_uncorrected_coverage</span><span class="o">=</span><span class="n">use_uncorrected_coverage</span><span class="p">,</span>
+                                                <span class="n">zscore_treshold</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">zscore_treshold</span><span class="p">)</span>
+    <span class="n">summary_df</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;summary_across_samples_and_ROIS</span><span class="si">{</span><span class="s1">&#39;_using_uncorrected_coverage&#39;</span> <span class="k">if</span> <span class="n">use_uncorrected_coverage</span> <span class="k">else</span> <span class="s1">&#39;&#39;</span><span class="si">}</span><span class="s2">.csv&quot;</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">table_only</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">control_name_list</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">control_name_list</span><span class="p">:</span>
+                <span class="k">if</span> <span class="s2">&quot;/&quot;</span> <span class="ow">in</span> <span class="n">name</span><span class="p">:</span>
+                    <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;ERROR: Sample names must not contain &#39;/&#39;. Please correct the name &#39;</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">&#39; under &quot;</span>
+                             <span class="s2">&quot;&#39;--control_name_list&#39;&quot;</span><span class="p">)</span>
+        <span class="c1"># nr_different_regionsets=len(set(list(summary_df[&quot;region-set&quot;].values)))</span>
+        <span class="c1"># nr_samples=len(set(list(summary_df[&quot;sample&quot;].values)))</span>
+        <span class="c1"># if summary_df.shape[0] != nr_different_regionsets*nr_samples:</span>
+        <span class="c1">#     sys.exit(&quot;ERROR: Cannot continue plotting because the data for some region-sets is available only for a &quot;</span>
+        <span class="c1">#              &quot;subset of all samples. Please check the output &#39;&#39;&quot;)</span>
+        <span class="n">plot_overlay</span><span class="p">(</span><span class="n">dirname</span><span class="o">=</span><span class="n">dirname</span><span class="p">,</span> <span class="n">summary_df</span><span class="o">=</span><span class="n">summary_df</span><span class="p">,</span> <span class="n">control_name_list</span><span class="o">=</span><span class="n">control_name_list</span><span class="p">,</span> <span class="n">extend_to</span><span class="o">=</span><span class="n">extend_to</span><span class="p">,</span>
+                     <span class="n">binsize</span><span class="o">=</span><span class="n">binsize</span><span class="p">,</span>
+                     <span class="n">significance_col</span><span class="o">=</span><span class="s2">&quot;Dip area: interpretation vs controls in same region set&quot;</span> <span class="k">if</span> <span class="n">comparison_metric</span> <span class="o">==</span> <span class="s2">&quot;area&quot;</span>
+                                <span class="k">else</span> <span class="s2">&quot;Dip depth: interpretation vs controls in same region set&quot;</span><span class="p">,</span>
+                     <span class="n">use_uncorrected_coverage</span><span class="o">=</span><span class="n">use_uncorrected_coverage</span><span class="p">,</span> <span class="n">smooth_sigma</span><span class="o">=</span><span class="n">smooth_sigma</span><span class="p">,</span>
+                     <span class="n">normalize_by_intercept</span><span class="o">=</span><span class="kc">True</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">use_uncorrected_coverage</span> <span class="k">else</span> <span class="kc">False</span><span class="p">)</span>
+
+        <span class="n">plot_as_subplots</span><span class="p">(</span><span class="n">dirname</span><span class="o">=</span><span class="n">dirname</span><span class="p">,</span> <span class="n">summary_df</span><span class="o">=</span><span class="n">summary_df</span><span class="p">,</span> <span class="n">control_name_list</span><span class="o">=</span><span class="n">control_name_list</span><span class="p">,</span> <span class="n">extend_to</span><span class="o">=</span><span class="n">extend_to</span><span class="p">,</span>
+                         <span class="n">binsize</span><span class="o">=</span><span class="n">binsize</span><span class="p">,</span>
+                         <span class="n">significance_col</span><span class="o">=</span><span class="s2">&quot;Dip area: interpretation vs controls in same region set&quot;</span> <span class="k">if</span> <span class="n">comparison_metric</span> <span class="o">==</span> <span class="s2">&quot;area&quot;</span>
+                                    <span class="k">else</span> <span class="s2">&quot;Dip depth: interpretation vs controls in same region set&quot;</span><span class="p">,</span>
+                         <span class="n">use_uncorrected_coverage</span><span class="o">=</span><span class="n">use_uncorrected_coverage</span><span class="p">,</span>
+                         <span class="n">normalize_by_intercept</span><span class="o">=</span><span class="kc">True</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">use_uncorrected_coverage</span> <span class="k">else</span> <span class="kc">False</span><span class="p">)</span>
+
+        <span class="n">boxplot_score_summary</span><span class="p">(</span><span class="n">summary_df</span><span class="o">=</span><span class="n">summary_df</span><span class="p">,</span>
+                              <span class="n">comparison_col</span><span class="o">=</span><span class="s2">&quot;Total dip depth&quot;</span> <span class="k">if</span> <span class="n">comparison_metric</span><span class="o">==</span><span class="s2">&quot;depth&quot;</span>
+                              <span class="k">else</span> <span class="s2">&quot;Total dip area (AOC combined model)&quot;</span><span class="p">,</span>
+                              <span class="n">use_uncorrected_coverage</span><span class="o">=</span><span class="n">use_uncorrected_coverage</span><span class="p">)</span></div>
+
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="n">main</span><span class="p">())</span>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright 2021, Peter Peneder.
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

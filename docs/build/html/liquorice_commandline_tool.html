@@ -1,0 +1,628 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>The LIQUORICE command-line-tool &mdash; LIQUORICE 0.5.0 documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="prev" title="The liquorice python package" href="liquorice.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html">
+          
+
+          
+            
+            <img src="_static/liquorice_logo_fitted_transparent.png" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="intro.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="intro.html#installation">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="intro.html#citation">Citation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="liquorice.html">The <cite>liquorice</cite> python package</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">The LIQUORICE command-line-tool</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#arguments">Arguments</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#Required named arguments">Required named arguments</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#Optional named arguments - General settings">Optional named arguments - General settings</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#Optional named arguments - Technical settings">Optional named arguments - Technical settings</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#Optional named arguments - Output settings">Optional named arguments - Output settings</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#liquorice-s-output">LIQUORICE’s output</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="#liquorice-s-summary-tool">LIQUORICE’s summary tool</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#id1">Arguments</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#Optional named arguments">Optional named arguments</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#output-of-liquorice-s-summary-tool">Output of LIQUORICE’s summary tool</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="#usage-parameters-and-examples">Usage, Parameters, and Examples</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#advice-on-parameter-settings">Advice on parameter settings</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#binsize-and-extend-to"><em>binsize and extend_to</em></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#bedpath-biasmodel"><em>bedpath_biasmodel</em></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#all-bins-same-size"><em>all_bins_same_size</em></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#parallelization">Parallelization</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#sources-for-input-files">Sources for input files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#test-liquorice-with-provided-test-data">Test LIQUORICE with provided test data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#example-usage-of-liquorice-and-the-summary-tool">Example usage of LIQUORICE and the summary tool</a></li>
+</ul>
+</li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">LIQUORICE</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+        
+      <li>The LIQUORICE command-line-tool</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="_sources/liquorice_commandline_tool.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="the-liquorice-command-line-tool">
+<h1>The LIQUORICE command-line-tool<a class="headerlink" href="#the-liquorice-command-line-tool" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="arguments">
+<h2>Arguments<a class="headerlink" href="#arguments" title="Permalink to this headline">¶</a></h2>
+<p><p>LIQUORICE: A tool for bias correction and quantification of changes  in coverage around regions of interest in cfDNA WGS datasets</p>
+</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">usage</span><span class="p">:</span> <span class="n">LIQUORICE</span> <span class="p">[</span><span class="o">-</span><span class="n">h</span><span class="p">]</span> <span class="o">--</span><span class="n">bamfile</span> <span class="n">BAMFILE</span> <span class="o">--</span><span class="n">refgenome_fasta</span> <span class="n">REFGENOME_FASTA</span>
+                 <span class="o">--</span><span class="n">mappability_bigwig</span> <span class="n">MAPPABILITY_BIGWIG</span>
+                 <span class="p">[</span><span class="o">--</span><span class="n">bedpathlist</span> <span class="n">BEDPATHLIST</span> <span class="p">[</span><span class="n">BEDPATHLIST</span> <span class="o">...</span><span class="p">]]</span>
+                 <span class="p">[</span><span class="o">--</span><span class="n">bedpath_biasmodel</span> <span class="n">BEDPATH_BIASMODEL</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">binsize</span> <span class="n">BINSIZE</span><span class="p">]</span>
+                 <span class="p">[</span><span class="o">--</span><span class="n">extend_to</span> <span class="n">EXTEND_TO</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">blacklist</span> <span class="n">BLACKLIST</span><span class="p">]</span>
+                 <span class="p">[</span><span class="o">--</span><span class="n">cna_seg_file</span> <span class="n">CNA_SEG_FILE</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">detect_existing_biasmodel</span><span class="p">]</span>
+                 <span class="p">[</span><span class="o">--</span><span class="n">use_this_biasmodel</span> <span class="n">USE_THIS_BIASMODEL</span><span class="p">]</span>
+                 <span class="p">[</span><span class="o">--</span><span class="n">extend_to_biasmodel</span> <span class="n">EXTEND_TO_BIASMODEL</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">no_chr_prefix</span><span class="p">]</span>
+                 <span class="p">[</span><span class="o">--</span><span class="n">use_this_roi_biasfactortable</span> <span class="n">USE_THIS_ROI_BIASFACTORTABLE</span><span class="p">]</span>
+                 <span class="p">[</span><span class="o">--</span><span class="n">speed_mode</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">all_bins_same_size</span><span class="p">]</span>
+                 <span class="p">[</span><span class="o">--</span><span class="n">dont_crossvalidate_if_train_on_rois</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">n_cpus</span> <span class="n">N_CPUS</span><span class="p">]</span>
+                 <span class="p">[</span><span class="o">--</span><span class="n">tmpdir</span> <span class="n">TMPDIR</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">samplename</span> <span class="n">SAMPLENAME</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">quiet</span><span class="p">]</span>
+                 <span class="p">[</span><span class="o">--</span><span class="n">save_training_table</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">save_biasfactor_table</span><span class="p">]</span>
+</pre></div>
+</div>
+<div class="section" id="Required named arguments">
+<h3>Required named arguments<a class="headerlink" href="#Required named arguments" title="Permalink to this headline">¶</a></h3>
+<dl class="option-list">
+<dt><kbd>--bamfile</kbd></dt>
+<dd><p>.bam file containing the mapped reads of the sample. Used to infer coverage, fragment size, and read length.</p>
+</dd>
+<dt><kbd>--refgenome_fasta</kbd></dt>
+<dd><p>Path to a .fa file of the reference genome. Must have a .fa.fai index in the same directory.</p>
+</dd>
+<dt><kbd>--mappability_bigwig</kbd></dt>
+<dd><p>Path to a bigWig file that contains (forward) mappability values for every base in the reference genome. Can be calculated with gem-mappability for the appropriate read length.</p>
+</dd>
+</dl>
+</div>
+<div class="section" id="Optional named arguments - General settings">
+<h3>Optional named arguments - General settings<a class="headerlink" href="#Optional named arguments - General settings" title="Permalink to this headline">¶</a></h3>
+<dl class="option-list">
+<dt><kbd>--bedpathlist</kbd></dt>
+<dd><p>List of paths to BED files, one for each region-set of interest. If unspecified, only the biasmodel will be trained (if indicated by the –bedpath_biasmodel, –detect_exisiting_biasmodel, and –use_this_biasmodel settings).</p>
+<p>Default: []</p>
+</dd>
+<dt><kbd>--bedpath_biasmodel</kbd></dt>
+<dd><p>.bed file containing regions that are used for generating the bias model for the sample. E.g. random regions should work well. Incompatible with use_provided_biasmodel. If ‘10k_random’ is specified, a set of 10k random regions for hg38 shipped with the package is used for training unless an existing biasmodel can be used. If not specified / None (default), train a seperate biasmodel for each region-set that is specified in –bedpathlist, using the flanking regions (+- extend_to) for each region in the set.</p>
+</dd>
+<dt><kbd>--binsize</kbd></dt>
+<dd><p>Bin size is important for the resolution of the output plots &amp; data, and for the bias model itself. Smaller bin sizes give higher resolution, but take longer to calculate and may result in more noise</p>
+<p>Default: 500</p>
+</dd>
+<dt><kbd>--extend_to</kbd></dt>
+<dd><p>Size of the flanking region, in bp. Must be devidable by –binsize and must be a multiple of 2. The regions will be extended by this value in both directions. The most upstream bin starts &lt;extend_to&gt; bp upstream of the core region start, and the most downstream bin ends &lt;extend_to&gt; bp downstream of the core region end. If –all_bins_same_size is set, insteadthe outmost bins will have their center at &lt;center of the region&gt;+-&lt;extend_to&gt;.</p>
+<p>Default: 20000</p>
+</dd>
+<dt><kbd>--blacklist</kbd></dt>
+<dd><p>Exclude regions if they overlap with the regions in this .bed file (after extension by –extend_to). Default: None. Set to ‘hg38’ to use the Boyle lab’s hg38-blacklist.v2 that is shipped with LIQUORICE.</p>
+</dd>
+<dt><kbd>--cna_seg_file</kbd></dt>
+<dd><p>If specified, use this .seg file to correct the coverage by the values specified in this file prior to model training or bias correction. Use this if you want to normalize out the effects of copy number aberrations (CNAs) on the coverage. File must be tab-separated, with column names as first line. The second,third,and fourth column must be chromosome, start, and end of the segment, and the last column must be the log2-ratio of observed / expected read depth. This file can be generated e.g. by running ichorCNA on the sample first.</p>
+</dd>
+<dt><kbd>--detect_existing_biasmodel</kbd></dt>
+<dd><p>Check if a bias-model has already been built and saved under ./&lt;samplename&gt;/biasmodel/trained_biasmodel.joblib. If so, use it, otherwise build one using –on a new biasmodel, overwriting files with the same name.</p>
+<p>Default: False</p>
+</dd>
+<dt><kbd>--use_this_biasmodel</kbd></dt>
+<dd><p>Use this bias model instead of training a model. IMPORTANT: This model has to come from the same sample/patient as the current one, otherwise the bias correction makes no sense.</p>
+</dd>
+<dt><kbd>--extend_to_biasmodel</kbd></dt>
+<dd><p>Ignored unless –bedpath_biasmodel is set. Size of the flanking region, in bp, to be used for the bias-model. Must be devidable by –binsize and must be a multiple of 2. The regions will be extended by this value in both directions. Outmost bins will have their center at &lt;center of the region&gt;+-&lt;extend_to&gt;. Default 0: Only place a single bin at the center of each provided region to speed up the training process.</p>
+<p>Default: 0</p>
+</dd>
+<dt><kbd>--no_chr_prefix</kbd></dt>
+<dd><p>Specify this if the reference genome your .bam files are aligned to uses a chromosome naming scheme such as “1,2,3,..,X,Y” instead of “chr1,chr2,chr3,..,chrX,chrY”, which is the default. Note that if your chromosomes are not named like the default, you must not use the “10k_random” setting for –bedpath_biasmodel or the “hg38” setting for –blacklist. Also, all other input files (refgenome_fasta, mappability_bigwig, bedpathlist, and cna_seg_file must follow the same notation.</p>
+<p>Default: False</p>
+</dd>
+<dt><kbd>--use_this_roi_biasfactortable</kbd></dt>
+<dd><p>If set, use the specified biasfactor table and only train/apply the biasmodel, skipping the calculation of coverage and bias factors.</p>
+</dd>
+<dt><kbd>--speed_mode</kbd></dt>
+<dd><p>Only perform GC correction, don’t correct using mappability or di/trinucleotides. Setting this flag makes LIQUORICE considerably faster, but may lead to less accurate results. Currently respected only if –bedpath_biasmodel is not specified.</p>
+<p>Default: False</p>
+</dd>
+<dt><kbd>--all_bins_same_size</kbd></dt>
+<dd><p>If set, use always the same bin size (for both the core region provided with –bedpath_list and the flanking regions defined by –extend_to), instead of splitting the core region into bins with sizes corresponding to 10,15,25,15,and 10% of the core region’s length.</p>
+<p>Default: False</p>
+</dd>
+<dt><kbd>--dont_crossvalidate_if_train_on_rois</kbd></dt>
+<dd><p>Unless set, if –train_on_rois is specified, train two seperate bias models, each on half of the dataset, and use the trainedmodel to predict the other half.</p>
+<p>Default: False</p>
+</dd>
+</dl>
+</div>
+<div class="section" id="Optional named arguments - Technical settings">
+<h3>Optional named arguments - Technical settings<a class="headerlink" href="#Optional named arguments - Technical settings" title="Permalink to this headline">¶</a></h3>
+<dl class="option-list">
+<dt><kbd>--n_cpus</kbd></dt>
+<dd><p>Number of processors to be used whereever multiprocessing/multithreading is used.</p>
+<p>Default: 1</p>
+</dd>
+<dt><kbd>--tmpdir</kbd></dt>
+<dd><p>Use this directory as a temporary directory.</p>
+<p>Default: “.”</p>
+</dd>
+</dl>
+</div>
+<div class="section" id="Optional named arguments - Output settings">
+<h3>Optional named arguments - Output settings<a class="headerlink" href="#Optional named arguments - Output settings" title="Permalink to this headline">¶</a></h3>
+<dl class="option-list">
+<dt><kbd>--samplename</kbd></dt>
+<dd><p>Name of the sample that is being processed. This will be used for output plots and the names of directories. Default None: Infer from –bamfile by removing .bam extension</p>
+</dd>
+<dt><kbd>--quiet</kbd></dt>
+<dd><p>If set, the log level is set to “warning”, making LIQUORICE less chatty.</p>
+<p>Default: False</p>
+</dd>
+<dt><kbd>--save_training_table</kbd></dt>
+<dd><p>If set, save the training DataFrame of the bias model under ./&lt;samplename&gt;/biasmodel/training_table.csv (or ./&lt;samplename&gt;/&lt;region-set name&gt;/training_table.csv if –bedpath_biasmodel is not specified)</p>
+<p>Default: False</p>
+</dd>
+<dt><kbd>--save_biasfactor_table</kbd></dt>
+<dd><p>If set, for each region-set, save a table of coverage and biasfactor values per bin under ./&lt;samplename&gt;/&lt;region-set name&gt;/coverage_and_biasfactors_per_bin.csv</p>
+<p>Default: False</p>
+</dd>
+</dl>
+</div>
+</div>
+<div class="section" id="liquorice-s-output">
+<h2>LIQUORICE’s output<a class="headerlink" href="#liquorice-s-output" title="Permalink to this headline">¶</a></h2>
+<p><cite>LIQUORICE</cite> creates a folder named after the samplename in the current working directory, and places all its output
+there. For every region-set, a subfolder is created. Within these folders, the following files are generated by default:</p>
+<ul class="simple">
+<li><p><em>bins.bed</em>: Genomic coordinates of all bins that passed the filtering and were used to generate the result.</p></li>
+<li><p><em>regions.bed</em>: Genomic coordinates of all regions that passed the filtering and were used to generate the bins.</p></li>
+<li><p><em>corrected_coverage_mean_per_bin.csv</em>: The bin-wise, aggregated, bias-corrected coverage values</p></li>
+<li><p><em>uncorrected_coverage_mean_per_bin.csv</em>: The bin-wise, aggregated, un-corrected coverage values</p></li>
+<li><p><em>corrected_vs_uncorrected_coverage.pdf</em>: A plot showing the aggregated coverage profiles, comparing corrected and uncorrected values.</p></li>
+<li><p><em>fitted_gaussians.pdf</em>: A plot showing the fitted model, its seperate elements, and the bin-wise, aggregated, bias-corrected coverage values</p></li>
+<li><p><em>fitted_gaussians_parameter_summary.csv</em>: A table summarizing the parameters of the fitted model. This includes the dip area and depth, the two main metrics that quantify the epigenetic signal.</p></li>
+<li><p><em>GC_content__vs__corrected_coverage.pdf</em>: A heatmap-style correlation plot, showing the correlation between the GC content and the corrected coverage value in each bin.</p></li>
+<li><p><em>GC_content__vs__coverage.pdf</em>: A heatmap-style correlation plot, showing the correlation between the GC content and the uncorrected coverage value in each bin.</p></li>
+</ul>
+</div>
+</div>
+<div class="section" id="liquorice-s-summary-tool">
+<span id="liquorice-summary-tool"></span><h1>LIQUORICE’s summary tool<a class="headerlink" href="#liquorice-s-summary-tool" title="Permalink to this headline">¶</a></h1>
+<p>Useful for generating summaries across samples for multiple region-sets:</p>
+<div class="section" id="id1">
+<h2>Arguments<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h2>
+<p><p>Summarize output of LIQUORICE for multiple samples and regions of interests in a table and plots. Please make sure that for for any given region-set LIQUORICE has been run with consistent ‘binsize’ and ‘extend_to’ settings across samples.)</p>
+</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">usage</span><span class="p">:</span> <span class="n">LIQUORICE_summary</span> <span class="p">[</span><span class="o">-</span><span class="n">h</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">dirname</span> <span class="n">DIRNAME</span><span class="p">]</span>
+                         <span class="p">[</span><span class="o">--</span><span class="n">control_name_list</span> <span class="n">CONTROL_NAME_LIST</span> <span class="p">[</span><span class="n">CONTROL_NAME_LIST</span> <span class="o">...</span><span class="p">]]</span>
+                         <span class="p">[</span><span class="o">--</span><span class="n">comparison_metric</span> <span class="p">{</span><span class="n">area</span><span class="p">,</span><span class="n">depth</span><span class="p">}]</span>
+                         <span class="p">[</span><span class="o">--</span><span class="n">binsize</span> <span class="n">BINSIZE</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">extend_to</span> <span class="n">EXTEND_TO</span><span class="p">]</span>
+                         <span class="p">[</span><span class="o">--</span><span class="n">smooth_sigma</span> <span class="n">SMOOTH_SIGMA</span><span class="p">]</span>
+                         <span class="p">[</span><span class="o">--</span><span class="n">use_uncorrected_coverage</span><span class="p">]</span>
+                         <span class="p">[</span><span class="o">--</span><span class="n">table_only</span> <span class="n">TABLE_ONLY</span><span class="p">]</span>
+                         <span class="p">[</span><span class="o">--</span><span class="n">these_regionsets_only</span> <span class="n">THESE_REGIONSETS_ONLY</span> <span class="p">[</span><span class="n">THESE_REGIONSETS_ONLY</span> <span class="o">...</span><span class="p">]]</span>
+                         <span class="p">[</span><span class="o">--</span><span class="n">zscore_treshold</span> <span class="n">ZSCORE_TRESHOLD</span><span class="p">]</span>
+</pre></div>
+</div>
+<div class="section" id="Optional named arguments">
+<h3>Optional named arguments<a class="headerlink" href="#Optional named arguments" title="Permalink to this headline">¶</a></h3>
+<dl class="option-list">
+<dt><kbd>--dirname</kbd></dt>
+<dd><p>Directory in which LIQUORICE’s output is contained. Can contain output of multiple samples.</p>
+<p>Default: “.”</p>
+</dd>
+<dt><kbd>--control_name_list</kbd></dt>
+<dd><p>List of samples that serve as reference control samples. Used toinfer z-scores.</p>
+<p>Default: []</p>
+</dd>
+<dt><kbd>--comparison_metric</kbd></dt>
+<dd><p>Possible choices: area, depth</p>
+<p>Which metric should be used for determining significantly different samples in the overlay plot.</p>
+<p>Default: “area”</p>
+</dd>
+<dt><kbd>--binsize</kbd></dt>
+<dd><p>–binsize setting that was used for LIQUORICE. Default: infer automatically</p>
+</dd>
+<dt><kbd>--extend_to</kbd></dt>
+<dd><p>–extend_to that was used for LIQUORICE. Default: infer automatically</p>
+</dd>
+<dt><kbd>--smooth_sigma</kbd></dt>
+<dd><p>Determines how strong the coverage drops should be smoothed for the overlay plot. Set to 0 for no smoothing.</p>
+<p>Default: 2.0</p>
+</dd>
+<dt><kbd>--use_uncorrected_coverage</kbd></dt>
+<dd><p>Per default the corrected coverages will be plotted. Set if you want to plot/summarize the uncorrected  coverage instead.</p>
+<p>Default: False</p>
+</dd>
+<dt><kbd>--table_only</kbd></dt>
+<dd><p>Only generate overview table, don’t plot</p>
+<p>Default: False</p>
+</dd>
+<dt><kbd>--these_regionsets_only</kbd></dt>
+<dd><p>List of region sets for which a summary should be calculated. Default: summarize all detected region-sets</p>
+<p>Default: False</p>
+</dd>
+<dt><kbd>--zscore_treshold</kbd></dt>
+<dd><p>Use this number as a treshold for significance: Significant samples musthave a signal that is outside &lt;mean of controls&gt; +- &lt;zscore_treshold&gt;*&lt;standard deviation of controls&gt;.The default of 2 roughly corresponds to alpha=0.05 if the signal in the controls is normally distributed</p>
+<p>Default: 2</p>
+</dd>
+</dl>
+</div>
+</div>
+<div class="section" id="output-of-liquorice-s-summary-tool">
+<h2>Output of LIQUORICE’s summary tool<a class="headerlink" href="#output-of-liquorice-s-summary-tool" title="Permalink to this headline">¶</a></h2>
+<p>In the current working directory, <cite>LIQUORICE_summary</cite> generates a file <em>“summary_across_samples_and_ROIs.csv”</em>, in which
+the individual <em>fitted_gaussians_parameter_summary.csv</em> files are summarized. If <cite>--control_name_list</cite> is specified,
+this also includes information on the significance of difference between a given case sample and the control samples.
+A violinplot, <em>“boxplot_summary_by_dip_&lt;comparison_metric=[area,depth]&gt;.pdf”</em> is generated, in which the scores
+across groups of samples (if defined) and region-sets are summarized. (Which metric is used to determine the scores is
+determined by the <cite>--comparison_metric</cite> parameter.)
+Additionally, for each region-set, the following files are generated (if <cite>--control_name_list</cite> is specified) :</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><em>&lt;regionset&gt;_summary_plot_overlay_of_samples_by_Dip_&lt;comparison_metric=[area,depth].pdf</em>: Two side-by-side overlay plots (separate for control and case samples),
+showing the aggregated, bias-corrected coverage profile. Lines are colored by significance of differences between a
+given case sample and the control samples.</p></li>
+<li><p><em>&lt;regionset&gt;_summary_plot_subplots_of_samples_by_Dip_&lt;comparison_metric=[area,depth].pdf</em>: A pdf document (multi-page if necessary) in which the
+aggregated, bias-corrected coverage profile is shown as a seperate plot for every sample. Lines are colored by
+significance of differences between a given case sample and the control samples.</p></li>
+</ul>
+</div></blockquote>
+<p>If the option <cite>--use_uncorrected_coverage</cite> is chosen, all output files will have the suffix “_using_uncorrected_coverage.&lt;[pdf,csv]&gt;”.</p>
+</div>
+</div>
+<div class="section" id="usage-parameters-and-examples">
+<span id="id2"></span><h1>Usage, Parameters, and Examples<a class="headerlink" href="#usage-parameters-and-examples" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="advice-on-parameter-settings">
+<h2>Advice on parameter settings<a class="headerlink" href="#advice-on-parameter-settings" title="Permalink to this headline">¶</a></h2>
+<p>Apart from the input data, the parameters with the strongest influence on <cite>LIQUORICE</cite>’s results and runtime are:</p>
+<ul class="simple">
+<li><p><cite>binsize</cite> (speed, memory &amp; outcome)</p></li>
+<li><p><cite>extend_to</cite> (speed, memory &amp; outcome)</p></li>
+<li><p><cite>n_cpus</cite> (speed, memory)</p></li>
+<li><p><cite>bedpath_biasmodel</cite> (speed, memory &amp; outcome)</p></li>
+<li><p><cite>all_bins_same_size</cite> (outcome)</p></li>
+<li><p><cite>speed_mode</cite> (speed, memory &amp; outcome)</p></li>
+</ul>
+<p>A few words of advice on how to set these parameters properly:</p>
+<div class="section" id="binsize-and-extend-to">
+<h3><em>binsize and extend_to</em><a class="headerlink" href="#binsize-and-extend-to" title="Permalink to this headline">¶</a></h3>
+<p>We haven chosen a default <cite>binsize</cite> of 500bp, and a default
+<cite>extend_to</cite> setting of 20kb, because these settings have worked best for us - for the epigenetic signatures
+we have studied so far. The optimal settings may be different for your application. If you want to analyze
+signals that are very wide, and you observe that the coverage profile is not fully flat at the edges of the plot (say,
+if the profile is not flat in the outermost 5kb on both sides), you can try to increase the <cite>extend_to</cite> parameter.
+Likewise, if you are observing very narrow signals, you can try decreasing <cite>extend_to</cite> accordingly, as well as try to
+decrease the <cite>binsize</cite> parameter.</p>
+<p>Note that the larger the <cite>–extend_to</cite> parameter, and the smaller the <cite>binsize</cite> parameter, the longer the runtime
+(and memory usage) of <cite>LIQUORICE</cite> will be.</p>
+</div>
+<div class="section" id="bedpath-biasmodel">
+<h3><em>bedpath_biasmodel</em><a class="headerlink" href="#bedpath-biasmodel" title="Permalink to this headline">¶</a></h3>
+<p>If <cite>--bedpath_biasmodel</cite> is not specified (default), <cite>LIQUORICE</cite> does the following:</p>
+<ul class="simple">
+<li><p>Train a seperate bias-model for each region-set (i.e. for each entry in <cite>--bedpathlist</cite>)</p></li>
+<li><p>For a given region-set, each region is extended by <cite>--extend_to</cite> in both directions and split into bins</p></li>
+<li><p>As training data for the bias-model, all bins are used except (i) the 5 central bins that cover the core region, if <cite>--all_bins_same_size</cite> is not specified; or (ii) the one central bin, if <cite>--all_bins_same_size</cite> is specified.</p></li>
+<li><p>All bins are used to determine the composite, bias-corrected coverage signature</p></li>
+</ul>
+<p>If <cite>--bedpath_biasmodel</cite> is specified, <cite>LIQUORICE</cite> does the following:</p>
+<ul class="simple">
+<li><p>Train a single, common bias-model for every region-set (i.e. for each entry in <cite>--bedpathlist</cite>)</p></li>
+<li><p>Each region in the .bed file specified under <cite>--bedpath_biasmodel</cite> (or each region in <cite>LIQUORICE</cite>’s own set of 10000 random regions if <cite>--bedpath_biasmodel 10k_random</cite> is specified) is extended by <cite>--extend_to_biasmodel</cite> (default: 0) in both directions and split into bins</p></li>
+<li><p>The resulting bins are used as training data for the bias-model.</p></li>
+</ul>
+<p>We have decided to set the former option as default because it yielded somewhat better results for our own samples.
+However, we do encourage you to try both options for your own cohort. The latter option will also likely be a bit faster
+in case you are running <cite>LIQUORICE</cite> on a large number of region-sets.</p>
+</div>
+<div class="section" id="all-bins-same-size">
+<h3><em>all_bins_same_size</em><a class="headerlink" href="#all-bins-same-size" title="Permalink to this headline">¶</a></h3>
+<p>By default (i.e. if <cite>--all_bins_same_size</cite> is not specified), <cite>LIQUORICE</cite> does the following:</p>
+<ul class="simple">
+<li><p>Split each region-of-interest into five bins with sizes corresponding to bins of 10%, 15%, 50%, 15%, and 10% of the total length of the region, respectively.
+This is done in order to facilitate comparisons between regions of different lengths within the same region set. After splitting, every site consists of five bins, regardless of the initial length of the region.</p></li>
+<li><p>Next, the adjacent genomic region (<cite>-- extend_to</cite> basepairs to both sides) is split into bins of <cite>--binsize</cite> bp size. The most upstream bin starts <cite>extend_to</cite> bp upstream of the core region start, and the most downstream bin ends <cite>extend_to</cite> bp downstream of the core region end.</p></li>
+</ul>
+<p>If <cite>--all_bins_same_size</cite> is specified, <cite>LIQUORICE</cite> does the following:</p>
+<ul class="simple">
+<li><p>Use a size of <cite>--binsize</cite> bp for all bins, also the ones at the center.</p></li>
+<li><p>The central bin is centered around the center of the region-of-interest. The other bins are tiled such that no gaps arise.
+Outmost bins will have their center at &lt;center of the region&gt;+-<cite>extend_to</cite>.</p></li>
+</ul>
+<p>Also here, we have decided to set the former option as default because it yielded somewhat better results for our own samples.
+We do note, however, that differences in bin-size might introduce some slight biases in the coverage profile. While we have nevertheless found that this option works well for us, we do encourage you to try both options for your own cohort.</p>
+</div>
+</div>
+<div class="section" id="parallelization">
+<h2>Parallelization<a class="headerlink" href="#parallelization" title="Permalink to this headline">¶</a></h2>
+<p>Increasing the <cite>n_cpus</cite> parameter will cause LIQUORICE to use more threads during the steps that are parallelized, and
+speed up the analysis. A (potentially faster) alternative to using this setting is to parallelize at the sample level,
+using GNU parallel (<a class="reference external" href="http://dx.doi.org/10.5281/zenodo.16303">http://dx.doi.org/10.5281/zenodo.16303</a>), which is automatically installed together with <cite>LIQUORICE</cite> :</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nv">SAMPLES</span><span class="o">=</span><span class="s2">&quot;Sample1 Sample2 Sample3 Sample4 Sample5 Sample6 Sample7 Sample8 Sample9 Sample10&quot;</span>
+<span class="nv">NR_OF_CORES_TO_BE_USED</span><span class="o">=</span><span class="m">5</span>
+
+<span class="c1"># Write a simple bash file that contains all required parameters for liquorice, and takes the sample name as an argument</span>
+<span class="c1"># Replace the paths and file name according to your file locations.</span>
+<span class="nb">echo</span> <span class="s1">&#39;LIQUORICE --bamfile &quot;PATH_TO_BAMFILES/${1}.bam&quot; --refgenome_fasta PATH_TO_REFERENCE_GENOME/hg38.fa --mappability_bigwig PATH_TO_MAPPABILITY_BW/hg38_mappability_75bp.bigwig --bedpathlist &quot;PATH_TO_REGIONSETS/YOUR_REGIONSET_OF_INTEREST.bed&quot; --blacklist hg38 --n_cpus 1 --cna_seg_file &quot;PATH_TO_SEGFILES/${1}.seg&quot;&#39;</span> &gt;LIQUORICE_command.sh
+
+parallel --results logs -j <span class="s2">&quot;{</span><span class="nv">$NR_OF_CORES_TO_BE_USED</span><span class="s2">}&quot;</span> bash LIQUORICE_command.sh  ::: <span class="si">${</span><span class="nv">SAMPLES</span><span class="si">}</span>
+</pre></div>
+</div>
+<p>Note that the memory usage will increase with the number of parallel jobs (set by the <cite>-j</cite> parameter of parallel).
+We usually allow for 3GB of RAM for each job executed in parallel and set the <cite>-j</cite> parameter accordingly ( <cite>j</cite> = &lt;Total available Memory on the Computer/Server&gt;/3 GB) when running LIQUORICE with default settings on a region-set of 6000 regions.
+Note that memory usage also depends on <cite>extend_to</cite>, <cite>binsize</cite>, <cite>speed_mode</cite>, and scales linearly with the number of regions in your region-sets.</p>
+</div>
+<div class="section" id="sources-for-input-files">
+<h2>Sources for input files<a class="headerlink" href="#sources-for-input-files" title="Permalink to this headline">¶</a></h2>
+<ul>
+<li><p><strong>bamfiles</strong>: Use your own (or publically available) paired-end whole genome sequencing data from liquid biopsies here.
+Data should be quality-controlled and trimmed (e.g. using <a class="reference external" href="https://github.com/OpenGene/fastp">fastp</a> with default settings) as well as mapped (we have used <cite>bwa mem</cite>).
+We have found that higher sequencing depth improves results - from our own experience, we would recommend using a depth of at least 1x (or higher, if possible).
+For details, see Figure 6 of our  <a class="reference external" href="https://doi.org/10.1038/s41467-021-23445-w">recent publication</a>.</p></li>
+<li><p><strong>mappability .bigwig files</strong>: This reference file should match i) your reference genome (e.g. hg38, hg19, …) and ii) the read-length of your samples.
+We provide pre-calculated files for hg38 and readlengths 50,75,100, and 150 HERE TODOTODOTODOTODOTODO. If you require a different read length or reference genome, you can run
+create_mappability_bigwigs.sh like so:</p>
+<blockquote>
+<div><div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>wget https://github.com/peneder/LIQUORICE/raw/master/liquorice/create_mappability_bigwigs.sh
+bash create_mappability_bigwigs.sh PATH_TO_GENOME_FASTA READLENGTH NR_OF_CORES_TO_BE_USED<span class="sb">`</span>.
+</pre></div>
+</div>
+</div></blockquote>
+</li>
+</ul>
+<p>This will create a mappability bigwig file in the current directory.</p>
+<ul class="simple">
+<li><p><strong>regionsets-of-interest</strong> (<cite>bedpathlist</cite>): See <a class="reference internal" href="intro.html#region-sets-anchor"><span class="std std-ref">Region-sets</span></a>.</p></li>
+</ul>
+</div>
+<div class="section" id="test-liquorice-with-provided-test-data">
+<h2>Test LIQUORICE with provided test data<a class="headerlink" href="#test-liquorice-with-provided-test-data" title="Permalink to this headline">¶</a></h2>
+<p>To test whether your installation of <cite>LIQUORICE</cite> works as expected, you can test it on a small test dataset from
+a healthy control sample that we provide.
+Just follow the example below:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Set desired nr. of cpus</span>
+<span class="nv">N_CPUS</span><span class="o">=</span><span class="m">5</span>
+
+<span class="c1"># download and unzip the reference genome and reference mappability file</span>
+wget https://hgdownload.soe.ucsc.edu/goldenPath/hg38/bigZips/p12/hg38.p12.fa.gz
+gunzip hg38.fa.gz
+wget https://github.com/peneder/LIQUORICE/raw/master/liquorice/data/hg38.p12.fa.fai
+wget https://github.com/peneder/LIQUORICE/raw/master/liquorice/data/hg38.fa.mappability_100bp.subsetted_for_testdata.bw
+
+<span class="c1"># download .bam file of a healthy control liquid biopsy sample (pre-processed to keep the size small)</span>
+wget https://github.com/peneder/LIQUORICE/raw/master/liquorice/data/Ctrl_17_testdata.bam
+
+<span class="c1"># download .bed file for universally accessible DHSs</span>
+wget https://github.com/peneder/LIQUORICE/raw/master/liquorice/data/universal_DHSs.bed
+
+<span class="c1"># run LIQUORICE</span>
+LIQUORICE --bamfile Ctrl_17_testdata.bam --refgenome_fasta <span class="s2">&quot;hg38.p12.fa&quot;</span> <span class="se">\</span>
+        --mappability_bigwig <span class="s2">&quot;hg38.fa.mappability_100bp.subsetted_for_testdata.bw&quot;</span> <span class="se">\</span>
+        --bedpathlist <span class="s2">&quot;universal_DHSs.bed&quot;</span> <span class="se">\</span>
+        --blacklist <span class="s2">&quot;hg38&quot;</span> --n_cpus <span class="s2">&quot;</span><span class="si">${</span><span class="nv">N_CPUS</span><span class="si">}</span><span class="s2">&quot;</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="example-usage-of-liquorice-and-the-summary-tool">
+<h2>Example usage of LIQUORICE and the summary tool<a class="headerlink" href="#example-usage-of-liquorice-and-the-summary-tool" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Run LIQUORICE for 4 samples and 3 region-sets, and summarize the results:</span>
+
+<span class="nv">SAMPLES</span><span class="o">=</span><span class="s2">&quot;sample1 sample2 sample3 sample4&quot;</span>
+<span class="nv">CONTROLS</span><span class="o">=</span><span class="s2">&quot;sample1 sample2&quot;</span>
+<span class="nv">BAMS</span><span class="o">=</span><span class="s2">&quot;./bams&quot;</span>
+<span class="nv">BEDS</span><span class="o">=</span><span class="s2">&quot;./regionsets&quot;</span>
+<span class="nv">HG38</span><span class="o">=</span><span class="s2">&quot;./hg38&quot;</span>
+
+<span class="k">for</span> SAMPLE <span class="k">in</span> <span class="s2">&quot;</span><span class="nv">$SAMPLES</span><span class="s2">&quot;</span>
+<span class="k">do</span>
+LIQUORICE --bamfile <span class="s2">&quot;</span><span class="si">${</span><span class="nv">BAMS</span><span class="si">}</span><span class="s2">/</span><span class="si">${</span><span class="nv">SAMPLE</span><span class="si">}</span><span class="s2">.bam&quot;</span> --refgenome_fasta <span class="s2">&quot;</span><span class="si">${</span><span class="nv">HG38</span><span class="si">}</span><span class="s2">/hg38.fa&quot;</span> <span class="se">\</span>
+    --mappability_bigwig <span class="s2">&quot;</span><span class="si">${</span><span class="nv">HG38</span><span class="si">}</span><span class="s2">/hg38_mappability_75bp.bw&quot;</span> <span class="se">\</span>
+    --bedpathlist <span class="s2">&quot;</span><span class="si">${</span><span class="nv">BEDS</span><span class="si">}</span><span class="s2">/regionset1.bed&quot;</span> <span class="s2">&quot;</span><span class="si">${</span><span class="nv">BEDS</span><span class="si">}</span><span class="s2">/regionset2.bed&quot;</span> <span class="s2">&quot;</span><span class="si">${</span><span class="nv">BEDS</span><span class="si">}</span><span class="s2">/regionset3.bed&quot;</span> <span class="se">\</span>
+    --blacklist <span class="s2">&quot;hg38&quot;</span> --n_cpus <span class="m">8</span>
+<span class="k">done</span>
+
+LIQUORICE_summary --control_name_list <span class="s2">&quot;</span><span class="si">${</span><span class="nv">CONTROLS</span><span class="si">}</span><span class="s2">&quot;</span>
+</pre></div>
+</div>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+        <a href="liquorice.html" class="btn btn-neutral float-left" title="The liquorice python package" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright 2021, Peter Peneder.
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

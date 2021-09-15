@@ -1,0 +1,911 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>liquorice.utils.Workflows &mdash; LIQUORICE 0.5.0 documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+    
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../../index.html">
+          
+
+          
+            
+            <img src="../../../_static/liquorice_logo_fitted_transparent.png" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../intro.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../intro.html#installation">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../intro.html#citation">Citation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../liquorice.html">The <cite>liquorice</cite> python package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../liquorice_commandline_tool.html">The LIQUORICE command-line-tool</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../liquorice_commandline_tool.html#liquorice-s-summary-tool">LIQUORICE’s summary tool</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../liquorice_commandline_tool.html#usage-parameters-and-examples">Usage, Parameters, and Examples</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">LIQUORICE</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+        
+      <li>liquorice.utils.Workflows</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for liquorice.utils.Workflows</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">from</span> <span class="nn">_datetime</span> <span class="kn">import</span> <span class="n">datetime</span>
+<span class="kn">import</span> <span class="nn">typing</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+
+<span class="kn">from</span> <span class="nn">liquorice.utils</span> <span class="kn">import</span> <span class="n">RegionFilteringAndBinning</span>
+<span class="kn">from</span> <span class="nn">liquorice.utils</span> <span class="kn">import</span> <span class="n">CoverageAndSequenceTablePreparation</span>
+<span class="kn">from</span> <span class="nn">liquorice.utils</span> <span class="kn">import</span> <span class="n">CorrectForCNAs</span>
+<span class="kn">from</span> <span class="nn">liquorice.utils</span> <span class="kn">import</span> <span class="n">BinTableBiasFactors</span>
+<span class="kn">from</span> <span class="nn">liquorice.utils</span> <span class="kn">import</span> <span class="n">BiasModel</span>
+<span class="kn">from</span> <span class="nn">liquorice.utils</span> <span class="kn">import</span> <span class="n">Plotting</span>
+<span class="kn">from</span> <span class="nn">liquorice.utils</span> <span class="kn">import</span> <span class="n">AggregateAcrossRegions</span>
+<span class="kn">from</span> <span class="nn">liquorice.utils</span> <span class="kn">import</span> <span class="n">FitGaussians</span>
+
+
+<div class="viewcode-block" id="add_biasfactors_percentile_split"><a class="viewcode-back" href="../../../liquorice.html#liquorice.utils.Workflows.add_biasfactors_percentile_split">[docs]</a><span class="k">def</span> <span class="nf">add_biasfactors_percentile_split</span><span class="p">(</span><span class="n">avg_readlength</span><span class="p">,</span> <span class="n">liq_table</span><span class="p">,</span> <span class="n">n_cores</span><span class="p">,</span> <span class="n">sampled_fragment_lengths</span><span class="p">,</span>
+                                     <span class="n">skip_these_biasfactors</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Returns a table with added bias-factors, taking into account different bin sizes. Also adds a &quot;bin size&quot; column.</span>
+
+<span class="sd">    :param avg_readlength: Average length of reads in the .bam file.</span>
+<span class="sd">    :param liq_table: pandas.DataFrame` with one row per bin, containing columns &quot;chromosome&quot;, &quot;start&quot;, &quot;end&quot;,</span>
+<span class="sd">        &quot;bin nr.&quot;, &quot;coverage&quot;, &quot;sequence&quot;, and &quot;mappability&quot;. Suitable input is the output of the</span>
+<span class="sd">        :func:`get_complete_table` method of the :attr:`liquorice.utils.CoverageAndSequenceTablePreparation` class</span>
+<span class="sd">        object.</span>
+<span class="sd">    :param n_cores: Max number of cores to use for calculations.</span>
+<span class="sd">    :param sampled_fragment_lengths:  A list containing fragment lengths that are representative of the sample&#39;s global</span>
+<span class="sd">     fragment size distribution. Typically a few hundred fragments will suffice here.</span>
+<span class="sd">    :param skip_these_biasfactors: Do not calculate these bias factors. Only these entries are allowed:</span>
+<span class="sd">        [&quot;di and trinucleotides and GC content&quot;,&quot;mappability&quot;, &quot;di and trinucleotides&quot;]</span>
+<span class="sd">    :return: A `pandas.DataFrame` with added bias-factors, taking into account different bin sizes, and a</span>
+<span class="sd">        &quot;bin size&quot; column.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">skip_these_biasfactors</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">skip_these_biasfactors</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">liq_table</span><span class="p">[</span><span class="s2">&quot;bin size&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">liq_table</span><span class="p">[</span><span class="s2">&quot;end&quot;</span><span class="p">]</span> <span class="o">-</span> <span class="n">liq_table</span><span class="p">[</span><span class="s2">&quot;start&quot;</span><span class="p">]</span>
+
+    <span class="n">liq_tables_with_biasfactors_all_sizes</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">bins_sizes</span><span class="o">=</span><span class="n">liq_table</span><span class="p">[</span><span class="s2">&quot;bin size&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">unique</span><span class="p">()</span>
+    <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Calculating bias factors for bins of sizes </span><span class="si">{</span><span class="n">bins_sizes</span><span class="si">}</span><span class="s2">, using up to </span><span class="si">{</span><span class="n">n_cores</span><span class="si">}</span><span class="s2"> cores &quot;</span>
+                 <span class="sa">f</span><span class="s2">&quot; - this may take a while. &quot;</span>
+                 <span class="sa">f</span><span class="s2">&quot;(The following &#39;UserWarning&#39;s from modin can be ignored.)&quot;</span><span class="p">)</span>
+
+    <span class="n">prev_log_level</span><span class="o">=</span><span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">()</span><span class="o">.</span><span class="n">getEffectiveLevel</span><span class="p">()</span>
+    <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">()</span><span class="o">.</span><span class="n">setLevel</span><span class="p">(</span><span class="s2">&quot;WARNING&quot;</span><span class="p">)</span> <span class="c1"># avoid that the logging gets cluttered with messages for every bin size</span>
+    <span class="k">for</span> <span class="n">this_size</span> <span class="ow">in</span> <span class="n">bins_sizes</span><span class="p">:</span>
+        <span class="n">table_this_size</span> <span class="o">=</span> <span class="n">liq_table</span><span class="p">[</span><span class="n">liq_table</span><span class="p">[</span><span class="s2">&quot;bin size&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="n">this_size</span><span class="p">]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="n">table_this_size</span><span class="p">[</span><span class="s2">&quot;orig index&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">table_this_size</span><span class="o">.</span><span class="n">index</span>
+        <span class="n">table_this_size</span> <span class="o">=</span> <span class="n">table_this_size</span><span class="o">.</span><span class="n">reset_index</span><span class="p">()</span>
+        <span class="n">liq_table_with_biasfactors</span> <span class="o">=</span> <span class="n">BinTableBiasFactors</span><span class="o">.</span><span class="n">BiasFactorHandler</span><span class="p">(</span>
+            <span class="n">binsize</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">this_size</span><span class="p">),</span>
+            <span class="n">fragments</span><span class="o">=</span><span class="n">sampled_fragment_lengths</span><span class="p">,</span>
+            <span class="n">readlength</span><span class="o">=</span><span class="n">avg_readlength</span><span class="p">,</span>
+            <span class="n">df</span><span class="o">=</span><span class="n">table_this_size</span><span class="p">,</span>
+            <span class="n">n_cores</span><span class="o">=</span><span class="n">n_cores</span><span class="p">,</span>
+            <span class="n">skip_these_biasfactors</span><span class="o">=</span><span class="n">skip_these_biasfactors</span><span class="p">)</span><span class="o">.</span><span class="n">get_table_with_bias_factors</span><span class="p">()</span>
+        <span class="n">liq_tables_with_biasfactors_all_sizes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">liq_table_with_biasfactors</span><span class="p">)</span>
+        <span class="k">del</span> <span class="n">table_this_size</span>
+    <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">()</span><span class="o">.</span><span class="n">setLevel</span><span class="p">(</span><span class="n">prev_log_level</span><span class="p">)</span>
+
+    <span class="n">liq_table_with_biasfactors</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">liq_tables_with_biasfactors_all_sizes</span><span class="p">)</span>
+    <span class="n">liq_table_with_biasfactors</span> <span class="o">=</span> <span class="n">liq_table_with_biasfactors</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="s2">&quot;orig index&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">sort_index</span><span class="p">()</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="s2">&quot;index&quot;</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">liq_table_with_biasfactors</span></div>
+
+
+<div class="viewcode-block" id="train_biasmodel_for_sample"><a class="viewcode-back" href="../../../liquorice.html#liquorice.utils.Workflows.train_biasmodel_for_sample">[docs]</a><span class="k">def</span> <span class="nf">train_biasmodel_for_sample</span><span class="p">(</span><span class="n">samplename</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">bam_filepath</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">bed_filepath</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">refgenome_filepath</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+                               <span class="n">refgenome_chromsizes_filepath</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">refgenome_mappability_bigwig_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+                               <span class="n">blacklist_bed_filepath</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="kc">None</span><span class="p">,</span><span class="nb">str</span><span class="p">],</span>
+                               <span class="n">sampled_fragment_lengths</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span> <span class="n">avg_readlength</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+                               <span class="n">mean_seq_depth</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+                               <span class="n">cna_seg_filepath</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="kc">None</span><span class="p">,</span><span class="nb">str</span><span class="p">],</span>
+                               <span class="n">n_cores</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">extend_to</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">binsize</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">500</span><span class="p">,</span>
+                               <span class="n">biasmodel_output_path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;trained_biasmodel.joblib&quot;</span><span class="p">,</span>
+                               <span class="n">nr_of_bins_for_training_and_testing</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="kc">None</span><span class="p">,</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+                               <span class="n">save_training_table</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+                               <span class="n">no_chr_prefix</span><span class="p">:</span> <span class="nb">bool</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                               <span class="n">percentile_split_core_rois</span><span class="p">:</span><span class="nb">bool</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Go through all steps of LIQUORICE up to the biasmodel training. The resulting biasmodel under</span>
+<span class="sd">    **biasmodel_output_path** can then be used when LIQUORICE is run for region-sets of interest.</span>
+
+<span class="sd">    :param samplename: Name of the sample (to be used in plots and output tables).</span>
+<span class="sd">    :param bam_filepath: Path to the .bam file containing the mapped reads for the sample. Does not need to be</span>
+<span class="sd">        duplicate-filtered, this is done by the function that calculates the coverage.</span>
+<span class="sd">    :param bed_filepath: path to a .bed file containing regions that should be used to build the biasmodel.</span>
+<span class="sd">        A .bed file that contains many random regions across the genome is recommended.</span>
+<span class="sd">    :param refgenome_filepath: Path to the reference genome .fa(.gz) file. Must have a .fai index in the same dirname.</span>
+<span class="sd">    :param refgenome_chromsizes_filepath: Path to a tab-delimited file containing the chromosome sizes for the</span>
+<span class="sd">        reference genome. The first column must be the chromosome name, the second column its size.</span>
+<span class="sd">        Can be the .fa.fai file associated to the reference genome.</span>
+<span class="sd">    :param refgenome_mappability_bigwig_path: Path to a .bigWig file containing (forward) mappability values scaled</span>
+<span class="sd">        between 0 and 1.</span>
+<span class="sd">    :param blacklist_bed_filepath: .bed file of a black list, such as the one from</span>
+<span class="sd">        `here &lt;https://github.com/Boyle-Lab/Blacklist/blob/master/lists/hg38-blacklist.v2.bed.gz&gt; `_ for hg38</span>
+<span class="sd">        (unzip first). Regions that overlap any of the regions in this blacklist after extension by **extend_to**</span>
+<span class="sd">        will be excluded from further analysis. Set to None to skip this step.</span>
+<span class="sd">    :param sampled_fragment_lengths: A list containing fragment lengths that are representative of the sample&#39;s global</span>
+<span class="sd">        fragment size distribution. Typically a few hundred fragments will suffice here.</span>
+<span class="sd">    :param avg_readlength: (Average) length of the reads in the .bam file.</span>
+<span class="sd">    :param mean_seq_depth: A float that quantifies the global coverage/sequencing depth. Coverages per bin will be</span>
+<span class="sd">        normalized (i.e. divided) by this value.</span>
+<span class="sd">    :param cna_seg_filepath: If specified, use this .seg file to correct the coverage by the values specified in</span>
+<span class="sd">       this file prior to model training. Use this if you want to normalize out the effects of copy number aberrations</span>
+<span class="sd">       (CNAs) on the coverage. File must be tab-separated, with column names as first line. The second, third and fourth</span>
+<span class="sd">       column must be chromosome, start, and end of the segment, and the last column must be the log2-ratio of</span>
+<span class="sd">       observed/expected read depth.</span>
+<span class="sd">    :param binsize: Size of the bins. Use higher values to reduce noise, lower values to increase spatial</span>
+<span class="sd">        resolution. Using the same binsize for the biasmodel generation as for the region-set-of-interest is probably</span>
+<span class="sd">        preferable.</span>
+<span class="sd">    :param extend_to: The regions will be extended by this value in both directions. Outmost bins will have their</span>
+<span class="sd">        center at *&lt;center of the region&gt;*+-*&lt;extend_to&gt;*. Here, the default is 0, meaning only a single bin will be</span>
+<span class="sd">        generated per region in the .bed file. This speeds up the computation - for more precise biasmodels, we</span>
+<span class="sd">        recommend running for a larger set of regions rather than increasing the **extend_to** parameter.</span>
+<span class="sd">    :param n_cores: Maximum number of cores to use during steps that allow multiprocessing/multithreading.</span>
+<span class="sd">    :param biasmodel_output_path: Path to which the trained biasmodel should be saved to. Must have a</span>
+<span class="sd">        .joblib extension.</span>
+<span class="sd">    :param nr_of_bins_for_training_and_testing: Subset the training_df to this many bins. Can speed up the</span>
+<span class="sd">        computation time of the model training, but using too few bins will make the model less precise. To speed up</span>
+<span class="sd">        computations, we would recommend decreasing the number of regions in the .bed file rather than altering this</span>
+<span class="sd">        parameter, as this is more efficient.</span>
+<span class="sd">    :param save_training_table: If `True`, save the table that was used to train the biasmodel (coverage and biasfactors</span>
+<span class="sd">        per bin) as &quot;training_table.csv&quot;.</span>
+<span class="sd">    :param no_chr_prefix: If True, set the list of allowed chromosomes to [str(i) for i in range(1,23)] instead of</span>
+<span class="sd">        [&quot;chr&quot;+str(i) for i in range(1,23)]</span>
+<span class="sd">    :param percentile_split_core_rois: If set, split the central region into 5 bins of variable size instead of always</span>
+<span class="sd">        using a fixed binsize. `extend_to` should not be set to 0 if this is used.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">if</span> <span class="n">binsize</span> <span class="o">%</span> <span class="mi">2</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;binsize must be a multiple of 2.&quot;</span><span class="p">)</span>
+
+    <span class="c1"># Filter regions in the input .bed file containing the regions of interest, extending them, and split them into bins</span>
+    <span class="n">prepareBinnedBed</span> <span class="o">=</span> <span class="n">RegionFilteringAndBinning</span><span class="o">.</span><span class="n">RegionFilteringAndBinning</span><span class="p">(</span>
+        <span class="n">bed_filepath</span><span class="o">=</span><span class="n">bed_filepath</span><span class="p">,</span>
+        <span class="n">binsize</span><span class="o">=</span><span class="n">binsize</span><span class="p">,</span>
+        <span class="n">extend_to</span><span class="o">=</span><span class="n">extend_to</span><span class="p">,</span>
+        <span class="n">refgenome_chromsizes_filepath</span><span class="o">=</span><span class="n">refgenome_chromsizes_filepath</span><span class="p">,</span>
+        <span class="n">chromosomes_list</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;chr&quot;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">23</span><span class="p">)]</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">no_chr_prefix</span> <span class="k">else</span> <span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">23</span><span class="p">)],</span>
+        <span class="n">blacklist_bed_filepath</span><span class="o">=</span><span class="n">blacklist_bed_filepath</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">percentile_split_core_rois</span><span class="p">:</span>
+        <span class="n">prepareBinnedBed</span><span class="o">.</span><span class="n">write_bin_bedfile_percentile_split_central_roi</span><span class="p">(</span>
+            <span class="n">out_bedfile_path_bins</span><span class="o">=</span><span class="s2">&quot;bins.bed&quot;</span><span class="p">,</span><span class="n">out_bedfile_path_regions_that_passed_filter</span><span class="o">=</span><span class="s2">&quot;regions.bed&quot;</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">prepareBinnedBed</span><span class="o">.</span><span class="n">write_bin_bedfile</span><span class="p">(</span><span class="n">out_bedfile_path_bins</span><span class="o">=</span><span class="s2">&quot;bins.bed&quot;</span><span class="p">,</span>
+                                           <span class="n">out_bedfile_path_regions_that_passed_filter</span><span class="o">=</span><span class="s2">&quot;regions.bed&quot;</span><span class="p">)</span>
+
+    <span class="c1"># Calculate coverage (normalized by sequencing depth), mappability, and genomic sequence for every bin</span>
+    <span class="n">liq_table</span> <span class="o">=</span> <span class="n">CoverageAndSequenceTablePreparation</span><span class="o">.</span><span class="n">CoverageAndSequenceTablePreparation</span><span class="p">(</span>
+        <span class="n">bam_filepath</span><span class="o">=</span><span class="n">bam_filepath</span><span class="p">,</span>
+        <span class="n">bins_bed_filepath</span><span class="o">=</span><span class="s2">&quot;bins.bed&quot;</span><span class="p">,</span>
+        <span class="n">refgenome_filepath</span><span class="o">=</span><span class="n">refgenome_filepath</span><span class="p">,</span>
+        <span class="n">refgenome_chromsizes_filepath</span><span class="o">=</span><span class="n">refgenome_chromsizes_filepath</span><span class="p">,</span>
+        <span class="n">refgenome_mappability_bigwig_path</span><span class="o">=</span><span class="n">refgenome_mappability_bigwig_path</span><span class="p">,</span>
+        <span class="n">readlength</span><span class="o">=</span><span class="n">avg_readlength</span><span class="p">,</span>
+        <span class="n">longest_fraglen</span><span class="o">=</span><span class="nb">max</span><span class="p">(</span><span class="n">sampled_fragment_lengths</span><span class="p">),</span>
+        <span class="n">mean_seq_depth</span><span class="o">=</span><span class="n">mean_seq_depth</span><span class="p">,</span>
+        <span class="n">n_cores</span><span class="o">=</span><span class="n">n_cores</span>
+    <span class="p">)</span><span class="o">.</span><span class="n">get_complete_table</span><span class="p">()</span>
+
+    <span class="c1"># Correct for CNAs if the corresponding file is specified</span>
+    <span class="k">if</span> <span class="n">cna_seg_filepath</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">liq_table</span> <span class="o">=</span> <span class="n">CorrectForCNAs</span><span class="o">.</span><span class="n">correct_coverage_per_bin_for_cnas</span><span class="p">(</span><span class="n">df</span><span class="o">=</span><span class="n">liq_table</span><span class="p">,</span><span class="n">cna_seg_filepath</span><span class="o">=</span><span class="n">cna_seg_filepath</span><span class="p">,</span>
+                                                                     <span class="n">n_cores</span><span class="o">=</span><span class="n">n_cores</span><span class="p">)</span>
+
+    <span class="c1"># Calculate the bias factors for each of the bins</span>
+    <span class="k">if</span> <span class="n">percentile_split_core_rois</span><span class="p">:</span>
+        <span class="n">liq_table</span><span class="o">=</span><span class="n">add_biasfactors_percentile_split</span><span class="p">(</span><span class="n">avg_readlength</span><span class="p">,</span> <span class="n">liq_table</span><span class="p">,</span> <span class="n">n_cores</span><span class="p">,</span> <span class="n">sampled_fragment_lengths</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">liq_table</span> <span class="o">=</span> <span class="n">BinTableBiasFactors</span><span class="o">.</span><span class="n">BiasFactorHandler</span><span class="p">(</span>
+            <span class="n">binsize</span><span class="o">=</span><span class="n">binsize</span><span class="p">,</span>
+            <span class="n">fragments</span><span class="o">=</span><span class="n">sampled_fragment_lengths</span><span class="p">,</span>
+            <span class="n">readlength</span><span class="o">=</span><span class="n">avg_readlength</span><span class="p">,</span>
+            <span class="n">df</span><span class="o">=</span><span class="n">liq_table</span><span class="p">,</span>
+            <span class="n">n_cores</span><span class="o">=</span><span class="n">n_cores</span>
+        <span class="p">)</span><span class="o">.</span><span class="n">get_table_with_bias_factors</span><span class="p">()</span>
+
+    <span class="k">if</span> <span class="n">save_training_table</span><span class="p">:</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Writing bins and their bias factors to .csv&quot;</span><span class="p">)</span>
+        <span class="n">liq_table</span><span class="p">[[</span><span class="n">col</span> <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">liq_table</span><span class="o">.</span><span class="n">columns</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">col</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;sequence&quot;</span><span class="p">,</span><span class="s2">&quot;mappability&quot;</span><span class="p">]]]</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span>
+            <span class="s2">&quot;training_table.csv&quot;</span><span class="p">,</span><span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+    <span class="c1"># Train a bias-model</span>
+
+    <span class="n">biasmodel</span> <span class="o">=</span> <span class="n">BiasModel</span><span class="o">.</span><span class="n">BiasModel</span><span class="p">(</span>
+        <span class="n">training_df</span><span class="o">=</span><span class="n">liq_table</span><span class="p">,</span>
+        <span class="n">df_to_correct</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">biasmodel_path</span><span class="o">=</span><span class="n">biasmodel_output_path</span><span class="p">,</span>
+        <span class="n">nr_of_bins_for_training_and_testing</span><span class="o">=</span><span class="n">nr_of_bins_for_training_and_testing</span><span class="p">,</span>
+        <span class="n">use_binsize_as_feature</span><span class="o">=</span><span class="kc">True</span> <span class="k">if</span> <span class="n">percentile_split_core_rois</span> <span class="k">else</span> <span class="kc">False</span>
+    <span class="p">)</span>
+    <span class="n">biasmodel</span><span class="o">.</span><span class="n">train_biasmodel</span><span class="p">()</span>
+
+    <span class="c1"># Set up an object for plotting</span>
+    <span class="n">plotting</span> <span class="o">=</span> <span class="n">Plotting</span><span class="o">.</span><span class="n">Plotting</span><span class="p">(</span>
+        <span class="n">samplename</span><span class="o">=</span><span class="n">samplename</span><span class="p">,</span>
+        <span class="n">out_dir</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">())</span>
+
+    <span class="c1"># Plot the association of GC content with the uncorrected coverage</span>
+    <span class="n">q5</span><span class="o">=</span><span class="n">liq_table</span><span class="p">[</span><span class="s2">&quot;coverage&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">quantile</span><span class="p">(</span><span class="mf">0.05</span><span class="p">)</span>
+    <span class="n">q95</span><span class="o">=</span><span class="n">liq_table</span><span class="p">[</span><span class="s2">&quot;coverage&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">quantile</span><span class="p">(</span><span class="mf">0.95</span><span class="p">)</span>
+    <span class="n">plotting</span><span class="o">.</span><span class="n">plot_coverage_bias_correlation</span><span class="p">(</span><span class="n">df</span><span class="o">=</span><span class="n">liq_table</span><span class="p">,</span> <span class="n">biasfactor_column</span><span class="o">=</span><span class="s2">&quot;GC content&quot;</span><span class="p">,</span>
+                                            <span class="n">coverage_column</span><span class="o">=</span><span class="s2">&quot;coverage&quot;</span><span class="p">,</span>
+                                            <span class="n">ymin</span><span class="o">=</span><span class="n">q5</span><span class="o">-</span><span class="p">((</span><span class="n">q95</span><span class="o">-</span><span class="n">q5</span><span class="p">)</span><span class="o">/</span><span class="mi">2</span><span class="p">),</span>
+                                            <span class="n">ymax</span><span class="o">=</span><span class="n">q95</span><span class="o">+</span><span class="p">((</span><span class="n">q95</span><span class="o">-</span><span class="n">q5</span><span class="p">)</span><span class="o">/</span><span class="mi">2</span><span class="p">))</span></div>
+
+    <span class="c1"># # Plot</span>
+    <span class="c1"># logging.info(&quot;Plotting bias factors/coverage/bin nr. associations ...&quot;)</span>
+    <span class="c1"># plotting.plot_correlations_biasfactors_coverage_bin_nr(df=liq_table,y_varnames_list=[&quot;coverage&quot;] if not</span>
+    <span class="c1"># percentile_split_core_rois else [&quot;coverage&quot;,&quot;bin size&quot;],fit_regression=False)</span>
+
+
+<div class="viewcode-block" id="run_liquorice_on_regionset_with_pretrained_biasmodel"><a class="viewcode-back" href="../../../liquorice.html#liquorice.utils.Workflows.run_liquorice_on_regionset_with_pretrained_biasmodel">[docs]</a><span class="k">def</span> <span class="nf">run_liquorice_on_regionset_with_pretrained_biasmodel</span><span class="p">(</span>
+    <span class="n">samplename</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span><span class="n">regionset_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">bam_filepath</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">bed_filepath</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">biasmodel_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">refgenome_filepath</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">refgenome_chromsizes_filepath</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">refgenome_mappability_bigwig_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">blacklist_bed_filepath</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="kc">None</span><span class="p">,</span><span class="nb">str</span><span class="p">],</span>
+    <span class="n">sampled_fragment_lengths</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span>
+    <span class="n">avg_readlength</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">cna_seg_filepath</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="kc">None</span><span class="p">,</span><span class="nb">str</span><span class="p">],</span>
+    <span class="n">mean_seq_depth</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">n_cores</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">binsize</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span><span class="mi">500</span><span class="p">,</span> <span class="n">extend_to</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span><span class="mi">20000</span><span class="p">,</span>
+    <span class="n">use_default_fixed_sigma_values</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">save_biasfactor_table</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="n">no_chr_prefix</span><span class="p">:</span> <span class="nb">bool</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="n">percentile_split_core_rois</span><span class="p">:</span><span class="nb">bool</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="n">use_this_roi_biasfactortable</span><span class="p">:</span><span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="kc">None</span><span class="p">,</span><span class="nb">str</span><span class="p">]</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Run the complete LIQUORICE workflow on a given region-set, using a pre-trained bias model. Main steps of this</span>
+<span class="sd">    workflow include: Filtering regions in the input .bed and splitting remaining regions into bins; calculating</span>
+<span class="sd">    sequence, coverage, and mappability for every bin; calculating bias factors for every bin, using the pre-trained</span>
+<span class="sd">    model and the inferred bias-factors to correct the coverage; aggregating information across regions and fitting</span>
+<span class="sd">    gaussian functions and an intercept to the corrected, aggregated coverage data. Also creates plots and result</span>
+<span class="sd">    tables.</span>
+
+<span class="sd">    :param samplename: Name of the sample (to be used in plots and output tables).</span>
+<span class="sd">    :param regionset_name: Name of the region-set (to be used in plots and output tables).</span>
+<span class="sd">    :param bam_filepath: Path to the .bam file containing the mapped reads for the sample. Does not need to be</span>
+<span class="sd">        duplicate-filtered, this is done by the function that calculates the coverage.</span>
+<span class="sd">    :param bed_filepath: path to a .bed file containing regions-of-interest that should be extended and split into bins.</span>
+<span class="sd">        This could be e.g. a list of DNAse hypersensitivity sites or enhancer peaks.</span>
+<span class="sd">    :param biasmodel_path: Path to a trained biasmodel.</span>
+<span class="sd">    :param refgenome_filepath: Path to the reference genome .fa(.gz) file. Must have a .fai index in the same dirname.</span>
+<span class="sd">    :param refgenome_chromsizes_filepath: Path to a tab-delimited file containing the chromosome sizes for the</span>
+<span class="sd">        reference genome. The first column must be the chromosome name, the second column its size.</span>
+<span class="sd">        Can be the .fa.fai file associated to the reference genome.</span>
+<span class="sd">    :param refgenome_mappability_bigwig_path: Path to a .bigWig file containing (forward) mappability values scaled</span>
+<span class="sd">        between 0 and 1.</span>
+<span class="sd">    :param blacklist_bed_filepath: .bed file of a black list, such as the one from</span>
+<span class="sd">        `here &lt;https://github.com/Boyle-Lab/Blacklist/blob/master/lists/hg38-blacklist.v2.bed.gz&gt; `_ for hg38</span>
+<span class="sd">        (unzip first). Regions that overlap any of the regions in this blacklist after extension by **extend_to**</span>
+<span class="sd">        will be excluded from further analysis. Set to None to skip this step.</span>
+<span class="sd">    :param sampled_fragment_lengths: A list containing fragment lengths that are representative of the sample&#39;s global</span>
+<span class="sd">        fragment size distribution. Typically a few hundred fragments will suffice here.</span>
+<span class="sd">    :param avg_readlength: (Average) length of the reads in the .bam file.</span>
+<span class="sd">    :param cna_seg_filepath: If specified, use this .seg file to correct the coverage by the values specified in</span>
+<span class="sd">       this file prior to correcting coverage with the bias model. Use this if you want to normalize out the effects of</span>
+<span class="sd">       copy number aberrations (CNAs) on the coverage. File must be tab-separated, with column names as first line.</span>
+<span class="sd">       The second, third and fourth column must be chromosome, start, and end of the segment, and the last column must</span>
+<span class="sd">       be the log2-ratio of observed/expected read depth.</span>
+<span class="sd">    :param mean_seq_depth: A float that quantifies the global coverage/sequencing depth. Coverages per bin will be</span>
+<span class="sd">        normalized (i.e. divided) by this value.</span>
+<span class="sd">    :param binsize: Size of the bins. Use higher values to reduce noise, lower values to increase spatial</span>
+<span class="sd">        resolution. Using the same binsize for the biasmodel generation as for the region-set-of-interest is probably</span>
+<span class="sd">        preferable.</span>
+<span class="sd">    :param extend_to: The regions will be extended by this value in both directions. Outmost bins will have their</span>
+<span class="sd">        center at * &lt;center of the region&gt; * +- * &lt;extend_to&gt; *.</span>
+<span class="sd">    :param use_default_fixed_sigma_values: If `True`, use the following contraints for the sigma values of the small,</span>
+<span class="sd">        medium, and large Gaussian, repectively: 149-150 bp, 757-758 bp, and 6078-6079 bp.</span>
+<span class="sd">    :param n_cores: Maximum number of cores to use during steps that allow multiprocessing/multithreading.</span>
+<span class="sd">    :param save_biasfactor_table: If `True`, save a table of coverage and biasfactor values per bin as</span>
+<span class="sd">        &quot;coverage_and_biasfactors_per_bin.csv&quot;.</span>
+<span class="sd">    :param no_chr_prefix: If True, set the list of allowed chromosomes to [str(i) for i in range(1,23)] instead of</span>
+<span class="sd">        [&quot;chr&quot;+str(i) for i in range(1,23)]</span>
+<span class="sd">    :param percentile_split_core_rois: If set, split the central region into 5 bins of variable size instead of always</span>
+<span class="sd">        using a fixed binsize. `extend_to` should not be set to 0 if this is used.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;###### Starting analysis for </span><span class="si">{</span><span class="n">regionset_name</span><span class="si">}</span><span class="s2"> ######&quot;</span><span class="p">)</span>
+
+
+    <span class="c1">#  Filter regions in the input .bed file containing the regions of interest, extending them, and split them</span>
+    <span class="c1">#  into bins</span>
+    <span class="n">prepareBinnedBed</span> <span class="o">=</span> <span class="n">RegionFilteringAndBinning</span><span class="o">.</span><span class="n">RegionFilteringAndBinning</span><span class="p">(</span>
+        <span class="n">bed_filepath</span><span class="o">=</span><span class="n">bed_filepath</span><span class="p">,</span>
+        <span class="n">binsize</span><span class="o">=</span><span class="n">binsize</span><span class="p">,</span>
+        <span class="n">extend_to</span><span class="o">=</span><span class="n">extend_to</span><span class="p">,</span>
+        <span class="n">refgenome_chromsizes_filepath</span><span class="o">=</span><span class="n">refgenome_chromsizes_filepath</span><span class="p">,</span>
+        <span class="n">chromosomes_list</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;chr&quot;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">23</span><span class="p">)]</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">no_chr_prefix</span> <span class="k">else</span> <span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">23</span><span class="p">)],</span>
+        <span class="n">blacklist_bed_filepath</span><span class="o">=</span><span class="n">blacklist_bed_filepath</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">percentile_split_core_rois</span><span class="p">:</span>
+        <span class="n">prepareBinnedBed</span><span class="o">.</span><span class="n">write_bin_bedfile_percentile_split_central_roi</span><span class="p">(</span>
+            <span class="n">out_bedfile_path_bins</span><span class="o">=</span><span class="s2">&quot;bins.bed&quot;</span><span class="p">,</span><span class="n">out_bedfile_path_regions_that_passed_filter</span><span class="o">=</span><span class="s2">&quot;regions.bed&quot;</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">prepareBinnedBed</span><span class="o">.</span><span class="n">write_bin_bedfile</span><span class="p">(</span><span class="n">out_bedfile_path_bins</span><span class="o">=</span><span class="s2">&quot;bins.bed&quot;</span><span class="p">,</span>
+                                           <span class="n">out_bedfile_path_regions_that_passed_filter</span><span class="o">=</span><span class="s2">&quot;regions.bed&quot;</span><span class="p">)</span>
+    <span class="n">regions_df</span><span class="o">=</span><span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s2">&quot;regions.bed&quot;</span><span class="p">,</span><span class="n">sep</span><span class="o">=</span><span class="s2">&quot;</span><span class="se">\t</span><span class="s2">&quot;</span><span class="p">,</span><span class="n">header</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+    <span class="n">avg_centersize</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="nb">round</span><span class="p">((</span><span class="n">regions_df</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">-</span><span class="n">regions_df</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span><span class="o">.</span><span class="n">mean</span><span class="p">()))</span> <span class="c1"># required downstream</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">use_this_roi_biasfactortable</span><span class="p">:</span>
+
+        <span class="c1">#  Calculate coverage (normalized by sequencing depth), mappability, and genomic sequence for every bin</span>
+        <span class="n">liq_table</span> <span class="o">=</span> <span class="n">CoverageAndSequenceTablePreparation</span><span class="o">.</span><span class="n">CoverageAndSequenceTablePreparation</span><span class="p">(</span>
+            <span class="n">bam_filepath</span><span class="o">=</span><span class="n">bam_filepath</span><span class="p">,</span>
+            <span class="n">bins_bed_filepath</span><span class="o">=</span><span class="s2">&quot;bins.bed&quot;</span><span class="p">,</span>
+            <span class="n">refgenome_filepath</span><span class="o">=</span><span class="n">refgenome_filepath</span><span class="p">,</span>
+            <span class="n">refgenome_chromsizes_filepath</span><span class="o">=</span><span class="n">refgenome_chromsizes_filepath</span><span class="p">,</span>
+            <span class="n">refgenome_mappability_bigwig_path</span><span class="o">=</span><span class="n">refgenome_mappability_bigwig_path</span><span class="p">,</span>
+            <span class="n">readlength</span><span class="o">=</span><span class="n">avg_readlength</span><span class="p">,</span>
+            <span class="n">longest_fraglen</span><span class="o">=</span><span class="nb">max</span><span class="p">(</span><span class="n">sampled_fragment_lengths</span><span class="p">),</span>
+            <span class="n">n_cores</span><span class="o">=</span><span class="n">n_cores</span><span class="p">,</span>
+            <span class="n">mean_seq_depth</span><span class="o">=</span><span class="n">mean_seq_depth</span>
+        <span class="p">)</span><span class="o">.</span><span class="n">get_complete_table</span><span class="p">()</span>
+
+        <span class="c1"># Correct for CNAs if the corresponding file is specified</span>
+        <span class="k">if</span> <span class="n">cna_seg_filepath</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">liq_table</span> <span class="o">=</span> <span class="n">CorrectForCNAs</span><span class="o">.</span><span class="n">correct_coverage_per_bin_for_cnas</span><span class="p">(</span><span class="n">df</span><span class="o">=</span><span class="n">liq_table</span><span class="p">,</span><span class="n">cna_seg_filepath</span><span class="o">=</span><span class="n">cna_seg_filepath</span><span class="p">,</span>
+                                                                         <span class="n">n_cores</span><span class="o">=</span><span class="n">n_cores</span><span class="p">)</span>
+
+        <span class="c1"># Calculate the bias factors for each of the bins</span>
+        <span class="k">if</span> <span class="n">percentile_split_core_rois</span><span class="p">:</span>
+            <span class="n">liq_table</span><span class="o">=</span><span class="n">add_biasfactors_percentile_split</span><span class="p">(</span><span class="n">avg_readlength</span><span class="p">,</span> <span class="n">liq_table</span><span class="p">,</span> <span class="n">n_cores</span><span class="p">,</span> <span class="n">sampled_fragment_lengths</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">liq_table</span> <span class="o">=</span> <span class="n">BinTableBiasFactors</span><span class="o">.</span><span class="n">BiasFactorHandler</span><span class="p">(</span>
+                <span class="n">binsize</span><span class="o">=</span><span class="n">binsize</span><span class="p">,</span>
+                <span class="n">fragments</span><span class="o">=</span><span class="n">sampled_fragment_lengths</span><span class="p">,</span>
+                <span class="n">readlength</span><span class="o">=</span><span class="n">avg_readlength</span><span class="p">,</span>
+                <span class="n">df</span><span class="o">=</span><span class="n">liq_table</span><span class="p">,</span>
+                <span class="n">n_cores</span><span class="o">=</span><span class="n">n_cores</span>
+            <span class="p">)</span><span class="o">.</span><span class="n">get_table_with_bias_factors</span><span class="p">()</span>
+
+    <span class="k">elif</span> <span class="n">use_this_roi_biasfactortable</span><span class="p">:</span>
+        <span class="n">liq_table</span><span class="o">=</span><span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">use_this_roi_biasfactortable</span><span class="p">)</span>
+        <span class="k">if</span> <span class="s2">&quot;corrected coverage&quot;</span> <span class="ow">in</span> <span class="n">liq_table</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+            <span class="n">liq_table</span><span class="o">=</span><span class="n">liq_table</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="s2">&quot;corrected coverage&quot;</span><span class="p">,</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+    <span class="c1"># Use the pre-trained bias-model to correct coverage</span>
+    <span class="n">biasmodel</span> <span class="o">=</span> <span class="n">BiasModel</span><span class="o">.</span><span class="n">BiasModel</span><span class="p">(</span>
+        <span class="n">training_df</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">df_to_correct</span><span class="o">=</span><span class="n">liq_table</span><span class="p">,</span>
+        <span class="n">biasmodel_path</span><span class="o">=</span><span class="n">biasmodel_path</span><span class="p">,</span>
+        <span class="n">use_binsize_as_feature</span><span class="o">=</span><span class="kc">True</span> <span class="k">if</span> <span class="n">percentile_split_core_rois</span> <span class="k">else</span> <span class="kc">False</span>
+    <span class="p">)</span>
+    <span class="n">liq_table</span><span class="o">=</span><span class="n">biasmodel</span><span class="o">.</span><span class="n">get_table_with_corrected_coverage_using_trained_biasmodel</span><span class="p">()</span>
+
+    <span class="c1"># write csv</span>
+    <span class="k">if</span> <span class="n">save_biasfactor_table</span><span class="p">:</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Writing bins and their bias factors to .csv&quot;</span><span class="p">)</span>
+        <span class="n">liq_table</span><span class="p">[[</span><span class="n">col</span> <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">liq_table</span><span class="o">.</span><span class="n">columns</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">col</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;sequence&quot;</span><span class="p">,</span><span class="s2">&quot;mappability&quot;</span><span class="p">]]]</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span>
+            <span class="s2">&quot;coverage_and_biasfactors_per_bin.csv&quot;</span><span class="p">,</span><span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+    <span class="c1"># Set up an object for plotting</span>
+    <span class="n">plotting</span> <span class="o">=</span> <span class="n">Plotting</span><span class="o">.</span><span class="n">Plotting</span><span class="p">(</span>
+        <span class="n">samplename</span><span class="o">=</span><span class="n">samplename</span><span class="p">,</span>
+        <span class="n">out_dir</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">())</span>
+
+    <span class="c1"># Plot the association of GC content with corrected and uncorrected coverage</span>
+    <span class="n">q5</span><span class="o">=</span><span class="n">liq_table</span><span class="p">[</span><span class="s2">&quot;coverage&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">quantile</span><span class="p">(</span><span class="mf">0.05</span><span class="p">)</span>
+    <span class="n">q95</span><span class="o">=</span><span class="n">liq_table</span><span class="p">[</span><span class="s2">&quot;coverage&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">quantile</span><span class="p">(</span><span class="mf">0.95</span><span class="p">)</span>
+    <span class="n">plotting</span><span class="o">.</span><span class="n">plot_coverage_bias_correlation</span><span class="p">(</span><span class="n">df</span><span class="o">=</span><span class="n">liq_table</span><span class="p">,</span> <span class="n">biasfactor_column</span><span class="o">=</span><span class="s2">&quot;GC content&quot;</span><span class="p">,</span>
+                                            <span class="n">coverage_column</span><span class="o">=</span><span class="s2">&quot;coverage&quot;</span><span class="p">,</span>
+                                            <span class="n">ymin</span><span class="o">=</span><span class="n">q5</span><span class="o">-</span><span class="p">((</span><span class="n">q95</span><span class="o">-</span><span class="n">q5</span><span class="p">)</span><span class="o">/</span><span class="mi">2</span><span class="p">),</span>
+                                            <span class="n">ymax</span><span class="o">=</span><span class="n">q95</span><span class="o">+</span><span class="p">((</span><span class="n">q95</span><span class="o">-</span><span class="n">q5</span><span class="p">)</span><span class="o">/</span><span class="mi">2</span><span class="p">))</span>
+    <span class="n">q5</span><span class="o">=</span><span class="n">liq_table</span><span class="p">[</span><span class="s2">&quot;corrected coverage&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">quantile</span><span class="p">(</span><span class="mf">0.05</span><span class="p">)</span>
+    <span class="n">q95</span><span class="o">=</span><span class="n">liq_table</span><span class="p">[</span><span class="s2">&quot;corrected coverage&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">quantile</span><span class="p">(</span><span class="mf">0.95</span><span class="p">)</span>
+    <span class="n">plotting</span><span class="o">.</span><span class="n">plot_coverage_bias_correlation</span><span class="p">(</span><span class="n">df</span><span class="o">=</span><span class="n">liq_table</span><span class="p">,</span> <span class="n">biasfactor_column</span><span class="o">=</span><span class="s2">&quot;GC content&quot;</span><span class="p">,</span>
+                                            <span class="n">coverage_column</span><span class="o">=</span><span class="s2">&quot;corrected coverage&quot;</span><span class="p">,</span>
+                                            <span class="n">ymin</span><span class="o">=</span><span class="n">q5</span><span class="o">-</span><span class="p">((</span><span class="n">q95</span><span class="o">-</span><span class="n">q5</span><span class="p">)</span><span class="o">/</span><span class="mi">2</span><span class="p">),</span>
+                                            <span class="n">ymax</span><span class="o">=</span><span class="n">q95</span><span class="o">+</span><span class="p">((</span><span class="n">q95</span><span class="o">-</span><span class="n">q5</span><span class="p">)</span><span class="o">/</span><span class="mi">2</span><span class="p">))</span>
+
+    <span class="c1"># logging.info(&quot;Plotting bias factors/coverage/bin nr. associations ...&quot;)</span>
+    <span class="c1"># plotting.plot_correlations_biasfactors_coverage_bin_nr(df=liq_table,y_varnames_list=None if not</span>
+    <span class="c1">#     percentile_split_core_rois else [&quot;corrected coverage&quot;,&quot;coverage&quot;,&quot;bin nr.&quot;,&quot;bin size&quot;])</span>
+
+    <span class="c1"># Aggregate coverage information across regions</span>
+    <span class="n">aggregated_corrected_coverage</span><span class="o">=</span><span class="n">AggregateAcrossRegions</span><span class="o">.</span><span class="n">aggregate_across_regions</span><span class="p">(</span><span class="n">liq_table</span><span class="p">,</span>
+                                                                                  <span class="s2">&quot;corrected coverage&quot;</span><span class="p">)</span>
+    <span class="n">aggregated_corrected_coverage</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="s2">&quot;corrected_coverage_mean_per_bin.csv&quot;</span><span class="p">)</span>
+    <span class="n">aggregated_uncorrected_coverage</span><span class="o">=</span><span class="n">AggregateAcrossRegions</span><span class="o">.</span><span class="n">aggregate_across_regions</span><span class="p">(</span><span class="n">liq_table</span><span class="p">,</span><span class="s2">&quot;coverage&quot;</span><span class="p">)</span>
+    <span class="n">aggregated_uncorrected_coverage</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="s2">&quot;uncorrected_coverage_mean_per_bin.csv&quot;</span><span class="p">)</span>
+
+    <span class="c1"># Default sigma contraints:</span>
+    <span class="n">default_sigma_contraints</span><span class="o">=</span><span class="p">{</span>
+        <span class="s2">&quot;g1_min_sigma&quot;</span><span class="p">:</span><span class="mi">149</span><span class="p">,</span>
+        <span class="s2">&quot;g1_max_sigma&quot;</span><span class="p">:</span><span class="mi">149</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span>
+        <span class="s2">&quot;g2_min_sigma&quot;</span><span class="p">:</span><span class="mi">757</span><span class="p">,</span>
+        <span class="s2">&quot;g2_max_sigma&quot;</span><span class="p">:</span><span class="mi">757</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span>
+        <span class="s2">&quot;g3_min_sigma&quot;</span><span class="p">:</span><span class="mi">6078</span><span class="p">,</span>
+        <span class="s2">&quot;g3_max_sigma&quot;</span><span class="p">:</span><span class="mi">6078</span><span class="o">+</span><span class="mi">1</span><span class="p">}</span>
+
+    <span class="k">if</span> <span class="n">use_default_fixed_sigma_values</span><span class="p">:</span>
+        <span class="n">sigma_contraints</span><span class="o">=</span><span class="n">default_sigma_contraints</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">sigma_contraints</span><span class="o">=</span><span class="p">{}</span>
+
+    <span class="c1"># Fit gaussian functions to the aggregated corrected coverage</span>
+    <span class="n">fit_gaussians_obj</span> <span class="o">=</span> <span class="n">FitGaussians</span><span class="o">.</span><span class="n">FitGaussians</span><span class="p">(</span>
+        <span class="n">unfitted_y_values</span><span class="o">=</span><span class="n">aggregated_corrected_coverage</span><span class="p">,</span>
+        <span class="n">extend_to</span><span class="o">=</span><span class="n">extend_to</span><span class="p">,</span>
+        <span class="n">binsize</span><span class="o">=</span><span class="n">binsize</span><span class="p">,</span>
+        <span class="n">samplename</span><span class="o">=</span><span class="n">samplename</span><span class="p">,</span>
+        <span class="n">regionset_name</span><span class="o">=</span><span class="n">regionset_name</span><span class="p">,</span>
+        <span class="n">avg_centersize</span><span class="o">=</span><span class="n">avg_centersize</span><span class="p">)</span>
+    <span class="n">fit_df</span><span class="o">=</span><span class="n">fit_gaussians_obj</span><span class="o">.</span><span class="n">fit_gaussian_models</span><span class="p">(</span><span class="o">**</span><span class="n">sigma_contraints</span><span class="p">)</span>
+    <span class="n">fit_df</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="s2">&quot;fitted_gaussians_parameter_summary.csv&quot;</span><span class="p">,</span><span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">plotting</span><span class="o">.</span><span class="n">plot_fitted_model</span><span class="p">(</span><span class="n">fit_gaussians_obj</span><span class="o">=</span><span class="n">fit_gaussians_obj</span><span class="p">)</span>
+
+    <span class="c1">#  Fit gaussian functions to the aggregated uncorrected coverage</span>
+    <span class="n">fit_gaussians_obj_uncorrected</span> <span class="o">=</span> <span class="n">FitGaussians</span><span class="o">.</span><span class="n">FitGaussians</span><span class="p">(</span>
+        <span class="n">unfitted_y_values</span><span class="o">=</span><span class="n">aggregated_uncorrected_coverage</span><span class="p">,</span>
+        <span class="n">extend_to</span><span class="o">=</span><span class="n">extend_to</span><span class="p">,</span>
+        <span class="n">binsize</span><span class="o">=</span><span class="n">binsize</span><span class="p">,</span>
+        <span class="n">samplename</span><span class="o">=</span><span class="n">samplename</span><span class="p">,</span>
+        <span class="n">regionset_name</span><span class="o">=</span><span class="n">regionset_name</span><span class="p">,</span>
+        <span class="n">avg_centersize</span><span class="o">=</span><span class="n">avg_centersize</span><span class="p">)</span>
+    <span class="c1">#  Use (practically) the same sigma values as for the corrected coverage to keep things comparable</span>
+    <span class="n">fit_df_uncorrected</span><span class="o">=</span><span class="n">fit_gaussians_obj_uncorrected</span><span class="o">.</span><span class="n">fit_gaussian_models</span><span class="p">(</span><span class="n">g1_min_sigma</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">fit_df</span><span class="p">[</span><span class="s2">&quot;G1_sigma&quot;</span><span class="p">]),</span>
+                                                                         <span class="n">g1_max_sigma</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">fit_df</span><span class="p">[</span><span class="s2">&quot;G1_sigma&quot;</span><span class="p">])</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span>
+                                                                         <span class="n">g2_min_sigma</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">fit_df</span><span class="p">[</span><span class="s2">&quot;G2_sigma&quot;</span><span class="p">]),</span>
+                                                                         <span class="n">g2_max_sigma</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">fit_df</span><span class="p">[</span><span class="s2">&quot;G2_sigma&quot;</span><span class="p">])</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span>
+                                                                         <span class="n">g3_min_sigma</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">fit_df</span><span class="p">[</span><span class="s2">&quot;G3_sigma&quot;</span><span class="p">]),</span>
+                                                                         <span class="n">g3_max_sigma</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">fit_df</span><span class="p">[</span><span class="s2">&quot;G3_sigma&quot;</span><span class="p">])</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">fit_df_uncorrected</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="s2">&quot;uncorrected_fitted_gaussians_parameter_summary.csv&quot;</span><span class="p">,</span><span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+    <span class="c1"># Compare corrected vs uncorrected coverage</span>
+    <span class="n">plotting</span><span class="o">.</span><span class="n">plot_corrected_vs_uncorrected_coverage</span><span class="p">(</span>
+        <span class="n">x_values</span><span class="o">=</span><span class="n">fit_gaussians_obj</span><span class="o">.</span><span class="n">x_values</span><span class="p">,</span>
+        <span class="n">uncorrected_y_values</span><span class="o">=</span><span class="n">fit_gaussians_obj_uncorrected</span><span class="o">.</span><span class="n">unfitted_y_values</span><span class="p">,</span>
+        <span class="n">corrected_y_values</span><span class="o">=</span><span class="n">fit_gaussians_obj</span><span class="o">.</span><span class="n">unfitted_y_values</span><span class="p">,</span>
+        <span class="n">uncorrected_y_intercept</span><span class="o">=</span><span class="n">fit_gaussians_obj_uncorrected</span><span class="o">.</span><span class="n">intercept_y_values</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+        <span class="n">corrected_y_intercept</span><span class="o">=</span><span class="n">fit_gaussians_obj</span><span class="o">.</span><span class="n">intercept_y_values</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span></div>
+
+
+<div class="viewcode-block" id="run_liquorice_train_biasmodel_on_same_regions"><a class="viewcode-back" href="../../../liquorice.html#liquorice.utils.Workflows.run_liquorice_train_biasmodel_on_same_regions">[docs]</a><span class="k">def</span> <span class="nf">run_liquorice_train_biasmodel_on_same_regions</span><span class="p">(</span>
+        <span class="n">samplename</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span><span class="n">regionset_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">bam_filepath</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">bed_filepath</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">refgenome_filepath</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">refgenome_chromsizes_filepath</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">refgenome_mappability_bigwig_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">blacklist_bed_filepath</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="kc">None</span><span class="p">,</span><span class="nb">str</span><span class="p">],</span>
+        <span class="n">sampled_fragment_lengths</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span>
+        <span class="n">avg_readlength</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+        <span class="n">cna_seg_filepath</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="kc">None</span><span class="p">,</span><span class="nb">str</span><span class="p">],</span>
+        <span class="n">mean_seq_depth</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">n_cores</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+        <span class="n">binsize</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span><span class="mi">500</span><span class="p">,</span> <span class="n">extend_to</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span><span class="mi">20000</span><span class="p">,</span>
+        <span class="n">biasmodel_output_path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;trained_biasmodel.joblib&quot;</span><span class="p">,</span>
+        <span class="n">nr_of_bins_for_training_and_testing</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="kc">None</span><span class="p">,</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="mi">10000</span><span class="p">,</span>
+        <span class="n">skip_central_n_bins_for_training</span><span class="p">:</span><span class="nb">int</span><span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
+        <span class="n">save_training_table</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">use_default_fixed_sigma_values</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">save_biasfactor_table</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">no_chr_prefix</span><span class="p">:</span> <span class="nb">bool</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">percentile_split_core_rois</span><span class="p">:</span><span class="nb">bool</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">use_cross_validated_predictions</span><span class="p">:</span><span class="nb">bool</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">use_this_roi_biasfactortable</span><span class="p">:</span><span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="kc">None</span><span class="p">,</span><span class="nb">str</span><span class="p">]</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">speed_mode</span><span class="p">:</span><span class="nb">bool</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Run the complete LIQUORICE workflow on a given region-set, and train the bias-model on data from the same region-</span>
+<span class="sd">    set. Main steps of this workflow include: Filtering regions in the input .bed and splitting remaining regions into</span>
+<span class="sd">    bins; calculating</span>
+<span class="sd">    sequence, coverage, and mappability for every bin; calculating bias factors for every bin, training a bias model,</span>
+<span class="sd">    using the trained</span>
+<span class="sd">    model and the inferred bias-factors to correct the coverage; aggregating information across regions and fitting</span>
+<span class="sd">    gaussian functions and an intercept to the corrected, aggregated coverage data. Also creates plots and result</span>
+<span class="sd">    tables.</span>
+
+<span class="sd">    :param samplename: Name of the sample (to be used in plots and output tables).</span>
+<span class="sd">    :param regionset_name: Name of the region-set (to be used in plots and output tables).</span>
+<span class="sd">    :param bam_filepath: Path to the .bam file containing the mapped reads for the sample. Does not need to be</span>
+<span class="sd">        duplicate-filtered, this is done by the function that calculates the coverage.</span>
+<span class="sd">    :param bed_filepath: path to a .bed file containing regions-of-interest that should be extended and split into bins.</span>
+<span class="sd">        This could be e.g. a list of DNAse hypersensitivity sites or enhancer peaks.</span>
+<span class="sd">    :param refgenome_filepath: Path to the reference genome .fa(.gz) file. Must have a .fai index in the same dirname.</span>
+<span class="sd">    :param refgenome_chromsizes_filepath: Path to a tab-delimited file containing the chromosome sizes for the</span>
+<span class="sd">        reference genome. The first column must be the chromosome name, the second column its size.</span>
+<span class="sd">        Can be the .fa.fai file associated to the reference genome.</span>
+<span class="sd">    :param refgenome_mappability_bigwig_path: Path to a .bigWig file containing (forward) mappability values scaled</span>
+<span class="sd">        between 0 and 1.</span>
+<span class="sd">    :param blacklist_bed_filepath: .bed file of a black list, such as the one from</span>
+<span class="sd">        `here &lt;https://github.com/Boyle-Lab/Blacklist/blob/master/lists/hg38-blacklist.v2.bed.gz&gt; `_ for hg38</span>
+<span class="sd">        (unzip first). Regions that overlap any of the regions in this blacklist after extension by **extend_to**</span>
+<span class="sd">        will be excluded from further analysis. Set to None to skip this step.</span>
+<span class="sd">    :param sampled_fragment_lengths: A list containing fragment lengths that are representative of the sample&#39;s global</span>
+<span class="sd">        fragment size distribution. Typically a few hundred fragments will suffice here.</span>
+<span class="sd">    :param avg_readlength: (Average) length of the reads in the .bam file.</span>
+<span class="sd">    :param cna_seg_filepath: If specified, use this .seg file to correct the coverage by the values specified in</span>
+<span class="sd">       this file prior to correcting coverage with the bias model. Use this if you want to normalize out the effects of</span>
+<span class="sd">       copy number aberrations (CNAs) on the coverage. File must be tab-separated, with column names as first line.</span>
+<span class="sd">       The second, third and fourth column must be chromosome, start, and end of the segment, and the last column must</span>
+<span class="sd">       be the log2-ratio of observed/expected read depth.</span>
+<span class="sd">    :param mean_seq_depth: A float that quantifies the global coverage/sequencing depth. Coverages per bin will be</span>
+<span class="sd">        normalized (i.e. divided) by this value.</span>
+<span class="sd">    :param binsize: Size of the bins. Use higher values to reduce noise, lower values to increase spatial</span>
+<span class="sd">        resolution. Using the same binsize for the biasmodel generation as for the region-set-of-interest is probably</span>
+<span class="sd">        preferable.</span>
+<span class="sd">    :param extend_to: The regions will be extended by this value in both directions. Outmost bins will have their</span>
+<span class="sd">        center at * &lt;center of the region&gt; * +- * &lt;extend_to&gt; *.</span>
+<span class="sd">    :param use_default_fixed_sigma_values: If `True`, use the following contraints for the sigma values of the small,</span>
+<span class="sd">        medium, and large Gaussian, repectively: 149-150 bp, 757-758 bp, and 6078-6079 bp.</span>
+<span class="sd">    :param n_cores: Maximum number of cores to use during steps that allow multiprocessing/multithreading.</span>
+<span class="sd">    :param save_biasfactor_table: If `True`, save a table of coverage and biasfactor values per bin as</span>
+<span class="sd">        &quot;coverage_and_biasfactors_per_bin.csv&quot;.</span>
+<span class="sd">    :param no_chr_prefix: If True, set the list of allowed chromosomes to [str(i) for i in range(1,23)] instead of</span>
+<span class="sd">        [&quot;chr&quot;+str(i) for i in range(1,23)]</span>
+<span class="sd">    :param biasmodel_output_path: Path to which the trained biasmodel should be saved to. Must have a</span>
+<span class="sd">        .joblib extension.</span>
+<span class="sd">    :param nr_of_bins_for_training_and_testing: Subset the training_df to this many bins. Can speed up the</span>
+<span class="sd">        computation time of the model training, but using too few bins will make the model less precise. To speed up</span>
+<span class="sd">        computations, we would recommend decreasing the number of regions in the .bed file rather than altering this</span>
+<span class="sd">        parameter, as this is more efficient.</span>
+<span class="sd">    :param save_training_table: If `True`, save the table that was used to train the biasmodel (coverage and biasfactors</span>
+<span class="sd">        per bin) as &quot;training_table.csv&quot;.</span>
+<span class="sd">    :param skip_central_n_bins_for_training: The n most central bins will not be used for training the bias model.</span>
+<span class="sd">    :param no_chr_prefix: If True, set the list of allowed chromosomes to [str(i) for i in range(1,23)] instead of</span>
+<span class="sd">        [&quot;chr&quot;+str(i) for i in range(1,23)]</span>
+<span class="sd">    :param percentile_split_core_rois: If set, split the central region into 5 bins of variable size instead of always</span>
+<span class="sd">        using a fixed binsize. `extend_to` should not be set to 0 if this is used.</span>
+<span class="sd">    :param use_cross_validated_predictions: Instead of training on the full dataset, train twice on half of the dataset</span>
+<span class="sd">        and predict the other half. Ignores nr_of_bins_for_training_and_testing</span>
+<span class="sd">    :param use_this_roi_biasfactortable: If set use the specified biasfactor table and only train/apply the biasmodel.</span>
+<span class="sd">    :param speed_mode: Only perform GC correction, don&#39;t correct using mappability or di/trinucleotides. Setting this</span>
+<span class="sd">        flag makes LIQUORICE considerably faster, but may lead to less accurate results.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;###### Starting analysis for </span><span class="si">{</span><span class="n">regionset_name</span><span class="si">}</span><span class="s2"> ######&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">speed_mode</span><span class="p">:</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Speed mode is active. Will only calculate &amp; correct GC bias, ignoring the other biases.&quot;</span><span class="p">)</span>
+
+    <span class="c1">#  Filter regions in the input .bed file containing the regions of interest, extending them, and split them</span>
+    <span class="c1">#  into bins</span>
+    <span class="n">prepareBinnedBed</span> <span class="o">=</span> <span class="n">RegionFilteringAndBinning</span><span class="o">.</span><span class="n">RegionFilteringAndBinning</span><span class="p">(</span>
+        <span class="n">bed_filepath</span><span class="o">=</span><span class="n">bed_filepath</span><span class="p">,</span>
+        <span class="n">binsize</span><span class="o">=</span><span class="n">binsize</span><span class="p">,</span>
+        <span class="n">extend_to</span><span class="o">=</span><span class="n">extend_to</span><span class="p">,</span>
+        <span class="n">refgenome_chromsizes_filepath</span><span class="o">=</span><span class="n">refgenome_chromsizes_filepath</span><span class="p">,</span>
+        <span class="n">chromosomes_list</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;chr&quot;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">23</span><span class="p">)]</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">no_chr_prefix</span> <span class="k">else</span> <span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">23</span><span class="p">)],</span>
+        <span class="n">blacklist_bed_filepath</span><span class="o">=</span><span class="n">blacklist_bed_filepath</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">percentile_split_core_rois</span><span class="p">:</span>
+        <span class="n">prepareBinnedBed</span><span class="o">.</span><span class="n">write_bin_bedfile_percentile_split_central_roi</span><span class="p">(</span><span class="n">out_bedfile_path_bins</span><span class="o">=</span><span class="s2">&quot;bins.bed&quot;</span><span class="p">,</span>
+                                                                        <span class="n">out_bedfile_path_regions_that_passed_filter</span><span class="o">=</span><span class="s2">&quot;regions.bed&quot;</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">prepareBinnedBed</span><span class="o">.</span><span class="n">write_bin_bedfile</span><span class="p">(</span><span class="n">out_bedfile_path_bins</span><span class="o">=</span><span class="s2">&quot;bins.bed&quot;</span><span class="p">,</span>
+                                           <span class="n">out_bedfile_path_regions_that_passed_filter</span><span class="o">=</span><span class="s2">&quot;regions.bed&quot;</span><span class="p">)</span>
+    <span class="n">regions_df</span><span class="o">=</span><span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s2">&quot;regions.bed&quot;</span><span class="p">,</span><span class="n">sep</span><span class="o">=</span><span class="s2">&quot;</span><span class="se">\t</span><span class="s2">&quot;</span><span class="p">,</span><span class="n">header</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+    <span class="n">avg_centersize</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="nb">round</span><span class="p">((</span><span class="n">regions_df</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">-</span><span class="n">regions_df</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span><span class="o">.</span><span class="n">mean</span><span class="p">()))</span> <span class="c1"># required downstream</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">use_this_roi_biasfactortable</span><span class="p">:</span>
+        <span class="c1">#  Calculate coverage (normalized by sequencing depth), mappability, and genomic sequence for every bin</span>
+        <span class="n">liq_table</span> <span class="o">=</span> <span class="n">CoverageAndSequenceTablePreparation</span><span class="o">.</span><span class="n">CoverageAndSequenceTablePreparation</span><span class="p">(</span>
+            <span class="n">bam_filepath</span><span class="o">=</span><span class="n">bam_filepath</span><span class="p">,</span>
+            <span class="n">bins_bed_filepath</span><span class="o">=</span><span class="s2">&quot;bins.bed&quot;</span><span class="p">,</span>
+            <span class="n">refgenome_filepath</span><span class="o">=</span><span class="n">refgenome_filepath</span><span class="p">,</span>
+            <span class="n">refgenome_chromsizes_filepath</span><span class="o">=</span><span class="n">refgenome_chromsizes_filepath</span><span class="p">,</span>
+            <span class="n">refgenome_mappability_bigwig_path</span><span class="o">=</span><span class="n">refgenome_mappability_bigwig_path</span><span class="p">,</span>
+            <span class="n">readlength</span><span class="o">=</span><span class="n">avg_readlength</span><span class="p">,</span>
+            <span class="n">longest_fraglen</span><span class="o">=</span><span class="nb">max</span><span class="p">(</span><span class="n">sampled_fragment_lengths</span><span class="p">),</span>
+            <span class="n">n_cores</span><span class="o">=</span><span class="n">n_cores</span><span class="p">,</span>
+            <span class="n">mean_seq_depth</span><span class="o">=</span><span class="n">mean_seq_depth</span><span class="p">,</span>
+            <span class="n">skip_these_steps</span><span class="o">=</span><span class="p">[]</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">speed_mode</span> <span class="k">else</span> <span class="p">[</span><span class="s2">&quot;mappability&quot;</span><span class="p">]</span>
+        <span class="p">)</span><span class="o">.</span><span class="n">get_complete_table</span><span class="p">()</span>
+
+
+        <span class="c1"># Correct for CNAs if the corresponding file is specified</span>
+        <span class="k">if</span> <span class="n">cna_seg_filepath</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">liq_table</span> <span class="o">=</span> <span class="n">CorrectForCNAs</span><span class="o">.</span><span class="n">correct_coverage_per_bin_for_cnas</span><span class="p">(</span><span class="n">df</span><span class="o">=</span><span class="n">liq_table</span><span class="p">,</span><span class="n">cna_seg_filepath</span><span class="o">=</span><span class="n">cna_seg_filepath</span><span class="p">,</span>
+                                                                         <span class="n">n_cores</span><span class="o">=</span><span class="n">n_cores</span><span class="p">)</span>
+
+        <span class="c1"># Calculate the bias factors for each of the bins</span>
+        <span class="k">if</span> <span class="n">percentile_split_core_rois</span><span class="p">:</span>
+            <span class="n">liq_table</span><span class="o">=</span><span class="n">add_biasfactors_percentile_split</span><span class="p">(</span><span class="n">avg_readlength</span><span class="p">,</span> <span class="n">liq_table</span><span class="p">,</span> <span class="n">n_cores</span><span class="p">,</span>
+                                                                 <span class="n">sampled_fragment_lengths</span><span class="p">,</span><span class="n">skip_these_biasfactors</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;di and trinucleotides&quot;</span><span class="p">,</span><span class="s2">&quot;mappability&quot;</span><span class="p">]</span> <span class="k">if</span>
+                <span class="n">speed_mode</span> <span class="k">else</span> <span class="p">[])</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">liq_table</span> <span class="o">=</span> <span class="n">BinTableBiasFactors</span><span class="o">.</span><span class="n">BiasFactorHandler</span><span class="p">(</span>
+                <span class="n">binsize</span><span class="o">=</span><span class="n">binsize</span><span class="p">,</span>
+                <span class="n">fragments</span><span class="o">=</span><span class="n">sampled_fragment_lengths</span><span class="p">,</span>
+                <span class="n">readlength</span><span class="o">=</span><span class="n">avg_readlength</span><span class="p">,</span>
+                <span class="n">df</span><span class="o">=</span><span class="n">liq_table</span><span class="p">,</span>
+                <span class="n">n_cores</span><span class="o">=</span><span class="n">n_cores</span><span class="p">,</span>
+                <span class="n">skip_these_biasfactors</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;di and trinucleotides&quot;</span><span class="p">,</span><span class="s2">&quot;mappability&quot;</span><span class="p">]</span> <span class="k">if</span> <span class="n">speed_mode</span> <span class="k">else</span> <span class="p">[]</span>
+            <span class="p">)</span><span class="o">.</span><span class="n">get_table_with_bias_factors</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="n">save_training_table</span><span class="p">:</span>
+            <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Writing bins and their bias factors to .csv&quot;</span><span class="p">)</span>
+            <span class="n">liq_table</span><span class="p">[[</span><span class="n">col</span> <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">liq_table</span><span class="o">.</span><span class="n">columns</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">col</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;sequence&quot;</span><span class="p">,</span><span class="s2">&quot;mappability&quot;</span><span class="p">]]]</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span>
+                <span class="s2">&quot;training_table.csv&quot;</span><span class="p">,</span><span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+    <span class="k">elif</span> <span class="n">use_this_roi_biasfactortable</span><span class="p">:</span>
+        <span class="n">liq_table</span><span class="o">=</span><span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">use_this_roi_biasfactortable</span><span class="p">)</span>
+
+    <span class="c1"># Train a bias-model</span>
+    <span class="n">strt_idx</span> <span class="o">=</span> <span class="p">(</span><span class="n">liq_table</span><span class="p">[</span><span class="s2">&quot;bin nr.&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">unique</span><span class="p">()</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">//</span> <span class="mi">2</span><span class="p">)</span> <span class="o">-</span> <span class="p">(</span><span class="n">skip_central_n_bins_for_training</span> <span class="o">//</span> <span class="mi">2</span><span class="p">)</span>
+    <span class="n">end_idx</span> <span class="o">=</span> <span class="p">(</span><span class="n">liq_table</span><span class="p">[</span><span class="s2">&quot;bin nr.&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">unique</span><span class="p">()</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">//</span> <span class="mi">2</span><span class="p">)</span> <span class="o">+</span> <span class="p">(</span><span class="n">skip_central_n_bins_for_training</span> <span class="o">//</span> <span class="mi">2</span><span class="p">)</span>
+    <span class="n">n_central_binnrs</span><span class="o">=</span><span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">strt_idx</span><span class="p">,</span><span class="n">end_idx</span> <span class="o">+</span> <span class="mi">1</span><span class="p">))</span> <span class="k">if</span> <span class="n">skip_central_n_bins_for_training</span> <span class="k">else</span> <span class="p">[]</span>
+    <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Skipping the </span><span class="si">{</span><span class="n">skip_central_n_bins_for_training</span><span class="si">}</span><span class="s2"> central bins (numbers </span><span class="si">{</span><span class="n">n_central_binnrs</span><span class="si">}</span><span class="s2">)&quot;</span>
+                 <span class="sa">f</span><span class="s2">&quot; for training of the bias-model.&quot;</span><span class="p">)</span>
+
+    <span class="n">biasmodel</span> <span class="o">=</span> <span class="n">BiasModel</span><span class="o">.</span><span class="n">BiasModel</span><span class="p">(</span>
+        <span class="n">training_df</span><span class="o">=</span><span class="n">liq_table</span><span class="p">[</span><span class="o">~</span> <span class="n">liq_table</span><span class="p">[</span><span class="s2">&quot;bin nr.&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">n_central_binnrs</span><span class="p">)],</span>
+        <span class="n">df_to_correct</span><span class="o">=</span><span class="n">liq_table</span><span class="p">,</span>
+        <span class="n">biasmodel_path</span><span class="o">=</span><span class="n">biasmodel_output_path</span><span class="p">,</span>
+        <span class="n">nr_of_bins_for_training_and_testing</span><span class="o">=</span><span class="n">nr_of_bins_for_training_and_testing</span>
+    <span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">use_cross_validated_predictions</span><span class="p">:</span>
+
+        <span class="n">biasmodel</span><span class="o">.</span><span class="n">train_biasmodel</span><span class="p">()</span>
+        <span class="c1"># Use the pre-trained bias-model to correct coverage</span>
+        <span class="n">liq_table_with_corr_cov</span><span class="o">=</span><span class="n">biasmodel</span><span class="o">.</span><span class="n">get_table_with_corrected_coverage_using_trained_biasmodel</span><span class="p">()</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">liq_table_with_corr_cov</span><span class="o">=</span><span class="n">biasmodel</span><span class="o">.</span><span class="n">train_biasmodel_2fold_CV_and_predict</span><span class="p">(</span><span class="n">exclude_these_bin_nrs</span><span class="o">=</span><span class="n">n_central_binnrs</span><span class="p">)</span>
+
+    <span class="c1"># write csv</span>
+    <span class="k">if</span> <span class="n">save_biasfactor_table</span><span class="p">:</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Writing bins and their bias factors to .csv&quot;</span><span class="p">)</span>
+        <span class="n">liq_table_with_corr_cov</span><span class="p">[[</span><span class="n">col</span> <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">liq_table</span><span class="o">.</span><span class="n">columns</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">col</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;sequence&quot;</span><span class="p">,</span><span class="s2">&quot;mappability&quot;</span><span class="p">]]]</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span>
+            <span class="s2">&quot;coverage_and_biasfactors_per_bin.csv&quot;</span><span class="p">,</span><span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+    <span class="c1"># Set up an object for plotting</span>
+    <span class="n">plotting</span> <span class="o">=</span> <span class="n">Plotting</span><span class="o">.</span><span class="n">Plotting</span><span class="p">(</span>
+        <span class="n">samplename</span><span class="o">=</span><span class="n">samplename</span><span class="p">,</span>
+        <span class="n">out_dir</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">())</span>
+
+    <span class="c1"># Plot the association of GC content with corrected and uncorrected coverage</span>
+    <span class="n">q5</span><span class="o">=</span><span class="n">liq_table_with_corr_cov</span><span class="p">[</span><span class="s2">&quot;coverage&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">quantile</span><span class="p">(</span><span class="mf">0.05</span><span class="p">)</span>
+    <span class="n">q95</span><span class="o">=</span><span class="n">liq_table_with_corr_cov</span><span class="p">[</span><span class="s2">&quot;coverage&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">quantile</span><span class="p">(</span><span class="mf">0.95</span><span class="p">)</span>
+    <span class="n">plotting</span><span class="o">.</span><span class="n">plot_coverage_bias_correlation</span><span class="p">(</span><span class="n">df</span><span class="o">=</span><span class="n">liq_table_with_corr_cov</span><span class="p">,</span> <span class="n">biasfactor_column</span><span class="o">=</span><span class="s2">&quot;GC content&quot;</span><span class="p">,</span>
+                                            <span class="n">coverage_column</span><span class="o">=</span><span class="s2">&quot;coverage&quot;</span><span class="p">,</span>
+                                            <span class="n">ymin</span><span class="o">=</span><span class="n">q5</span><span class="o">-</span><span class="p">((</span><span class="n">q95</span><span class="o">-</span><span class="n">q5</span><span class="p">)</span><span class="o">/</span><span class="mi">2</span><span class="p">),</span>
+                                            <span class="n">ymax</span><span class="o">=</span><span class="n">q95</span><span class="o">+</span><span class="p">((</span><span class="n">q95</span><span class="o">-</span><span class="n">q5</span><span class="p">)</span><span class="o">/</span><span class="mi">2</span><span class="p">))</span>
+    <span class="n">q5</span><span class="o">=</span><span class="n">liq_table_with_corr_cov</span><span class="p">[</span><span class="s2">&quot;corrected coverage&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">quantile</span><span class="p">(</span><span class="mf">0.05</span><span class="p">)</span>
+    <span class="n">q95</span><span class="o">=</span><span class="n">liq_table_with_corr_cov</span><span class="p">[</span><span class="s2">&quot;corrected coverage&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">quantile</span><span class="p">(</span><span class="mf">0.95</span><span class="p">)</span>
+    <span class="n">plotting</span><span class="o">.</span><span class="n">plot_coverage_bias_correlation</span><span class="p">(</span><span class="n">df</span><span class="o">=</span><span class="n">liq_table_with_corr_cov</span><span class="p">,</span> <span class="n">biasfactor_column</span><span class="o">=</span><span class="s2">&quot;GC content&quot;</span><span class="p">,</span>
+                                            <span class="n">coverage_column</span><span class="o">=</span><span class="s2">&quot;corrected coverage&quot;</span><span class="p">,</span>
+                                            <span class="n">ymin</span><span class="o">=</span><span class="n">q5</span><span class="o">-</span><span class="p">((</span><span class="n">q95</span><span class="o">-</span><span class="n">q5</span><span class="p">)</span><span class="o">/</span><span class="mi">2</span><span class="p">),</span>
+                                            <span class="n">ymax</span><span class="o">=</span><span class="n">q95</span><span class="o">+</span><span class="p">((</span><span class="n">q95</span><span class="o">-</span><span class="n">q5</span><span class="p">)</span><span class="o">/</span><span class="mi">2</span><span class="p">))</span>
+
+    <span class="c1">#   logging.info(&quot;Plotting bias factors/coverage/bin nr. associations ...&quot;)</span>
+    <span class="c1">#   plotting.plot_correlations_biasfactors_coverage_bin_nr(df=liq_table_with_corr_cov)</span>
+
+    <span class="c1"># Aggregate coverage information across regions</span>
+    <span class="n">aggregated_corrected_coverage</span><span class="o">=</span><span class="n">AggregateAcrossRegions</span><span class="o">.</span><span class="n">aggregate_across_regions</span><span class="p">(</span><span class="n">liq_table_with_corr_cov</span><span class="p">,</span>
+                                                                                  <span class="s2">&quot;corrected coverage&quot;</span><span class="p">)</span>
+    <span class="n">aggregated_corrected_coverage</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="s2">&quot;corrected_coverage_mean_per_bin.csv&quot;</span><span class="p">)</span>
+    <span class="n">aggregated_uncorrected_coverage</span><span class="o">=</span><span class="n">AggregateAcrossRegions</span><span class="o">.</span><span class="n">aggregate_across_regions</span><span class="p">(</span><span class="n">liq_table_with_corr_cov</span><span class="p">,</span><span class="s2">&quot;coverage&quot;</span><span class="p">)</span>
+    <span class="n">aggregated_uncorrected_coverage</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="s2">&quot;uncorrected_coverage_mean_per_bin.csv&quot;</span><span class="p">)</span>
+
+    <span class="c1"># Default sigma contraints:</span>
+    <span class="n">default_sigma_contraints</span><span class="o">=</span><span class="p">{</span>
+        <span class="s2">&quot;g1_min_sigma&quot;</span><span class="p">:</span><span class="mi">149</span><span class="p">,</span>
+        <span class="s2">&quot;g1_max_sigma&quot;</span><span class="p">:</span><span class="mi">149</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span>
+        <span class="s2">&quot;g2_min_sigma&quot;</span><span class="p">:</span><span class="mi">757</span><span class="p">,</span>
+        <span class="s2">&quot;g2_max_sigma&quot;</span><span class="p">:</span><span class="mi">757</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span>
+        <span class="s2">&quot;g3_min_sigma&quot;</span><span class="p">:</span><span class="mi">6078</span><span class="p">,</span>
+        <span class="s2">&quot;g3_max_sigma&quot;</span><span class="p">:</span><span class="mi">6078</span><span class="o">+</span><span class="mi">1</span><span class="p">}</span>
+
+    <span class="k">if</span> <span class="n">use_default_fixed_sigma_values</span><span class="p">:</span>
+        <span class="n">sigma_contraints</span><span class="o">=</span><span class="n">default_sigma_contraints</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">sigma_contraints</span><span class="o">=</span><span class="p">{}</span>
+
+    <span class="c1"># Fit gaussian functions to the aggregated corrected coverage</span>
+    <span class="n">fit_gaussians_obj</span> <span class="o">=</span> <span class="n">FitGaussians</span><span class="o">.</span><span class="n">FitGaussians</span><span class="p">(</span>
+        <span class="n">unfitted_y_values</span><span class="o">=</span><span class="n">aggregated_corrected_coverage</span><span class="p">,</span>
+        <span class="n">extend_to</span><span class="o">=</span><span class="n">extend_to</span><span class="p">,</span>
+        <span class="n">binsize</span><span class="o">=</span><span class="n">binsize</span><span class="p">,</span>
+        <span class="n">samplename</span><span class="o">=</span><span class="n">samplename</span><span class="p">,</span>
+        <span class="n">regionset_name</span><span class="o">=</span><span class="n">regionset_name</span><span class="p">,</span>
+        <span class="n">avg_centersize</span><span class="o">=</span><span class="n">avg_centersize</span><span class="p">)</span>
+    <span class="n">fit_df</span><span class="o">=</span><span class="n">fit_gaussians_obj</span><span class="o">.</span><span class="n">fit_gaussian_models</span><span class="p">(</span><span class="o">**</span><span class="n">sigma_contraints</span><span class="p">)</span>
+    <span class="n">fit_df</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="s2">&quot;fitted_gaussians_parameter_summary.csv&quot;</span><span class="p">,</span><span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">plotting</span><span class="o">.</span><span class="n">plot_fitted_model</span><span class="p">(</span><span class="n">fit_gaussians_obj</span><span class="o">=</span><span class="n">fit_gaussians_obj</span><span class="p">)</span>
+
+    <span class="c1">#  Fit gaussian functions to the aggregated uncorrected coverage</span>
+    <span class="n">fit_gaussians_obj_uncorrected</span> <span class="o">=</span> <span class="n">FitGaussians</span><span class="o">.</span><span class="n">FitGaussians</span><span class="p">(</span>
+        <span class="n">unfitted_y_values</span><span class="o">=</span><span class="n">aggregated_uncorrected_coverage</span><span class="p">,</span>
+        <span class="n">extend_to</span><span class="o">=</span><span class="n">extend_to</span><span class="p">,</span>
+        <span class="n">binsize</span><span class="o">=</span><span class="n">binsize</span><span class="p">,</span>
+        <span class="n">samplename</span><span class="o">=</span><span class="n">samplename</span><span class="p">,</span>
+        <span class="n">regionset_name</span><span class="o">=</span><span class="n">regionset_name</span><span class="p">,</span>
+        <span class="n">avg_centersize</span><span class="o">=</span><span class="n">avg_centersize</span><span class="p">)</span>
+    <span class="c1">#  Use (practically) the same sigma values as for the corrected coverage to keep things comparable</span>
+    <span class="n">fit_df_uncorrected</span><span class="o">=</span><span class="n">fit_gaussians_obj_uncorrected</span><span class="o">.</span><span class="n">fit_gaussian_models</span><span class="p">(</span><span class="n">g1_min_sigma</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">fit_df</span><span class="p">[</span><span class="s2">&quot;G1_sigma&quot;</span><span class="p">]),</span>
+                                                                         <span class="n">g1_max_sigma</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">fit_df</span><span class="p">[</span><span class="s2">&quot;G1_sigma&quot;</span><span class="p">])</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span>
+                                                                         <span class="n">g2_min_sigma</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">fit_df</span><span class="p">[</span><span class="s2">&quot;G2_sigma&quot;</span><span class="p">]),</span>
+                                                                         <span class="n">g2_max_sigma</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">fit_df</span><span class="p">[</span><span class="s2">&quot;G2_sigma&quot;</span><span class="p">])</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span>
+                                                                         <span class="n">g3_min_sigma</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">fit_df</span><span class="p">[</span><span class="s2">&quot;G3_sigma&quot;</span><span class="p">]),</span>
+                                                                         <span class="n">g3_max_sigma</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">fit_df</span><span class="p">[</span><span class="s2">&quot;G3_sigma&quot;</span><span class="p">])</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">fit_df_uncorrected</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="s2">&quot;uncorrected_fitted_gaussians_parameter_summary.csv&quot;</span><span class="p">,</span><span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+    <span class="c1"># Compare corrected vs uncorrected coverage</span>
+    <span class="n">plotting</span><span class="o">.</span><span class="n">plot_corrected_vs_uncorrected_coverage</span><span class="p">(</span>
+        <span class="n">x_values</span><span class="o">=</span><span class="n">fit_gaussians_obj</span><span class="o">.</span><span class="n">x_values</span><span class="p">,</span>
+        <span class="n">uncorrected_y_values</span><span class="o">=</span><span class="n">fit_gaussians_obj_uncorrected</span><span class="o">.</span><span class="n">unfitted_y_values</span><span class="p">,</span>
+        <span class="n">corrected_y_values</span><span class="o">=</span><span class="n">fit_gaussians_obj</span><span class="o">.</span><span class="n">unfitted_y_values</span><span class="p">,</span>
+        <span class="n">uncorrected_y_intercept</span><span class="o">=</span><span class="n">fit_gaussians_obj_uncorrected</span><span class="o">.</span><span class="n">intercept_y_values</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+        <span class="n">corrected_y_intercept</span><span class="o">=</span><span class="n">fit_gaussians_obj</span><span class="o">.</span><span class="n">intercept_y_values</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span></div>
+
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright 2021, Peter Peneder.
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

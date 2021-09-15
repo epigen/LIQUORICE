@@ -1,0 +1,693 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>liquorice.LIQUORICE &mdash; LIQUORICE 0.5.0 documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/underscore.js"></script>
+        <script src="../../_static/doctools.js"></script>
+    
+    <script type="text/javascript" src="../../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../index.html">
+          
+
+          
+            
+            <img src="../../_static/liquorice_logo_fitted_transparent.png" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../intro.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../intro.html#installation">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../intro.html#citation">Citation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../liquorice.html">The <cite>liquorice</cite> python package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../liquorice_commandline_tool.html">The LIQUORICE command-line-tool</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../liquorice_commandline_tool.html#liquorice-s-summary-tool">LIQUORICE’s summary tool</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../liquorice_commandline_tool.html#usage-parameters-and-examples">Usage, Parameters, and Examples</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">LIQUORICE</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="../index.html">Module code</a> &raquo;</li>
+        
+      <li>liquorice.LIQUORICE</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for liquorice.LIQUORICE</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">import</span> <span class="nn">pathlib</span>
+<span class="kn">import</span> <span class="nn">argparse</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">datetime</span>
+<span class="kn">import</span> <span class="nn">json</span>
+<span class="kn">import</span> <span class="nn">urllib</span>
+
+<span class="c1"># TODO detect_existing_biasmodel could lead to skipping of train_on_rois..</span>
+
+<span class="c1"># Speed Mode currently, on 25 cores, sample CTR2PE001, and sknmc regions:</span>
+
+<span class="c1"># 6 min total when analyzing only GC. R^2=0.18. GC biasfactor calc takes ~ 1 minute. Getting the seqs only takes 20</span>
+<span class="c1"># seconds. Getting the coverage takes ~ 3 min.</span>
+<span class="c1"># When run on the notebook with 1 core, takes 20 min in total / 15 min when run on 3 cores (swap used). # 13 min when run on 10 cores (swap used).</span>
+
+<span class="c1"># 14.5 min total when analyzing the full features. R^2=0.32</span>
+    <span class="c1"># ~ 5 min of the 14.5 are due to mappability calculations total.</span>
+    <span class="c1"># ~ 4 min for seq-based bias factors. (1 of which for GC)</span>
+<span class="c1"># Notebook: CNA correction was skipped.</span>
+<span class="c1"># When run on the notebook with 1 core, takes 40 min in total. Also true when using 2 cores and running the mappability first.</span>
+<span class="c1"># When run on the notebook running 3 samples in parallel with 1 core each, took 50 min in total → 17 min per sample.</span>
+<span class="c1"># Three at the same time seemed to use up pretty much all the memory and a little bit of swap → seems quite optimal.</span>
+
+<span class="c1"># TODO CNA correction is very slow using only one core without swifter. maybe use swifter for vectorization?</span>
+
+<span class="c1"># TODO: Idea for speed up: Calculate the raw bias factor vectors (GC, mappability ..) per region. Only then multiply by</span>
+<span class="c1">#   the coverage weight vector at the appropriate positions to determine per-bin bias factors.</span>
+<span class="c1"># CNA</span>
+<span class="c1"># TODO Size of random regions is currently not adapted to the width of the core regions - default region set does not</span>
+<span class="c1">#   work well when --percentile_split_core_regions is used. use</span>
+<span class="c1">#   https://bedtools.readthedocs.io/en/latest/content/tools/shuffle.html</span>
+<span class="c1"># # TODO note that chromosome names are expectegions</span>
+<span class="c1"># TODO --extend_to_biasmodel not working proed to start with &quot;chr&quot; in docs # has this been fixed?</span>
+<span class="c1"># TODO Dump all parameters with which LIQUORICE was called into a parameters.log file.</span>
+<span class="c1"># TODO matplotlib 3.1.1 works properly with LIQUORICE_summary, the current version in the</span>
+<span class="c1">#  environment /data2/peter/mysoftware/anaconda3/envs/test_LIQUORICE_0.5.0_build5 is 3.3.4 and does not work properly</span>
+<span class="c1"># TODO make plotting bias factors optional?</span>
+<span class="c1"># TODO prepare test datasets</span>
+<span class="c1"># TODO Skip the genome-wide coverage normalization step? Biasmodel training should have similar effect. But maybe normlization</span>
+<span class="c1">#  is better to scale the signal properly? Without devision by mean coverage, the absolute deviations from the predicted coverage</span>
+<span class="c1">#  will be larger for samples that are sequenced more deeply.</span>
+<span class="c1"># TODO find out the optimal nr. of training bins for the bias model</span>
+<span class="c1"># TODO include warning when duplicate regions were found and removed</span>
+<span class="c1"># TODO include a re-fitting step to make model fitting the same between samples? Changed default to using fixed sigma</span>
+<span class="c1">#  values</span>
+<span class="c1"># TODO maybe instead of providing random regions for bias-model training, they could also be selected for having a large</span>
+<span class="c1">#   range of GC content and other metrics..</span>
+
+<div class="viewcode-block" id="FullPaths"><a class="viewcode-back" href="../../liquorice.html#liquorice.LIQUORICE.FullPaths">[docs]</a><span class="k">class</span> <span class="nc">FullPaths</span><span class="p">(</span><span class="n">argparse</span><span class="o">.</span><span class="n">Action</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Expand user- and relative-paths. From: https://gist.github.com/brantfaircloth/1252339. Does not convert the path</span>
+<span class="sd">    to the blacklist if the value is &#39;hg38&#39; or &#39;10k_random, which is interpreted as an instruction to use the shipped</span>
+<span class="sd">    list instead.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parser</span><span class="p">,</span> <span class="n">namespace</span><span class="p">,</span> <span class="n">values</span><span class="p">,</span><span class="n">option_string</span><span class="o">=</span><span class="kc">None</span><span class="p">,):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">values</span><span class="o">==</span><span class="s2">&quot;hg38&quot;</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">values</span><span class="o">==</span><span class="s2">&quot;10k_random&quot;</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">values</span><span class="p">)</span><span class="o">==</span><span class="nb">list</span><span class="p">:</span>
+                <span class="nb">setattr</span><span class="p">(</span><span class="n">namespace</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">dest</span><span class="p">,</span> <span class="p">[</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">expanduser</span><span class="p">(</span><span class="n">x</span><span class="p">))</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">values</span><span class="p">])</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="nb">setattr</span><span class="p">(</span><span class="n">namespace</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">dest</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">expanduser</span><span class="p">(</span><span class="n">values</span><span class="p">)))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="nb">setattr</span><span class="p">(</span><span class="n">namespace</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">dest</span><span class="p">,</span> <span class="n">values</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="parse_args"><a class="viewcode-back" href="../../liquorice.html#liquorice.LIQUORICE.parse_args">[docs]</a><span class="k">def</span> <span class="nf">parse_args</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Parses the arguments from the command line. For a full list of arguments,</span>
+<span class="sd">    see the documentation of the LIQUORICE command line tool.</span>
+
+<span class="sd">    :return: An `argparse.ArgumentParser` object storing the arguments.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">parser</span> <span class="o">=</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">(</span><span class="n">description</span><span class="o">=</span><span class="s2">&quot;LIQUORICE: A tool for bias correction and quantification of changes &quot;</span>
+                                                 <span class="s2">&quot; in coverage around regions of interest in cfDNA WGS datasets&quot;</span><span class="p">,</span>
+                                     <span class="n">formatter_class</span><span class="o">=</span><span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentDefaultsHelpFormatter</span><span class="p">)</span>
+    <span class="n">required_keyword_args</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">add_argument_group</span><span class="p">(</span><span class="s1">&#39;Required named arguments&#39;</span><span class="p">)</span>
+
+    <span class="n">required_keyword_args</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s1">&#39;--bamfile&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;.bam file containing the mapped reads of the sample. Used to infer coverage, fragment&#39;</span>
+                          <span class="s1">&#39; size, and read length.&#39;</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span><span class="n">action</span><span class="o">=</span><span class="n">FullPaths</span><span class="p">)</span>
+
+    <span class="n">required_keyword_args</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s1">&#39;--refgenome_fasta&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Path to a .fa file of the reference genome. Must have a .fa.fai index in the same &#39;</span>
+                                  <span class="s1">&#39;directory.&#39;</span><span class="p">,</span><span class="n">required</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span><span class="n">action</span><span class="o">=</span><span class="n">FullPaths</span><span class="p">)</span>
+
+    <span class="n">required_keyword_args</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s1">&#39;--mappability_bigwig&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Path to a bigWig file that contains (forward) mappability values for every base &#39;</span>
+                                     <span class="s1">&#39;in the reference genome. Can be calculated with gem-mappability for the &#39;</span>
+                                     <span class="s1">&#39;appropriate read length.&#39;</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span><span class="n">action</span><span class="o">=</span><span class="n">FullPaths</span><span class="p">)</span>
+
+
+    <span class="n">optional_keyword_args</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">add_argument_group</span><span class="p">(</span><span class="s1">&#39;Optional named arguments - General settings&#39;</span><span class="p">)</span>
+
+    <span class="n">optional_keyword_args</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s1">&#39;--bedpathlist&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;List of paths to BED files, one for each region-set of interest. If unspecified, &#39;</span>
+                              <span class="s1">&#39;only the biasmodel will be trained (if indicated by the --bedpath_biasmodel, &#39;</span>
+                              <span class="s1">&#39;--detect_exisiting_biasmodel, and --use_this_biasmodel settings).&#39;</span><span class="p">,</span><span class="n">nargs</span><span class="o">=</span><span class="s2">&quot;+&quot;</span><span class="p">,</span>
+        <span class="n">default</span><span class="o">=</span><span class="p">[],</span><span class="n">action</span><span class="o">=</span><span class="n">FullPaths</span><span class="p">)</span>
+
+    <span class="n">optional_keyword_args</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s1">&#39;--bedpath_biasmodel&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;.bed file containing regions that are used for generating the bias model for the &quot;</span>
+                                    <span class="s2">&quot;sample. E.g. random regions should work well. Incompatible with &quot;</span>
+                                    <span class="s2">&quot;use_provided_biasmodel. &quot;</span>
+                                    <span class="s2">&quot;If &#39;10k_random&#39; is specified, a set of 10k random regions for hg38 shipped with &quot;</span>
+                                    <span class="s2">&quot;the package is used for training unless an existing &quot;</span>
+                                    <span class="s2">&quot;biasmodel can be used. &quot;</span>
+                                    <span class="s2">&quot;If not specified / None (default), train a seperate biasmodel for each region-set &quot;</span>
+                                    <span class="s2">&quot;that is specified in --bedpathlist, using the flanking regions (+- extend_to) &quot;</span>
+                                    <span class="s2">&quot;for each region in the set.&quot;</span><span class="p">,</span>
+        <span class="n">action</span><span class="o">=</span><span class="n">FullPaths</span><span class="p">,</span><span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+
+    <span class="n">optional_keyword_args</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s1">&#39;--binsize&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Bin size is important for the resolution of the output plots &amp; data, and for the bias model &quot;</span>
+                          <span class="s2">&quot;itself. Smaller bin sizes give higher resolution, but take longer to calculate and may &quot;</span>
+                          <span class="s2">&quot;result in more noise&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">500</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">)</span>
+
+    <span class="n">optional_keyword_args</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s1">&#39;--extend_to&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Size of the flanking region, in bp. Must be devidable by --binsize and must be a multiple &quot;</span>
+                            <span class="s2">&quot;of 2. The regions will be extended by this value in both directions. The most upstream bin&quot;</span>
+                            <span class="s2">&quot; starts &lt;extend_to&gt; bp upstream of the core region start, and the most downstream bin ends&quot;</span>
+                            <span class="s2">&quot; &lt;extend_to&gt; bp downstream of the core region end. If --all_bins_same_size is set, instead&quot;</span>
+                            <span class="s2">&quot;the outmost bins will have their center at &lt;center of the region&gt;+-&lt;extend_to&gt;. &quot;</span>
+                            <span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">20000</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">)</span>
+
+    <span class="n">optional_keyword_args</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s1">&#39;--blacklist&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Exclude regions if they overlap with the regions in this .bed file &quot;</span>
+                            <span class="s2">&quot;(after extension by --extend_to). Default: None. Set to &#39;hg38&#39; to use&quot;</span>
+                            <span class="s2">&quot; the Boyle lab&#39;s hg38-blacklist.v2 that is shipped with LIQUORICE.&quot;</span>
+        <span class="p">,</span><span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">action</span><span class="o">=</span><span class="n">FullPaths</span><span class="p">)</span>
+
+    <span class="n">optional_keyword_args</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s1">&#39;--cna_seg_file&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;If specified, use this .seg file to correct the coverage by the values specified in &quot;</span>
+                               <span class="s2">&quot;this file prior to model training or bias correction. Use this if you want to normalize&quot;</span>
+                               <span class="s2">&quot; out the effects of copy number aberrations (CNAs) on the coverage. File must be &quot;</span>
+                               <span class="s2">&quot;tab-separated, with column names as first line. The second,third,and fourth column &quot;</span>
+                               <span class="s2">&quot;must be chromosome, start, and end of the segment, and the last column must be the &quot;</span>
+                               <span class="s2">&quot;log2-ratio of observed / expected read depth. This file can be generated e.g. by &quot;</span>
+                               <span class="s2">&quot;running ichorCNA on the sample first.&quot;</span>
+        <span class="p">,</span><span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">action</span><span class="o">=</span><span class="n">FullPaths</span><span class="p">)</span>
+
+    <span class="n">optional_keyword_args</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s1">&#39;--detect_existing_biasmodel&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Check if a bias-model has already been built and saved under &quot;</span>
+                                            <span class="s2">&quot;./&lt;samplename&gt;/biasmodel/trained_biasmodel.joblib. If so, &quot;</span>
+                                            <span class="s2">&quot;use it, otherwise build one using --on a &quot;</span>
+                                            <span class="s2">&quot;new biasmodel, overwriting files with the same name.&quot;</span><span class="p">,</span>
+        <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_true&quot;</span><span class="p">)</span>
+
+    <span class="n">optional_keyword_args</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s1">&#39;--use_this_biasmodel&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Use this bias model instead of training a model. IMPORTANT: This model has &quot;</span>
+                                     <span class="s2">&quot;to come from the same sample/patient as the current one, otherwise the &quot;</span>
+                                     <span class="s2">&quot;bias correction makes no sense.&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">action</span><span class="o">=</span><span class="n">FullPaths</span><span class="p">)</span>
+
+    <span class="n">optional_keyword_args</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s1">&#39;--extend_to_biasmodel&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Ignored unless --bedpath_biasmodel is set. &quot;</span>
+                                      <span class="s2">&quot;Size of the flanking region, in bp, to be used for the bias-model. &quot;</span>
+                                      <span class="s2">&quot;Must be devidable by --binsize and must be a multiple &quot;</span>
+                                      <span class="s2">&quot;of 2. The regions will be extended by this value in both directions. &quot;</span>
+                                      <span class="s2">&quot;Outmost bins will have their center at &lt;center of the region&gt;+-&lt;extend_to&gt;. &quot;</span>
+                                      <span class="s2">&quot;Default 0: Only place a single bin at the center of each provided region to &quot;</span>
+                                      <span class="s2">&quot;speed up the training process.&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">)</span>
+
+    <span class="n">optional_keyword_args</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s1">&#39;--no_chr_prefix&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Specify this if the reference genome your .bam files are aligned to uses a chromosome &#39;</span>
+                                <span class="s1">&#39;naming scheme such as &quot;1,2,3,..,X,Y&quot; instead of &quot;chr1,chr2,chr3,..,chrX,chrY&quot;, which &#39;</span>
+                                <span class="s1">&#39;is the default. Note that if your chromosomes are not named like the default, you &#39;</span>
+                                <span class="s1">&#39;must not use the &quot;10k_random&quot; setting for --bedpath_biasmodel or the &quot;hg38&quot; setting &#39;</span>
+                                <span class="s1">&#39;for --blacklist. Also, all other input files (refgenome_fasta, mappability_bigwig, &#39;</span>
+                                <span class="s1">&#39;bedpathlist, and cna_seg_file must follow the same notation.&#39;</span><span class="p">,</span>
+        <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_true&quot;</span><span class="p">)</span>
+
+    <span class="n">optional_keyword_args</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--use_this_roi_biasfactortable&quot;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;If set, use the specified biasfactor table &quot;</span>
+                                               <span class="s2">&quot;and only train/apply the biasmodel, skipping the calculation of &quot;</span>
+                                               <span class="s2">&quot;coverage and bias factors.&quot;</span><span class="p">,</span>
+        <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">action</span><span class="o">=</span><span class="n">FullPaths</span><span class="p">)</span>
+
+
+    <span class="n">optional_keyword_args</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--speed_mode&quot;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Only perform GC correction, don&#39;t correct using mappability or di/trinucleotides. &quot;</span>
+                             <span class="s2">&quot;Setting this flag makes LIQUORICE considerably faster, but may lead to less accurate &quot;</span>
+                             <span class="s2">&quot;results. Currently respected only if --bedpath_biasmodel is not specified.&quot;</span><span class="p">,</span>
+        <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_true&quot;</span><span class="p">)</span>
+
+    <span class="n">optional_keyword_args</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--all_bins_same_size&quot;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;If set, use always the same bin size (for both the &quot;</span>
+                                     <span class="s2">&quot;core region provided with --bedpath_list and the flanking regions &quot;</span>
+                                     <span class="s2">&quot;defined by --extend_to), instead of splitting the core region into bins &quot;</span>
+                                     <span class="s2">&quot;with sizes corresponding to 10,15,25,15,and 10</span><span class="si">%%</span><span class="s2"> of the core region&#39;s length. &quot;</span>
+        <span class="p">,</span><span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_true&quot;</span><span class="p">)</span>
+    <span class="n">optional_keyword_args</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--dont_crossvalidate_if_train_on_rois&quot;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Unless set, if --train_on_rois is specified, train two seperate &quot;</span>
+                                                      <span class="s2">&quot;bias models, each on half of the dataset, and use the trained&quot;</span>
+                                                      <span class="s2">&quot;model to predict the other half.&quot;</span><span class="p">,</span><span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_true&quot;</span><span class="p">)</span>
+
+    <span class="n">optional_keyword_args_technical</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">add_argument_group</span><span class="p">(</span><span class="s1">&#39;Optional named arguments - Technical settings&#39;</span><span class="p">)</span>
+
+    <span class="n">optional_keyword_args_technical</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s1">&#39;--n_cpus&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Number of processors to be used whereever multiprocessing/multithreading is used. &quot;</span><span class="p">,</span>
+        <span class="n">default</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">)</span>
+
+    <span class="n">optional_keyword_args_technical</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--tmpdir&quot;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Use this directory as a temporary directory.&quot;</span><span class="p">,</span>
+        <span class="n">default</span><span class="o">=</span><span class="s2">&quot;.&quot;</span><span class="p">,</span><span class="n">action</span><span class="o">=</span><span class="n">FullPaths</span><span class="p">)</span>
+
+    <span class="n">optional_keyword_args_output</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">add_argument_group</span><span class="p">(</span><span class="s1">&#39;Optional named arguments - Output settings&#39;</span><span class="p">)</span>
+
+    <span class="n">optional_keyword_args_output</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s1">&#39;--samplename&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Name of the sample that is being processed. This will be used for output plots and the &#39;</span>
+                             <span class="s1">&#39;names of directories. Default None: Infer from --bamfile by removing .bam extension&#39;</span><span class="p">,</span>
+        <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+
+    <span class="n">optional_keyword_args_output</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--quiet&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;If set, the log level is set to &quot;warning&quot;, making &#39;</span>
+                                                              <span class="s1">&#39;LIQUORICE less chatty.&#39;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_true&quot;</span><span class="p">)</span>
+
+    <span class="n">optional_keyword_args_output</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s1">&#39;--save_training_table&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;If set, save the training DataFrame of the bias model under&quot;</span>
+                                      <span class="s2">&quot; ./&lt;samplename&gt;/biasmodel/training_table.csv &quot;</span>
+                                      <span class="s2">&quot;(or ./&lt;samplename&gt;/&lt;region-set name&gt;/training_table.csv if --bedpath_biasmodel &quot;</span>
+                                      <span class="s2">&quot;is not specified)&quot;</span><span class="p">,</span><span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_true&quot;</span><span class="p">)</span>
+
+    <span class="n">optional_keyword_args_output</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s1">&#39;--save_biasfactor_table&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;If set, for each region-set, save a table of coverage and biasfactor values&quot;</span>
+                                        <span class="s2">&quot; per bin under &quot;</span>
+                                        <span class="s2">&quot;./&lt;samplename&gt;/&lt;region-set name&gt;/coverage_and_biasfactors_per_bin.csv&quot;</span><span class="p">,</span>
+        <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_true&quot;</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">parser</span></div>
+
+
+<div class="viewcode-block" id="main"><a class="viewcode-back" href="../../liquorice.html#liquorice.LIQUORICE.main">[docs]</a><span class="k">def</span> <span class="nf">main</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Main function for the LIQUORICE command line tool. Performs the following steps: Sanity checks for user input,</span>
+<span class="sd">    setup of environment variables and general setup-steps, handles file paths, selects which steps need to be</span>
+<span class="sd">    performed based on user input, logs the progress and performs the actual LIQUORICE analysis by calling</span>
+<span class="sd">    :func:`liquorice.utils.GlobalFragmentSize.get_list_of_fragment_lengths_and_avg_readlength`,</span>
+<span class="sd">    :func:`liquorice.utils.MeanSequencingDepth.sample_bam_to_get_sequencing_depth`,</span>
+<span class="sd">    :func:`liquorice.utils.Workflows.train_biasmodel_for_sample`,</span>
+<span class="sd">    :func:`liquorice.utils.Workflows.run_liquorice_on_regionset_with_pretrained_biasmodel`, and/or</span>
+<span class="sd">    :func:`liquorice.utils.Workflows.run_liquorice_train_biasmodel_on_same_regions` after generating the</span>
+<span class="sd">    corresponding objects.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">parser</span><span class="o">=</span><span class="n">parse_args</span><span class="p">()</span>
+    <span class="n">args</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">()</span>
+
+    <span class="c1"># Set up logging</span>
+    <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">quiet</span><span class="p">:</span>
+        <span class="n">loglevel</span><span class="o">=</span><span class="s2">&quot;WARNING&quot;</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">loglevel</span><span class="o">=</span><span class="s2">&quot;INFO&quot;</span>
+    <span class="n">logging</span><span class="o">.</span><span class="n">basicConfig</span><span class="p">(</span><span class="n">level</span><span class="o">=</span><span class="n">loglevel</span><span class="p">,</span> <span class="nb">format</span><span class="o">=</span><span class="s1">&#39;</span><span class="si">%(levelname)s</span><span class="s1">: </span><span class="si">%(asctime)s</span><span class="se">\t</span><span class="s1"> </span><span class="si">%(message)s</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">datefmt</span><span class="o">=</span><span class="s1">&#39;%Y/%m/</span><span class="si">%d</span><span class="s1"> %H:%M:%S&#39;</span><span class="p">)</span>
+
+    <span class="c1">#  Sanity checks for user input:</span>
+    <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">bedpath_biasmodel</span> <span class="ow">and</span> <span class="n">args</span><span class="o">.</span><span class="n">use_this_biasmodel</span><span class="p">:</span>
+        <span class="n">parser</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;ERROR: Please specify EITHER a .bed file to use for generation of the bias model &quot;</span>
+                     <span class="s2">&quot;(--bedpath_biasmodel) OR a pre-calculated error model (--use_this_biasmodel), not both&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">extend_to</span><span class="o">%</span><span class="mi">2</span><span class="p">:</span>
+            <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;ERROR: --extend_to (set to </span><span class="si">{</span><span class="n">args</span><span class="o">.</span><span class="n">extend_to</span><span class="si">}</span><span class="s2">) must be a multiple of 2.&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">extend_to</span><span class="o">%</span><span class="n">args</span><span class="o">.</span><span class="n">binsize</span><span class="p">:</span>
+        <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;ERROR: --extend_to (was set to </span><span class="si">{</span><span class="n">args</span><span class="o">.</span><span class="n">extend_to</span><span class="si">}</span><span class="s2">) must be a multiple of --binsize &quot;</span>
+                 <span class="sa">f</span><span class="s2">&quot;(was set to </span><span class="si">{</span><span class="n">args</span><span class="o">.</span><span class="n">binsize</span><span class="si">}</span><span class="s2">).&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">extend_to_biasmodel</span> <span class="o">!=</span><span class="mi">0</span> <span class="ow">and</span> <span class="n">args</span><span class="o">.</span><span class="n">bedpath_biasmodel</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;You have specified --extend_to_biasmodel but not --bedpath_biasmodel. --extend_to_biasmodel&quot;</span>
+                        <span class="s2">&quot;parameter will be ignored. &quot;</span><span class="p">)</span>
+
+    <span class="n">check_these_paths</span><span class="o">=</span><span class="p">[</span><span class="n">args</span><span class="o">.</span><span class="n">bamfile</span><span class="p">,</span><span class="n">args</span><span class="o">.</span><span class="n">refgenome_fasta</span><span class="p">,</span><span class="n">args</span><span class="o">.</span><span class="n">mappability_bigwig</span><span class="p">,</span>
+        <span class="n">args</span><span class="o">.</span><span class="n">use_this_biasmodel</span><span class="p">,</span><span class="n">args</span><span class="o">.</span><span class="n">cna_seg_file</span><span class="p">]</span><span class="o">+</span><span class="n">args</span><span class="o">.</span><span class="n">bedpathlist</span>
+    <span class="k">for</span> <span class="n">file</span> <span class="ow">in</span> <span class="n">check_these_paths</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">file</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">file</span><span class="p">):</span>
+                <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;ERROR: &#39;</span><span class="si">{</span><span class="n">file</span><span class="si">}</span><span class="s2">&#39; does not exist or is a directory - please correct.&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">blacklist</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">args</span><span class="o">.</span><span class="n">blacklist</span><span class="o">!=</span><span class="s2">&quot;hg38&quot;</span><span class="p">:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">blacklist</span><span class="p">):</span>
+            <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;ERROR: &#39;</span><span class="si">{</span><span class="n">args</span><span class="o">.</span><span class="n">blacklist</span><span class="si">}</span><span class="s2">&#39; does not exist or is a directory - please correct.&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">bedpath_biasmodel</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">args</span><span class="o">.</span><span class="n">bedpath_biasmodel</span><span class="o">!=</span><span class="s2">&quot;10k_random&quot;</span><span class="p">:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">bedpath_biasmodel</span><span class="p">):</span>
+            <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;ERROR: &#39;</span><span class="si">{</span><span class="n">args</span><span class="o">.</span><span class="n">bedpath_biasmodel</span><span class="si">}</span><span class="s2">&#39; does not exist or is a directory - please correct.&quot;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">no_chr_prefix</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">blacklist</span> <span class="o">==</span> <span class="s2">&quot;hg38&quot;</span><span class="p">:</span>
+            <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;ERROR: --blacklist hg38 is not compatible with --no_chr_prefix.&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">bedpath_biasmodel</span> <span class="o">==</span> <span class="s2">&quot;10k_random&quot;</span><span class="p">:</span>
+            <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;ERROR: --bedpath_biasmodel 10k_random is not compatible with --no_chr_prefix.&quot;</span><span class="p">)</span>
+
+    <span class="c1">#  misc set-up</span>
+    <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">samplename</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">args</span><span class="o">.</span><span class="n">samplename</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">bamfile</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;/&quot;</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;.bam&quot;</span><span class="p">,</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">blacklist</span> <span class="o">==</span> <span class="s2">&quot;hg38&quot;</span><span class="p">:</span>
+        <span class="n">args</span><span class="o">.</span><span class="n">blacklist</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="vm">__file__</span><span class="p">),</span><span class="s1">&#39;data/hg38.blacklist.v2.0.bed&#39;</span><span class="p">))</span>
+    <span class="n">args</span><span class="o">.</span><span class="n">train_on_rois</span><span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">bedpath_biasmodel</span> <span class="ow">is</span> <span class="kc">None</span>
+    <span class="n">args</span><span class="o">.</span><span class="n">percentile_split_core_regions</span><span class="o">=</span> <span class="ow">not</span> <span class="n">args</span><span class="o">.</span><span class="n">all_bins_same_size</span>
+    <span class="n">args</span><span class="o">.</span><span class="n">crossvalidated_predictions_if_train_on_rois</span> <span class="o">=</span> <span class="ow">not</span> <span class="n">args</span><span class="o">.</span><span class="n">dont_crossvalidate_if_train_on_rois</span>
+
+    <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">&quot;TMP&quot;</span><span class="p">]</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">tmpdir</span>
+    <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">&quot;TMPDIR&quot;</span><span class="p">]</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">tmpdir</span>
+    <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">&quot;TEMP&quot;</span><span class="p">]</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">tmpdir</span>
+
+    <span class="c1">#  Multi-processing set-up and dependent imports:</span>
+    <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">&quot;MODIN_CPUS&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">n_cpus</span><span class="p">)</span>
+    <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">&quot;MODIN_ENGINE&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;ray&quot;</span>
+    <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">&quot;OMP_NUM_THREADS&quot;</span><span class="p">]</span><span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">n_cpus</span><span class="p">)</span>
+    <span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="vm">__file__</span><span class="p">),</span> <span class="s1">&#39;../..&#39;</span><span class="p">)))</span>
+    <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">&quot;PYTHONPATH&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="vm">__file__</span><span class="p">),</span> <span class="s1">&#39;../..&#39;</span><span class="p">))</span>
+    <span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="vm">__file__</span><span class="p">),</span> <span class="s1">&#39;..&#39;</span><span class="p">)))</span>
+    <span class="kn">import</span> <span class="nn">ray</span>
+    <span class="c1"># activate if ray version ==1.1.0 or higher</span>
+    <span class="k">if</span> <span class="n">ray</span><span class="o">.</span><span class="n">__version__</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span><span class="o">==</span><span class="s2">&quot;1&quot;</span> <span class="ow">and</span> <span class="nb">int</span><span class="p">(</span><span class="n">ray</span><span class="o">.</span><span class="n">__version__</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">)[</span><span class="mi">1</span><span class="p">])</span><span class="o">&gt;=</span><span class="mi">1</span><span class="p">:</span>
+        <span class="n">ray</span><span class="o">.</span><span class="n">init</span><span class="p">(</span><span class="n">num_cpus</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">n_cpus</span><span class="p">,</span><span class="n">_temp_dir</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">tmpdir</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Failed to initialize ray with the specified tmpdir &#39;</span><span class="si">{</span><span class="n">args</span><span class="o">.</span><span class="n">tmpdir</span><span class="si">}</span><span class="s2">&#39; and num_cpus </span><span class="si">{</span><span class="n">args</span><span class="o">.</span><span class="n">n_cpus</span><span class="si">}</span><span class="s2">.&quot;</span>
+                        <span class="sa">f</span><span class="s2">&quot; This happens if the ray version is lower than 1.1.0. Setup will be done by modin instead,&quot;</span>
+                        <span class="sa">f</span><span class="s2">&quot; but this can mean the tmpdir will not be respected.&quot;</span><span class="p">)</span>
+    <span class="kn">from</span> <span class="nn">liquorice.utils</span> <span class="kn">import</span> <span class="n">GlobalFragmentSize</span>
+    <span class="kn">from</span> <span class="nn">liquorice.utils</span> <span class="kn">import</span> <span class="n">MeanSequencingDepth</span>
+    <span class="kn">from</span> <span class="nn">liquorice.utils</span> <span class="kn">import</span> <span class="n">Workflows</span>
+
+    <span class="c1"># Start the actual LIQUORICE workflow:</span>
+    <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n\n</span><span class="s2">&quot;</span>
+                 <span class="sa">f</span><span class="s2">&quot;#######################################################&quot;</span><span class="o">+</span>
+                 <span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="s2">&quot;#&quot;</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">samplename</span><span class="p">))])</span><span class="o">+</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span>
+                 <span class="sa">f</span><span class="s2">&quot;############  Running LIQUORICE on sample </span><span class="si">{</span><span class="n">args</span><span class="o">.</span><span class="n">samplename</span><span class="si">}</span><span class="s2">  ###########</span><span class="se">\n</span><span class="s2">&quot;</span>
+                 <span class="sa">f</span><span class="s2">&quot;#######################################################&quot;</span><span class="o">+</span>
+                 <span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="s2">&quot;#&quot;</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">samplename</span><span class="p">))])</span><span class="o">+</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">samplename</span><span class="p">,</span><span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">os</span><span class="o">.</span><span class="n">chdir</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">samplename</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">use_this_roi_biasfactortable</span> <span class="ow">and</span> <span class="n">args</span><span class="o">.</span><span class="n">train_on_rois</span><span class="p">:</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Using pre-calculated table of biasfactors: </span><span class="si">{</span><span class="n">args</span><span class="o">.</span><span class="n">use_this_roi_biasfactortable</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">sampled_fragment_lengths</span><span class="p">,</span> <span class="n">avg_readlength</span><span class="p">,</span><span class="n">mean_seq_depth</span><span class="o">=</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span><span class="kc">None</span><span class="p">,</span><span class="kc">None</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="c1"># Get a sample of representative fragment lengths from the .bam file, and determine the read length:</span>
+        <span class="n">sampled_fragment_lengths</span><span class="p">,</span> <span class="n">avg_readlength</span> <span class="o">=</span> <span class="n">GlobalFragmentSize</span><span class="o">.</span><span class="n">get_list_of_fragment_lengths_and_avg_readlength</span><span class="p">(</span>
+            <span class="n">args</span><span class="o">.</span><span class="n">bamfile</span><span class="p">,</span><span class="n">n_cores</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">n_cpus</span><span class="p">)</span>
+
+        <span class="c1"># Get the mean sequencing depth of the .bam file:</span>
+        <span class="n">mean_seq_depth</span> <span class="o">=</span> <span class="n">MeanSequencingDepth</span><span class="o">.</span><span class="n">sample_bam_to_get_sequencing_depth</span><span class="p">(</span>
+           <span class="n">bam_filepath</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">bamfile</span><span class="p">,</span>
+           <span class="n">n_cores</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">n_cpus</span><span class="p">,</span>
+           <span class="n">n_sites_to_sample</span><span class="o">=</span><span class="mi">10000</span><span class="p">,</span>
+           <span class="n">chromosomes_list</span><span class="o">=</span><span class="kc">None</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">args</span><span class="o">.</span><span class="n">no_chr_prefix</span> <span class="k">else</span> <span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">23</span><span class="p">)])</span>
+
+    <span class="c1"># Determine wether a bias model shall be trained</span>
+    <span class="n">train_model</span><span class="o">=</span><span class="kc">True</span>
+    <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">use_this_biasmodel</span><span class="p">:</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Using existing biasmodel </span><span class="si">{</span><span class="n">args</span><span class="o">.</span><span class="n">use_this_biasmodel</span><span class="si">}</span><span class="s2">. Biasmodel training will be skipped.&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">detect_existing_biasmodel</span><span class="p">:</span>
+            <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;--detect_existing_biasmodel will be ignored because --use_this_biasmodel was specified.&quot;</span><span class="p">)</span>
+        <span class="n">train_model</span><span class="o">=</span><span class="kc">False</span>
+    <span class="k">elif</span> <span class="n">args</span><span class="o">.</span><span class="n">detect_existing_biasmodel</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="s2">&quot;biasmodel/trained_biasmodel.joblib&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+            <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Detected existing bias model under </span><span class="si">{</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">realpath</span><span class="p">(</span><span class="s1">&#39;biasmodel/trained_biasmodel.joblib&#39;</span><span class="p">)</span><span class="si">}</span><span class="s2">.&quot;</span>
+                     <span class="sa">f</span><span class="s2">&quot; Biasmodel training will be skipped.&quot;</span><span class="p">)</span>
+            <span class="n">train_model</span><span class="o">=</span><span class="kc">False</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Did not detect an existing biasmodel under &quot;</span>
+                         <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">realpath</span><span class="p">(</span><span class="s1">&#39;biasmodel/trained_biasmodel.joblib&#39;</span><span class="p">)</span><span class="si">}</span><span class="s2">.&quot;</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="ow">not</span> <span class="n">args</span><span class="o">.</span><span class="n">detect_existing_biasmodel</span> <span class="ow">and</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="s2">&quot;biasmodel/trained_biasmodel.joblib&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Found an existing biasmodel under &quot;</span>
+                        <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">realpath</span><span class="p">(</span><span class="s1">&#39;biasmodel/trained_biasmodel.joblib&#39;</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
+                        <span class="sa">f</span><span class="s2">&quot;. This model will be overwritten as --detect_existing_biasmodel was not specified.&quot;</span><span class="p">)</span>
+
+    <span class="c1"># Version in which a single bias-model is trained for the sample, based on a set of seperate training regions</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">args</span><span class="o">.</span><span class="n">train_on_rois</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">train_model</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">bedpath_biasmodel</span> <span class="o">==</span> <span class="s2">&quot;10k_random&quot;</span><span class="p">:</span>
+                <span class="n">args</span><span class="o">.</span><span class="n">bedpath_biasmodel</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="vm">__file__</span><span class="p">),</span>
+                                                                    <span class="s1">&#39;data/10000_random_training_regions_hg38.bed&#39;</span><span class="p">))</span>
+                <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Using LIQUORICE&#39;s default region-set of 10k random regions for hg38 to train a biasmodel.&quot;</span><span class="p">)</span>
+
+            <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;###### Training a biasmodel for this sample using </span><span class="si">{</span><span class="n">args</span><span class="o">.</span><span class="n">bedpath_biasmodel</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="si">}</span><span class="s2"> #####&quot;</span><span class="p">)</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="s2">&quot;biasmodel&quot;</span><span class="p">,</span><span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">chdir</span><span class="p">(</span><span class="s2">&quot;biasmodel&quot;</span><span class="p">)</span>
+            <span class="n">Workflows</span><span class="o">.</span><span class="n">train_biasmodel_for_sample</span><span class="p">(</span>
+                <span class="n">bam_filepath</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">bamfile</span><span class="p">,</span>
+                <span class="n">bed_filepath</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">bedpath_biasmodel</span><span class="p">,</span>
+                <span class="n">refgenome_filepath</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">refgenome_fasta</span><span class="p">,</span>
+                <span class="n">samplename</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">samplename</span><span class="p">,</span>
+                <span class="n">refgenome_chromsizes_filepath</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">refgenome_fasta</span><span class="o">+</span><span class="s2">&quot;.fai&quot;</span><span class="p">,</span>
+                <span class="n">sampled_fragment_lengths</span><span class="o">=</span><span class="n">sampled_fragment_lengths</span><span class="p">,</span>
+                <span class="n">avg_readlength</span><span class="o">=</span><span class="n">avg_readlength</span><span class="p">,</span>
+                <span class="n">refgenome_mappability_bigwig_path</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">mappability_bigwig</span><span class="p">,</span>
+                <span class="n">blacklist_bed_filepath</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">blacklist</span><span class="p">,</span>
+                <span class="n">cna_seg_filepath</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">cna_seg_file</span><span class="p">,</span>
+                <span class="n">mean_seq_depth</span><span class="o">=</span><span class="n">mean_seq_depth</span><span class="p">,</span>
+                <span class="n">binsize</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">binsize</span><span class="p">,</span>
+                <span class="n">n_cores</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">n_cpus</span><span class="p">,</span>
+                <span class="n">biasmodel_output_path</span><span class="o">=</span><span class="s2">&quot;trained_biasmodel.joblib&quot;</span><span class="p">,</span>
+                <span class="n">extend_to</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">extend_to_biasmodel</span><span class="p">,</span>
+                <span class="n">save_training_table</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">save_training_table</span><span class="p">,</span>
+                <span class="n">no_chr_prefix</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">no_chr_prefix</span><span class="p">,</span>
+                <span class="n">percentile_split_core_rois</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">percentile_split_core_regions</span><span class="p">)</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">chdir</span><span class="p">(</span><span class="s2">&quot;..&quot;</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">bed_filepath</span> <span class="ow">in</span> <span class="n">args</span><span class="o">.</span><span class="n">bedpathlist</span><span class="p">:</span>
+            <span class="n">regionset_name</span><span class="o">=</span><span class="n">bed_filepath</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;/&quot;</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;.bed&quot;</span><span class="p">,</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
+            <span class="c1"># if pathlib.Path(regionset_name).exists():</span>
+            <span class="c1">#     raise FileExistsError(f&quot;A directory or file already exists under {os.path.abspath(regionset_name)}. &quot;</span>
+            <span class="c1">#                           f&quot;Aborting.&quot;)</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">regionset_name</span><span class="p">,</span><span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">chdir</span><span class="p">(</span><span class="n">regionset_name</span><span class="p">)</span>
+
+            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s1">&#39;binning_settings.json&#39;</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+                <span class="n">json</span><span class="o">.</span><span class="n">dump</span><span class="p">({</span><span class="s2">&quot;binsize&quot;</span><span class="p">:</span><span class="n">args</span><span class="o">.</span><span class="n">binsize</span><span class="p">,</span> <span class="s2">&quot;extend_to&quot;</span><span class="p">:</span><span class="n">args</span><span class="o">.</span><span class="n">extend_to</span><span class="p">},</span> <span class="n">f</span><span class="p">)</span>
+
+            <span class="n">Workflows</span><span class="o">.</span><span class="n">run_liquorice_on_regionset_with_pretrained_biasmodel</span><span class="p">(</span>
+                <span class="n">bam_filepath</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">bamfile</span><span class="p">,</span>
+                <span class="n">bed_filepath</span><span class="o">=</span><span class="n">bed_filepath</span><span class="p">,</span>
+                <span class="n">samplename</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">samplename</span><span class="p">,</span>
+                <span class="n">biasmodel_path</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">use_this_biasmodel</span> <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">use_this_biasmodel</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="s2">&quot;../biasmodel/trained_biasmodel.joblib&quot;</span><span class="p">,</span>
+                <span class="n">regionset_name</span><span class="o">=</span><span class="n">regionset_name</span><span class="p">,</span>
+                <span class="n">refgenome_filepath</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">refgenome_fasta</span><span class="p">,</span>
+                <span class="n">refgenome_chromsizes_filepath</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">refgenome_fasta</span><span class="o">+</span><span class="s2">&quot;.fai&quot;</span><span class="p">,</span>
+                <span class="n">refgenome_mappability_bigwig_path</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">mappability_bigwig</span><span class="p">,</span>
+                <span class="n">blacklist_bed_filepath</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">blacklist</span><span class="p">,</span>
+                <span class="n">sampled_fragment_lengths</span><span class="o">=</span><span class="n">sampled_fragment_lengths</span><span class="p">,</span>
+                <span class="n">avg_readlength</span><span class="o">=</span><span class="n">avg_readlength</span><span class="p">,</span>
+                <span class="n">cna_seg_filepath</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">cna_seg_file</span><span class="p">,</span>
+                <span class="n">mean_seq_depth</span><span class="o">=</span><span class="n">mean_seq_depth</span><span class="p">,</span>
+                <span class="n">binsize</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">binsize</span><span class="p">,</span>
+                <span class="n">extend_to</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">extend_to</span><span class="p">,</span>
+                <span class="n">n_cores</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">n_cpus</span><span class="p">,</span>
+                <span class="n">save_biasfactor_table</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">save_biasfactor_table</span><span class="p">,</span>
+                <span class="n">use_default_fixed_sigma_values</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                <span class="n">no_chr_prefix</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">no_chr_prefix</span><span class="p">,</span>
+                <span class="n">percentile_split_core_rois</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">percentile_split_core_regions</span><span class="p">,</span>
+                <span class="n">use_this_roi_biasfactortable</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">use_this_roi_biasfactortable</span><span class="p">)</span>
+
+            <span class="n">os</span><span class="o">.</span><span class="n">chdir</span><span class="p">(</span><span class="s2">&quot;..&quot;</span><span class="p">)</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">chdir</span><span class="p">(</span><span class="s2">&quot;..&quot;</span><span class="p">)</span>
+
+    <span class="c1"># Version in which a bias-model is trained for each region-set, using the flanking regions</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">bed_filepath</span> <span class="ow">in</span> <span class="n">args</span><span class="o">.</span><span class="n">bedpathlist</span><span class="p">:</span>
+            <span class="n">regionset_name</span><span class="o">=</span><span class="n">bed_filepath</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;/&quot;</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;.bed&quot;</span><span class="p">,</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
+            <span class="c1"># if pathlib.Path(regionset_name).exists():</span>
+            <span class="c1">#     raise FileExistsError(f&quot;A directory or file already exists under {os.path.abspath(regionset_name)}.&quot;</span>
+            <span class="c1">#                           f&quot; Aborting.&quot;)</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">regionset_name</span><span class="p">,</span><span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">chdir</span><span class="p">(</span><span class="n">regionset_name</span><span class="p">)</span>
+
+            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s1">&#39;binning_settings.json&#39;</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+                <span class="n">json</span><span class="o">.</span><span class="n">dump</span><span class="p">({</span><span class="s2">&quot;binsize&quot;</span><span class="p">:</span><span class="n">args</span><span class="o">.</span><span class="n">binsize</span><span class="p">,</span> <span class="s2">&quot;extend_to&quot;</span><span class="p">:</span><span class="n">args</span><span class="o">.</span><span class="n">extend_to</span><span class="p">},</span> <span class="n">f</span><span class="p">)</span>
+
+            <span class="n">Workflows</span><span class="o">.</span><span class="n">run_liquorice_train_biasmodel_on_same_regions</span><span class="p">(</span>
+                <span class="n">bam_filepath</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">bamfile</span><span class="p">,</span>
+                <span class="n">bed_filepath</span><span class="o">=</span><span class="n">bed_filepath</span><span class="p">,</span>
+                <span class="n">samplename</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">samplename</span><span class="p">,</span>
+                <span class="n">regionset_name</span><span class="o">=</span><span class="n">regionset_name</span><span class="p">,</span>
+                <span class="n">refgenome_filepath</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">refgenome_fasta</span><span class="p">,</span>
+                <span class="n">refgenome_chromsizes_filepath</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">refgenome_fasta</span><span class="o">+</span><span class="s2">&quot;.fai&quot;</span><span class="p">,</span>
+                <span class="n">refgenome_mappability_bigwig_path</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">mappability_bigwig</span><span class="p">,</span>
+                <span class="n">blacklist_bed_filepath</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">blacklist</span><span class="p">,</span>
+                <span class="n">sampled_fragment_lengths</span><span class="o">=</span><span class="n">sampled_fragment_lengths</span><span class="p">,</span>
+                <span class="n">avg_readlength</span><span class="o">=</span><span class="n">avg_readlength</span><span class="p">,</span>
+                <span class="n">cna_seg_filepath</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">cna_seg_file</span><span class="p">,</span>
+                <span class="n">mean_seq_depth</span><span class="o">=</span><span class="n">mean_seq_depth</span><span class="p">,</span>
+                <span class="n">binsize</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">binsize</span><span class="p">,</span>
+                <span class="n">extend_to</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">extend_to</span><span class="p">,</span>
+                <span class="n">n_cores</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">n_cpus</span><span class="p">,</span>
+                <span class="n">save_biasfactor_table</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">save_biasfactor_table</span><span class="p">,</span>
+                <span class="n">use_default_fixed_sigma_values</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                <span class="n">no_chr_prefix</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">no_chr_prefix</span><span class="p">,</span>
+                <span class="n">save_training_table</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">save_training_table</span><span class="p">,</span>
+                <span class="n">nr_of_bins_for_training_and_testing</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="c1"># use all bins,</span>
+                <span class="n">skip_central_n_bins_for_training</span><span class="o">=</span><span class="mi">5</span> <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">percentile_split_core_regions</span> <span class="k">else</span> <span class="mi">1</span><span class="p">,</span> <span class="c1">#Skip exactly the core</span>
+                <span class="c1"># region if percentile_split_core_regions, or skip the center-most bin if all bins have the same size.</span>
+                <span class="n">percentile_split_core_rois</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">percentile_split_core_regions</span><span class="p">,</span>
+                <span class="n">use_cross_validated_predictions</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">crossvalidated_predictions_if_train_on_rois</span><span class="p">,</span>
+                <span class="n">use_this_roi_biasfactortable</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">use_this_roi_biasfactortable</span><span class="p">,</span>
+                <span class="n">speed_mode</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">speed_mode</span>
+            <span class="p">)</span>
+
+            <span class="n">os</span><span class="o">.</span><span class="n">chdir</span><span class="p">(</span><span class="s2">&quot;..&quot;</span><span class="p">)</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">chdir</span><span class="p">(</span><span class="s2">&quot;..&quot;</span><span class="p">)</span>
+
+    <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;LIQUORICE analysis for sample </span><span class="si">{</span><span class="n">args</span><span class="o">.</span><span class="n">samplename</span><span class="si">}</span><span class="s2"> completed successfully!&quot;</span><span class="p">)</span></div>
+
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="n">main</span><span class="p">())</span>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright 2021, Peter Peneder.
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

@@ -1,0 +1,350 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>liquorice.utils.FitGaussians &mdash; LIQUORICE 0.5.0 documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+    
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../../index.html">
+          
+
+          
+            
+            <img src="../../../_static/liquorice_logo_fitted_transparent.png" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../intro.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../intro.html#installation">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../intro.html#citation">Citation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../liquorice.html">The <cite>liquorice</cite> python package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../liquorice_commandline_tool.html">The LIQUORICE command-line-tool</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../liquorice_commandline_tool.html#liquorice-s-summary-tool">LIQUORICE’s summary tool</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../liquorice_commandline_tool.html#usage-parameters-and-examples">Usage, Parameters, and Examples</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">LIQUORICE</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+        
+      <li>liquorice.utils.FitGaussians</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for liquorice.utils.FitGaussians</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">lmfit.models</span> <span class="kn">import</span> <span class="n">GaussianModel</span><span class="p">,</span> <span class="n">ConstantModel</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">import</span> <span class="nn">typing</span>
+
+
+<div class="viewcode-block" id="FitGaussians"><a class="viewcode-back" href="../../../liquorice.html#liquorice.utils.FitGaussians.FitGaussians">[docs]</a><span class="k">class</span> <span class="nc">FitGaussians</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    An object that can be used for quantification of coverage drops by fitting gaussian functions and an intercept</span>
+<span class="sd">    to the coverage values.</span>
+
+<span class="sd">    :param unfitted_y_values: A pandas `Series` of coverage values, one value per bin</span>
+<span class="sd">    (and sorted by increasing bin nr.). A suitable input is the result of</span>
+<span class="sd">    :func:`liquorice.utils.AggregateAcrossrRegions.aggregate_across_regions()`.</span>
+<span class="sd">    :param extend_to: `extend_to` setting that was used when calculating the y values. Needed to calculate relative</span>
+<span class="sd">        bin positions.</span>
+<span class="sd">    :param binsize: `binsize` setting that was used when calculating the y values. Needed to calculate relative</span>
+<span class="sd">        bin positions.</span>
+<span class="sd">    :param samplename: If not `None`, add this in a column &quot;sample&quot; to the result `DataFrame` when calling</span>
+<span class="sd">        :func:`.fit_gaussian_models`</span>
+<span class="sd">    :param regionset_name: If not `None`, add this in a column &quot;region-set&quot; to the result `DataFrame` when calling</span>
+<span class="sd">        :func:`.fit_gaussian_models`</span>
+<span class="sd">    :param avg_centersize: Average size (i.e. width in bp) of the regions of interest (before extension by extend_to).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">unfitted_y_values</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span> <span class="n">extend_to</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">binsize</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+                 <span class="n">avg_centersize</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">samplename</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+                 <span class="n">regionset_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">extend_to</span><span class="o">=</span><span class="n">extend_to</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">binsize</span><span class="o">=</span><span class="n">binsize</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">unfitted_y_values</span><span class="o">=</span><span class="n">unfitted_y_values</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">avg_centersize</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">avg_centersize</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">samplename</span><span class="o">=</span><span class="n">samplename</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">regionset_name</span><span class="o">=</span><span class="n">regionset_name</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">x_values</span><span class="o">=</span><span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">intercept_y_values</span><span class="o">=</span><span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">g1_y_values</span><span class="o">=</span><span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">g2_y_values</span><span class="o">=</span><span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">g3_y_values</span><span class="o">=</span><span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">combined_model_y_values</span><span class="o">=</span><span class="kc">None</span>
+
+<div class="viewcode-block" id="FitGaussians.fit_gaussian_models"><a class="viewcode-back" href="../../../liquorice.html#liquorice.utils.FitGaussians.FitGaussians.fit_gaussian_models">[docs]</a>    <span class="k">def</span> <span class="nf">fit_gaussian_models</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">g1_min_sigma</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="mi">20</span><span class="p">,</span>
+                            <span class="n">g1_max_sigma</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="mi">200</span><span class="p">,</span> <span class="n">g2_min_sigma</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="mi">200</span><span class="p">,</span>
+                            <span class="n">g2_max_sigma</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="mi">3000</span><span class="p">,</span> <span class="n">g3_min_sigma</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="mi">3000</span><span class="p">,</span>
+                            <span class="n">g3_max_sigma</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="mi">40000</span><span class="p">,</span> <span class="n">method</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;leastsq&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Fits three gaussian functions to :attr:`.unfitted_y_values` (usually aggregated coverage values), based on given</span>
+<span class="sd">        limits. Sets :attr:`x_values`, :attr:`g1_y_values`, :attr:`g2_y_values`, :attr:`g3_y_values`,</span>
+<span class="sd">        :attr:`intercept_y_values` and :attr:`combined_model_y_values` for the object.</span>
+
+<span class="sd">        :param g1_min_sigma: Min σ value for the smallest gaussian</span>
+<span class="sd">        :param g1_max_sigma: Max σ value for the smallest gaussian</span>
+<span class="sd">        :param g2_min_sigma: Min σ value for the middle gaussian</span>
+<span class="sd">        :param g2_max_sigma: Max σ value for the middle gaussian</span>
+<span class="sd">        :param g3_min_sigma: Min σ value for the widest gaussian</span>
+<span class="sd">        :param g3_max_sigma: Max σ value for the widest gaussian</span>
+<span class="sd">        :param method: A method for fitting the combined model, used as parameter in lmfit&#39;s .fit() function.</span>
+<span class="sd">        :return: A `pandas.DataFrame` containing several summary metrics based on the fitted model: The amplitude and σ</span>
+<span class="sd">            values for each of the three gaussians, the total depth of the fitted model at the central bin, the Baysian</span>
+<span class="sd">            Information Criterion (measures model fit), and the area under the curve of the fitted model,</span>
+<span class="sd">            calculated as the area between the fitted intercept and the fitted model.</span>
+<span class="sd">            If :attr:`samplename` or :attr:`regionset_name` are not `None`, columns &quot;sample&quot; or &quot;region-set&quot; are</span>
+<span class="sd">            added, respectively.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Fitting gaussian functions and intercept to coverage values ...&quot;</span><span class="p">)</span>
+
+        <span class="n">y</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">unfitted_y_values</span>
+
+        <span class="n">avg_centersize</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">avg_centersize</span>
+        <span class="n">central_bin_x_values</span><span class="o">=</span><span class="p">[</span><span class="n">x</span><span class="o">*</span><span class="n">avg_centersize</span><span class="o">-</span><span class="n">avg_centersize</span><span class="o">/</span><span class="mi">2</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="p">[</span><span class="mf">0.05</span><span class="p">,</span><span class="mf">0.175</span><span class="p">,</span><span class="mf">0.5</span><span class="p">,</span><span class="mf">0.825</span><span class="p">,</span><span class="mf">0.95</span><span class="p">]]</span>
+        <span class="c1"># try if all bins have the same size:</span>
+        <span class="n">x</span><span class="o">=</span><span class="nb">list</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">extend_to</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">extend_to</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">binsize</span><span class="p">))</span>
+        <span class="c1"># if not, assume that the central bins are smaller and have the coordinates in central_bin_x_values</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="o">!=</span><span class="nb">len</span><span class="p">(</span><span class="n">y</span><span class="p">):</span>
+            <span class="n">x</span><span class="o">=</span><span class="nb">list</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">extend_to</span><span class="o">+</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">binsize</span><span class="o">/</span><span class="mi">2</span><span class="p">)</span><span class="o">-</span><span class="n">avg_centersize</span><span class="o">/</span><span class="mi">2</span><span class="p">,(</span><span class="bp">self</span><span class="o">.</span><span class="n">binsize</span><span class="o">/</span><span class="mi">2</span><span class="p">)</span><span class="o">-</span><span class="n">avg_centersize</span><span class="o">/</span><span class="mi">2</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">binsize</span><span class="p">))</span><span class="o">+</span><span class="n">central_bin_x_values</span><span class="o">+</span><span class="nb">list</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">avg_centersize</span><span class="o">/</span><span class="mi">2</span><span class="o">+</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">binsize</span><span class="o">/</span><span class="mi">2</span><span class="p">),</span><span class="bp">self</span><span class="o">.</span><span class="n">extend_to</span><span class="o">+</span><span class="n">avg_centersize</span><span class="o">/</span><span class="mi">2</span><span class="o">+</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">binsize</span><span class="o">/</span><span class="mi">2</span><span class="p">),</span><span class="bp">self</span><span class="o">.</span><span class="n">binsize</span><span class="p">))</span>
+        <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="o">==</span><span class="nb">len</span><span class="p">(</span><span class="n">y</span><span class="p">)</span>
+
+        <span class="n">comb_dipmodel</span><span class="o">=</span><span class="n">GaussianModel</span><span class="p">(</span><span class="n">prefix</span><span class="o">=</span><span class="s1">&#39;G1_&#39;</span><span class="p">)</span><span class="o">+</span><span class="n">GaussianModel</span><span class="p">(</span><span class="n">prefix</span><span class="o">=</span><span class="s1">&#39;G2_&#39;</span><span class="p">)</span><span class="o">+</span><span class="n">GaussianModel</span><span class="p">(</span><span class="n">prefix</span><span class="o">=</span><span class="s1">&#39;G3_&#39;</span><span class="p">)</span><span class="o">+</span>\
+            <span class="n">ConstantModel</span><span class="p">(</span><span class="n">prefix</span><span class="o">=</span><span class="s2">&quot;Const_&quot;</span><span class="p">)</span>
+        <span class="n">comb_dipmodel</span><span class="o">.</span><span class="n">set_param_hint</span><span class="p">(</span><span class="s1">&#39;G1_center&#39;</span><span class="p">,</span><span class="n">value</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="n">vary</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="n">comb_dipmodel</span><span class="o">.</span><span class="n">set_param_hint</span><span class="p">(</span><span class="s1">&#39;G2_center&#39;</span><span class="p">,</span><span class="n">value</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="n">vary</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="n">comb_dipmodel</span><span class="o">.</span><span class="n">set_param_hint</span><span class="p">(</span><span class="s1">&#39;G3_center&#39;</span><span class="p">,</span><span class="n">value</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="n">vary</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="n">comb_dipmodel</span><span class="o">.</span><span class="n">set_param_hint</span><span class="p">(</span><span class="s1">&#39;G1_sigma&#39;</span><span class="p">,</span><span class="n">value</span><span class="o">=</span><span class="p">(</span><span class="n">g1_min_sigma</span><span class="o">+</span><span class="n">g1_max_sigma</span><span class="p">)</span><span class="o">/</span><span class="mi">2</span><span class="p">,</span><span class="nb">min</span><span class="o">=</span><span class="n">g1_min_sigma</span><span class="p">,</span> <span class="nb">max</span><span class="o">=</span><span class="n">g1_max_sigma</span><span class="p">)</span>
+        <span class="n">comb_dipmodel</span><span class="o">.</span><span class="n">set_param_hint</span><span class="p">(</span><span class="s1">&#39;G2_sigma&#39;</span><span class="p">,</span><span class="n">value</span><span class="o">=</span><span class="p">(</span><span class="n">g2_min_sigma</span><span class="o">+</span><span class="n">g2_max_sigma</span><span class="p">)</span><span class="o">/</span><span class="mi">2</span><span class="p">,</span><span class="nb">min</span><span class="o">=</span><span class="n">g2_min_sigma</span><span class="p">,</span> <span class="nb">max</span><span class="o">=</span><span class="n">g2_max_sigma</span><span class="p">)</span>
+        <span class="n">comb_dipmodel</span><span class="o">.</span><span class="n">set_param_hint</span><span class="p">(</span><span class="s1">&#39;G3_sigma&#39;</span><span class="p">,</span><span class="n">value</span><span class="o">=</span><span class="p">(</span><span class="n">g3_min_sigma</span><span class="o">+</span><span class="n">g3_max_sigma</span><span class="p">)</span><span class="o">/</span><span class="mi">2</span><span class="p">,</span><span class="nb">min</span><span class="o">=</span><span class="n">g3_min_sigma</span><span class="p">,</span> <span class="nb">max</span><span class="o">=</span><span class="n">g3_max_sigma</span><span class="p">)</span>
+        <span class="n">comb_dipmodel</span><span class="o">.</span><span class="n">set_param_hint</span><span class="p">(</span><span class="s1">&#39;Const_c&#39;</span><span class="p">,</span><span class="n">value</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="n">comb_dipmodel_paramas</span><span class="o">=</span><span class="n">comb_dipmodel</span><span class="o">.</span><span class="n">make_params</span><span class="p">()</span>
+        <span class="n">comb_dipmodel</span><span class="o">=</span><span class="n">comb_dipmodel</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">y</span><span class="p">,</span><span class="n">x</span><span class="o">=</span><span class="n">x</span><span class="p">,</span><span class="n">params</span><span class="o">=</span><span class="n">comb_dipmodel_paramas</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="n">method</span><span class="p">)</span>
+
+        <span class="n">comps</span> <span class="o">=</span> <span class="n">comb_dipmodel</span><span class="o">.</span><span class="n">eval_components</span><span class="p">()</span>
+
+        <span class="c1"># Sort the gaussians such that the narrowest one is the first:</span>
+        <span class="n">sortedgaussians</span><span class="o">=</span><span class="p">[(</span><span class="s2">&quot;G1_&quot;</span><span class="p">,</span><span class="n">comb_dipmodel</span><span class="o">.</span><span class="n">best_values</span><span class="p">[</span><span class="s2">&quot;G1_sigma&quot;</span><span class="p">]),</span>
+            <span class="p">(</span><span class="s2">&quot;G2_&quot;</span><span class="p">,</span><span class="n">comb_dipmodel</span><span class="o">.</span><span class="n">best_values</span><span class="p">[</span><span class="s2">&quot;G2_sigma&quot;</span><span class="p">]),(</span><span class="s2">&quot;G3_&quot;</span><span class="p">,</span><span class="n">comb_dipmodel</span><span class="o">.</span><span class="n">best_values</span><span class="p">[</span><span class="s2">&quot;G3_sigma&quot;</span><span class="p">])]</span>
+        <span class="n">sortedgaussians</span><span class="o">=</span><span class="nb">sorted</span><span class="p">(</span><span class="n">sortedgaussians</span><span class="p">,</span><span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">x_values</span><span class="o">=</span><span class="n">x</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">g1_y_values</span><span class="o">=</span><span class="n">comps</span><span class="p">[</span><span class="n">sortedgaussians</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">g2_y_values</span><span class="o">=</span><span class="n">comps</span><span class="p">[</span><span class="n">sortedgaussians</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">]]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">g3_y_values</span><span class="o">=</span><span class="n">comps</span><span class="p">[</span><span class="n">sortedgaussians</span><span class="p">[</span><span class="mi">2</span><span class="p">][</span><span class="mi">0</span><span class="p">]]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">intercept_y_values</span><span class="o">=</span><span class="p">[</span><span class="n">comps</span><span class="p">[</span><span class="s2">&quot;Const_&quot;</span><span class="p">]</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">x</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">combined_model_y_values</span><span class="o">=</span><span class="n">comb_dipmodel</span><span class="o">.</span><span class="n">best_fit</span>
+
+        <span class="n">sum_g_heights</span><span class="o">=</span><span class="n">comb_dipmodel</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="s2">&quot;G1_height&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">value</span><span class="o">+</span><span class="n">comb_dipmodel</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="s2">&quot;G2_height&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">value</span><span class="o">+</span>\
+            <span class="n">comb_dipmodel</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="s2">&quot;G3_height&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">value</span>
+
+        <span class="n">sampledict</span><span class="o">=</span><span class="p">{}</span>
+        <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">comb_dipmodel</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">valuesdict</span><span class="p">()</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">if</span> <span class="s2">&quot;center&quot;</span> <span class="ow">in</span> <span class="n">key</span><span class="p">:</span>  <span class="c1"># center is 0 anyway</span>
+                <span class="k">continue</span>
+            <span class="c1"># this is required such that the narrow gaussian is always the G1:</span>
+            <span class="k">if</span> <span class="s2">&quot;G&quot;</span> <span class="ow">in</span> <span class="n">key</span> <span class="ow">and</span> <span class="s2">&quot;amplitude&quot;</span> <span class="ow">in</span> <span class="n">key</span> <span class="ow">or</span> <span class="s2">&quot;sigma&quot;</span> <span class="ow">in</span> <span class="n">key</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">index</span><span class="p">,(</span><span class="n">name</span><span class="p">,</span><span class="n">sigma</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">sortedgaussians</span><span class="p">):</span>
+                    <span class="c1"># key is, e.g. G1_height. If G2 is the second-most narrow peak, rename G1_height to G2_height</span>
+                    <span class="k">if</span> <span class="n">name</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="n">key</span><span class="p">[:</span><span class="mi">2</span><span class="p">]):</span>
+                        <span class="n">sampledict</span><span class="p">[</span><span class="s2">&quot;G&quot;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">index</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span><span class="o">+</span><span class="n">key</span><span class="p">[</span><span class="mi">2</span><span class="p">:]]</span><span class="o">=</span><span class="n">value</span>
+
+        <span class="n">sampledict</span><span class="p">[</span><span class="s2">&quot;Baysian Information Criterion&quot;</span><span class="p">]</span><span class="o">=</span><span class="n">comb_dipmodel</span><span class="o">.</span><span class="n">bic</span>
+        <span class="n">sampledict</span><span class="p">[</span><span class="s2">&quot;Total dip depth&quot;</span><span class="p">]</span><span class="o">=-</span><span class="n">sum_g_heights</span>
+        <span class="n">sampledict</span><span class="p">[</span><span class="s2">&quot;Intercept&quot;</span><span class="p">]</span><span class="o">=</span><span class="n">comb_dipmodel</span><span class="o">.</span><span class="n">best_values</span><span class="p">[</span><span class="s2">&quot;Const_c&quot;</span><span class="p">]</span>
+
+        <span class="c1"># calculate area under the curve, taking the intercept as a reference</span>
+        <span class="n">y_vals_for_AOC</span><span class="o">=</span><span class="p">[</span><span class="n">y</span><span class="o">-</span><span class="n">comps</span><span class="p">[</span><span class="s2">&quot;Const_&quot;</span><span class="p">]</span> <span class="k">for</span> <span class="n">y</span> <span class="ow">in</span> <span class="n">comb_dipmodel</span><span class="o">.</span><span class="n">best_fit</span><span class="p">]</span>
+        <span class="n">sampledict</span><span class="p">[</span><span class="s2">&quot;Total dip area (AOC combined model)&quot;</span><span class="p">]</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">trapz</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">x</span><span class="p">,</span><span class="n">y</span><span class="o">=</span><span class="n">y_vals_for_AOC</span><span class="p">)</span>
+
+        <span class="n">param_df</span><span class="o">=</span><span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="n">sampledict</span><span class="p">)</span><span class="o">.</span><span class="n">to_frame</span><span class="p">()</span><span class="o">.</span><span class="n">T</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">samplename</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">param_df</span><span class="p">[</span><span class="s2">&quot;sample&quot;</span><span class="p">]</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">samplename</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">regionset_name</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">param_df</span><span class="p">[</span><span class="s2">&quot;region-set&quot;</span><span class="p">]</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">regionset_name</span>
+        <span class="k">return</span> <span class="n">param_df</span></div></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright 2021, Peter Peneder.
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

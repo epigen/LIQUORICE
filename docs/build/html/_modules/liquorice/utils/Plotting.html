@@ -1,0 +1,566 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>liquorice.utils.Plotting &mdash; LIQUORICE 0.5.0 documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+    
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../../index.html">
+          
+
+          
+            
+            <img src="../../../_static/liquorice_logo_fitted_transparent.png" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../intro.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../intro.html#installation">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../intro.html#citation">Citation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../liquorice.html">The <cite>liquorice</cite> python package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../liquorice_commandline_tool.html">The LIQUORICE command-line-tool</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../liquorice_commandline_tool.html#liquorice-s-summary-tool">LIQUORICE’s summary tool</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../liquorice_commandline_tool.html#usage-parameters-and-examples">Usage, Parameters, and Examples</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">LIQUORICE</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+        
+      <li>liquorice.utils.Plotting</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for liquorice.utils.Plotting</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">from</span> <span class="nn">matplotlib</span> <span class="kn">import</span> <span class="n">pyplot</span> <span class="k">as</span> <span class="n">plt</span>
+<span class="kn">import</span> <span class="nn">typing</span>
+<span class="kn">import</span> <span class="nn">matplotlib</span>
+
+<span class="kn">from</span> <span class="nn">liquorice.utils</span> <span class="kn">import</span> <span class="n">FitGaussians</span>
+
+
+<div class="viewcode-block" id="polyfit"><a class="viewcode-back" href="../../../liquorice.html#liquorice.utils.Plotting.polyfit">[docs]</a><span class="k">def</span> <span class="nf">polyfit</span><span class="p">(</span><span class="n">x</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span> <span class="n">y</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span> <span class="n">degree</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    fit a trendline to data, see https://stackoverflow.com/questions/893657/how-do-i-calculate-r-squared-using-python-and-numpy</span>
+
+<span class="sd">    :param x: x values</span>
+<span class="sd">    :param y: y values</span>
+<span class="sd">    :param degree: 1 for linear, 2 for quadratic, etc.</span>
+<span class="sd">    :return: A Dictionary, containing lists with the keys &#39;polynomial&#39; (polynomial coefficients) and &#39;determination&#39;</span>
+<span class="sd">        (The coefficient of determination).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">results</span> <span class="o">=</span> <span class="p">{}</span>
+
+    <span class="n">coeffs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">polyfit</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">degree</span><span class="p">)</span>
+
+    <span class="c1"># Polynomial Coefficients</span>
+    <span class="n">results</span><span class="p">[</span><span class="s1">&#39;polynomial&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">coeffs</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+
+    <span class="c1"># r-squared</span>
+    <span class="n">p</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">poly1d</span><span class="p">(</span><span class="n">coeffs</span><span class="p">)</span>
+    <span class="c1"># fit values, and mean</span>
+    <span class="n">yhat</span> <span class="o">=</span> <span class="n">p</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>                         <span class="c1"># or [p(z) for z in x]</span>
+    <span class="n">ybar</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">y</span><span class="p">)</span><span class="o">/</span><span class="nb">len</span><span class="p">(</span><span class="n">y</span><span class="p">)</span>          <span class="c1"># or sum(y)/len(y)</span>
+    <span class="n">ssreg</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">((</span><span class="n">yhat</span><span class="o">-</span><span class="n">ybar</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>   <span class="c1"># or sum([ (yihat - ybar)**2 for yihat in yhat])</span>
+    <span class="n">sstot</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">((</span><span class="n">y</span> <span class="o">-</span> <span class="n">ybar</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>    <span class="c1"># or sum([ (yi - ybar)**2 for yi in y])</span>
+    <span class="n">results</span><span class="p">[</span><span class="s1">&#39;determination&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">ssreg</span> <span class="o">/</span> <span class="n">sstot</span>
+    <span class="k">return</span> <span class="n">results</span></div>
+
+
+<div class="viewcode-block" id="Plotting"><a class="viewcode-back" href="../../../liquorice.html#liquorice.utils.Plotting.Plotting">[docs]</a><span class="k">class</span> <span class="nc">Plotting</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    An object used to generate plots of the aggragated coverage, differences between corrected and uncorrected</span>
+<span class="sd">    coverage, as well as correlations between bias-factors and coverage.</span>
+
+<span class="sd">    :param samplename: Name of the sample as it should appear in the plots</span>
+<span class="sd">    :param out_dir: Path to the directory to which plots should be saved.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">samplename</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">out_dir</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">samplename</span><span class="o">=</span><span class="n">samplename</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">out_dir</span><span class="o">=</span><span class="n">out_dir</span>
+
+
+<div class="viewcode-block" id="Plotting.plot_coverage_bias_correlation"><a class="viewcode-back" href="../../../liquorice.html#liquorice.utils.Plotting.Plotting.plot_coverage_bias_correlation">[docs]</a>    <span class="k">def</span> <span class="nf">plot_coverage_bias_correlation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">biasfactor_column</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">coverage_column</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+                                       <span class="n">percent</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="n">xmin</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
+                                       <span class="n">xmax</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="mi">100</span><span class="p">,</span>
+                                       <span class="n">ymin</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
+                                       <span class="n">ymax</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="mi">2</span><span class="p">,</span>
+                                       <span class="n">filename</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="kc">None</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;auto&quot;</span><span class="p">,</span>
+                                       <span class="n">return_figure</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="kc">None</span><span class="p">,</span>
+                                       <span class="n">matplotlib</span><span class="o">.</span><span class="n">figure</span><span class="o">.</span><span class="n">Figure</span><span class="p">]:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Plot the correlation between coverage and a bias factor as a heatmap, and fit a trendline.</span>
+
+<span class="sd">        :param df: `pandas.DataFrame` that contains **biasfactor_column** and  **coverage_column**.</span>
+<span class="sd">        :param biasfactor_column: Name of the column that contains data for the bias-factor of interest</span>
+<span class="sd">        :param coverage_column: Name of the column that contains the coverage data</span>
+<span class="sd">        :param percent: Whether the output plot should multiply the x values by the factor 100</span>
+<span class="sd">        :param xmin: min x coordinate to show in plot</span>
+<span class="sd">        :param xmax: max y coordinate to show in plot</span>
+<span class="sd">        :param ymin: min x coordinate to show in plot</span>
+<span class="sd">        :param ymax: max y coordinate to show in plot</span>
+<span class="sd">        :param filename: Filename to which the figure should be saved. &quot;auto&quot; sets this to</span>
+<span class="sd">            &quot; :attr:`.out_dir`/**biasfactor_column**__vs__**coverage_column**.pdf &quot; (with spaces in column names</span>
+<span class="sd">            replaced by &#39;_&#39;). Set to `None` to avoid saving as</span>
+<span class="sd">            file. File extension determines in which format the plot is saved.</span>
+<span class="sd">        :param return_figure: If True, return a `matplotlib figure` that can be altered, plotted, or saved.</span>
+<span class="sd">        :return: A `matplotlib figure` if **return_figure** is True, nothing otherwise.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">x</span><span class="o">=</span><span class="n">biasfactor_column</span>
+        <span class="n">y</span><span class="o">=</span><span class="n">coverage_column</span>
+
+        <span class="n">heatmap</span><span class="p">,</span> <span class="n">xedges</span><span class="p">,</span> <span class="n">yedges</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">histogram2d</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="n">x</span><span class="p">]</span><span class="o">*</span><span class="mi">100</span> <span class="k">if</span> <span class="n">percent</span> <span class="k">else</span> <span class="n">df</span><span class="p">[</span><span class="n">x</span><span class="p">],</span><span class="n">df</span><span class="p">[</span><span class="n">y</span><span class="p">],</span> <span class="n">bins</span><span class="o">=</span><span class="p">(</span><span class="mi">100</span><span class="p">,</span><span class="mi">100</span><span class="p">),</span>
+                                                 <span class="nb">range</span><span class="o">=</span><span class="p">[[</span><span class="n">xmin</span><span class="p">,</span><span class="n">xmax</span><span class="p">],[</span><span class="n">ymin</span><span class="p">,</span><span class="n">ymax</span><span class="p">]])</span>
+        <span class="n">extent</span> <span class="o">=</span> <span class="p">[</span><span class="n">xedges</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">xedges</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">yedges</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">yedges</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]]</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">clf</span><span class="p">()</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">heatmap</span><span class="o">.</span><span class="n">T</span><span class="p">,</span> <span class="n">extent</span><span class="o">=</span><span class="n">extent</span><span class="p">,</span> <span class="n">origin</span><span class="o">=</span><span class="s1">&#39;lower&#39;</span><span class="p">,</span> <span class="n">aspect</span><span class="o">=</span><span class="s1">&#39;auto&#39;</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="n">y</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="n">cbar</span><span class="o">=</span><span class="n">plt</span><span class="o">.</span><span class="n">colorbar</span><span class="p">()</span>
+        <span class="n">cbar</span><span class="o">.</span><span class="n">set_label</span><span class="p">(</span><span class="s1">&#39;# of bins&#39;</span><span class="p">,</span> <span class="n">rotation</span><span class="o">=</span><span class="mi">270</span><span class="p">,</span><span class="n">labelpad</span><span class="o">=</span><span class="mi">13</span><span class="p">)</span>
+
+        <span class="n">y_lim</span><span class="o">=</span><span class="n">plt</span><span class="o">.</span><span class="n">gca</span><span class="p">()</span><span class="o">.</span><span class="n">get_ylim</span><span class="p">()</span>
+
+        <span class="n">plt</span><span class="o">.</span><span class="n">suptitle</span><span class="p">(</span><span class="s2">&quot;Bias plot for </span><span class="si">%s</span><span class="s2">&quot;</span><span class="o">%</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">samplename</span><span class="p">))</span>
+        <span class="n">z</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">polyfit</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="n">x</span><span class="p">]</span><span class="o">*</span><span class="mi">100</span><span class="p">,</span> <span class="n">df</span><span class="p">[</span><span class="n">y</span><span class="p">],</span> <span class="mi">2</span><span class="p">)</span>
+        <span class="n">f</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">poly1d</span><span class="p">(</span><span class="n">z</span><span class="p">)</span>
+        <span class="n">x_new</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">xmin</span><span class="p">,</span><span class="n">xmax</span><span class="p">,</span><span class="mi">50</span><span class="p">)</span>
+        <span class="n">y_new</span> <span class="o">=</span> <span class="n">f</span><span class="p">(</span><span class="n">x_new</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">x_new</span><span class="p">,</span> <span class="n">y_new</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;firebrick&quot;</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">ylim</span><span class="p">(</span><span class="n">y_lim</span><span class="p">)</span>
+
+        <span class="n">r2</span><span class="o">=</span><span class="nb">round</span><span class="p">(</span><span class="n">polyfit</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="n">x</span><span class="p">],</span><span class="n">df</span><span class="p">[</span><span class="n">y</span><span class="p">],</span><span class="mi">2</span><span class="p">)[</span><span class="s2">&quot;determination&quot;</span><span class="p">],</span><span class="mi">3</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;$R^</span><span class="si">{2}</span><span class="s1">$ = </span><span class="si">%s</span><span class="s1">&#39;</span><span class="o">%</span><span class="p">(</span><span class="n">r2</span><span class="p">,))</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">locator_params</span><span class="p">(</span><span class="n">nbins</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">filename</span><span class="o">==</span><span class="s2">&quot;auto&quot;</span><span class="p">:</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">out_dir</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">x</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39; &#39;</span><span class="p">,</span><span class="s1">&#39;_&#39;</span><span class="p">)</span><span class="si">}</span><span class="s2">__vs__</span><span class="si">{</span><span class="n">y</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39; &#39;</span><span class="p">,</span><span class="s1">&#39;_&#39;</span><span class="p">)</span><span class="si">}</span><span class="s2">.pdf&quot;</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">filename</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">return_figure</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">plt</span><span class="o">.</span><span class="n">gcf</span><span class="p">()</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></div>
+
+    <span class="n">none_or_list_of_float</span><span class="o">=</span><span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="kc">None</span><span class="p">,</span><span class="n">typing</span><span class="o">.</span><span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]]</span>
+    <span class="n">none_or_list_of_int</span><span class="o">=</span><span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="kc">None</span><span class="p">,</span><span class="n">typing</span><span class="o">.</span><span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]]</span>
+    <span class="n">none_or_list_of_str</span><span class="o">=</span><span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="kc">None</span><span class="p">,</span><span class="n">typing</span><span class="o">.</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span>
+
+
+<div class="viewcode-block" id="Plotting.plot_correlations_biasfactors_coverage_bin_nr"><a class="viewcode-back" href="../../../liquorice.html#liquorice.utils.Plotting.Plotting.plot_correlations_biasfactors_coverage_bin_nr">[docs]</a>    <span class="k">def</span> <span class="nf">plot_correlations_biasfactors_coverage_bin_nr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+                                                      <span class="n">x_varnames_list</span><span class="p">:</span> <span class="n">none_or_list_of_str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+                                                      <span class="n">y_varnames_list</span><span class="p">:</span> <span class="n">none_or_list_of_str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+                                                      <span class="n">bins</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span><span class="nb">int</span><span class="p">]</span><span class="o">=</span><span class="p">(</span><span class="mi">50</span><span class="p">,</span><span class="mi">50</span><span class="p">),</span>
+                                                      <span class="n">return_figure</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+                                                      <span class="n">filename</span><span class="p">:</span> <span class="nb">str</span><span class="o">=</span><span class="s2">&quot;bias_plots.pdf&quot;</span><span class="p">,</span>
+                                                      <span class="n">percentile_cutoffs</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Tuple</span><span class="p">[</span>
+                                                          <span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="mf">0.1</span><span class="p">,</span><span class="mf">0.99</span><span class="p">,</span><span class="mf">0.1</span><span class="p">,</span><span class="mf">0.99</span><span class="p">),</span>
+                                                      <span class="n">fit_regression</span><span class="p">:</span> <span class="nb">bool</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">matplotlib</span><span class="o">.</span><span class="n">figure</span><span class="o">.</span><span class="n">Figure</span><span class="p">]:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Plot the correlation between coverage and a bias factor as a heatmap, and fit a trendline.</span>
+
+<span class="sd">        :param df: `pandas.DataFrame` that contains the variables in **x_varnames_list** and  **y_varnames_list**.</span>
+<span class="sd">        :param x_varnames_list: List of the columns that should be plotted as independent variables. Default None uses</span>
+<span class="sd">            all columns in the **df** except for [&quot;chromosome&quot;,&quot;start&quot;,&quot;end&quot;,&quot;sequence&quot;,&quot;mappability&quot;].</span>
+<span class="sd">        :param y_varnames_list: List of the columns that should be plotted as dependent variables. Default None uses</span>
+<span class="sd">            &quot;coverage&quot; and &quot;bin nr.&quot;, plus &quot;corrected coverage&quot; if this column is present in the **df**.</span>
+<span class="sd">        :param bins: Tuple specifying the number of bins to be used for the x and y axis</span>
+<span class="sd">        :param return_figure: If True, return a `matplotlib figure` that can be altered, plotted, or saved.</span>
+<span class="sd">        :param fit_regression: If True, fit a qadratic polynomial and plot the regression function and R^2.</span>
+<span class="sd">        :param percentile_cutoffs: Tuple containing the min and max percentile of values that should be displayed on the</span>
+<span class="sd">            x and y axes: (x_min,x_max,y_min,y_max). This setting is ignored for &quot;bin nr.&quot;, for this column, all values</span>
+<span class="sd">            are shown. Percentiles must be in the interval [0,1].</span>
+<span class="sd">        :param filename: Filename to which the figure should be saved. File extension determines in which format the</span>
+<span class="sd">            plot is saved.</span>
+<span class="sd">        :return: A `matplotlib figure` if **return_figure** is True, nothing otherwise.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="n">y_varnames_list</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">y_varnames_list</span><span class="o">=</span><span class="p">([</span><span class="s2">&quot;corrected coverage&quot;</span><span class="p">]</span> <span class="k">if</span> <span class="s2">&quot;corrected coverage&quot;</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span> <span class="k">else</span> <span class="p">[])</span> <span class="o">+</span> \
+                    <span class="p">[</span><span class="s2">&quot;coverage&quot;</span><span class="p">,</span><span class="s2">&quot;bin nr.&quot;</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">x_varnames_list</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">x_varnames_list</span><span class="o">=</span><span class="p">[</span><span class="n">col</span> <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">col</span> <span class="ow">in</span>
+                                                              <span class="p">[</span><span class="s2">&quot;chromosome&quot;</span><span class="p">,</span><span class="s2">&quot;start&quot;</span><span class="p">,</span><span class="s2">&quot;end&quot;</span><span class="p">,</span><span class="s2">&quot;sequence&quot;</span><span class="p">,</span><span class="s2">&quot;mappability&quot;</span><span class="p">]]</span>
+
+        <span class="k">for</span> <span class="n">rownr</span><span class="p">,</span><span class="n">y</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">y_varnames_list</span><span class="p">):</span>
+            <span class="k">for</span> <span class="n">colnr</span><span class="p">,</span><span class="n">x</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">x_varnames_list</span><span class="p">):</span>
+                <span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">y_varnames_list</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="n">x_varnames_list</span><span class="p">),</span> <span class="n">rownr</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">x_varnames_list</span><span class="p">)</span> <span class="o">+</span> <span class="n">colnr</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+
+                <span class="n">ymin</span><span class="o">=</span><span class="n">df</span><span class="p">[</span><span class="n">y</span><span class="p">]</span><span class="o">.</span><span class="n">quantile</span><span class="p">(</span><span class="n">percentile_cutoffs</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">y</span><span class="o">==</span><span class="s2">&quot;bin nr.&quot;</span> <span class="k">else</span> <span class="n">df</span><span class="p">[</span><span class="n">y</span><span class="p">]</span><span class="o">.</span><span class="n">min</span><span class="p">()</span>
+                <span class="n">ymax</span><span class="o">=</span><span class="n">df</span><span class="p">[</span><span class="n">y</span><span class="p">]</span><span class="o">.</span><span class="n">quantile</span><span class="p">(</span><span class="n">percentile_cutoffs</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">y</span><span class="o">==</span><span class="s2">&quot;bin nr.&quot;</span> <span class="k">else</span> <span class="n">df</span><span class="p">[</span><span class="n">y</span><span class="p">]</span><span class="o">.</span><span class="n">max</span><span class="p">()</span>
+                <span class="n">xmin</span><span class="o">=</span><span class="n">df</span><span class="p">[</span><span class="n">x</span><span class="p">]</span><span class="o">.</span><span class="n">quantile</span><span class="p">(</span><span class="n">percentile_cutoffs</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">x</span><span class="o">==</span><span class="s2">&quot;bin nr.&quot;</span> <span class="k">else</span> <span class="n">df</span><span class="p">[</span><span class="n">y</span><span class="p">]</span><span class="o">.</span><span class="n">min</span><span class="p">()</span>
+                <span class="n">xmax</span><span class="o">=</span><span class="n">df</span><span class="p">[</span><span class="n">x</span><span class="p">]</span><span class="o">.</span><span class="n">quantile</span><span class="p">(</span><span class="n">percentile_cutoffs</span><span class="p">[</span><span class="mi">3</span><span class="p">])</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">x</span><span class="o">==</span><span class="s2">&quot;bin nr.&quot;</span> <span class="k">else</span> <span class="n">df</span><span class="p">[</span><span class="n">y</span><span class="p">]</span><span class="o">.</span><span class="n">min</span><span class="p">()</span>
+                <span class="n">nr_of_bins</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;bin nr.&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">))</span>
+
+                <span class="n">heatmap</span><span class="p">,</span> <span class="n">xedges</span><span class="p">,</span> <span class="n">yedges</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">histogram2d</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="n">x</span><span class="p">],</span><span class="n">df</span><span class="p">[</span><span class="n">y</span><span class="p">],</span>
+                                                         <span class="n">bins</span><span class="o">=</span><span class="p">(</span><span class="n">bins</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">if</span> <span class="n">x</span><span class="o">!=</span><span class="s2">&quot;bin nr.&quot;</span> <span class="k">else</span> <span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="n">nr_of_bins</span><span class="o">+</span><span class="mi">1</span><span class="p">)),</span>
+                                                               <span class="n">bins</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="k">if</span> <span class="n">y</span><span class="o">!=</span><span class="s2">&quot;bin nr.&quot;</span> <span class="k">else</span> <span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="n">nr_of_bins</span><span class="o">+</span><span class="mi">1</span><span class="p">))),</span>
+                                                         <span class="nb">range</span><span class="o">=</span><span class="p">[[</span><span class="n">xmin</span><span class="p">,</span><span class="n">xmax</span><span class="p">],[</span><span class="n">ymin</span><span class="p">,</span><span class="n">ymax</span><span class="p">]])</span>
+                <span class="n">extent</span> <span class="o">=</span> <span class="p">[</span><span class="n">xedges</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">xedges</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">yedges</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">yedges</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]]</span>
+                <span class="n">plt</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">heatmap</span><span class="o">.</span><span class="n">T</span><span class="p">,</span> <span class="n">extent</span><span class="o">=</span><span class="n">extent</span><span class="p">,</span> <span class="n">origin</span><span class="o">=</span><span class="s1">&#39;lower&#39;</span><span class="p">,</span> <span class="n">aspect</span><span class="o">=</span><span class="s1">&#39;auto&#39;</span><span class="p">)</span>
+
+                <span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="n">y</span><span class="p">)</span>
+                <span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+                <span class="n">cbar</span><span class="o">=</span><span class="n">plt</span><span class="o">.</span><span class="n">colorbar</span><span class="p">()</span>
+                <span class="n">cbar</span><span class="o">.</span><span class="n">set_label</span><span class="p">(</span><span class="s1">&#39;# of bins&#39;</span><span class="p">,</span> <span class="n">rotation</span><span class="o">=</span><span class="mi">270</span><span class="p">,</span><span class="n">labelpad</span><span class="o">=</span><span class="mi">13</span><span class="p">)</span>
+                <span class="n">plt</span><span class="o">.</span><span class="n">suptitle</span><span class="p">(</span><span class="s2">&quot;Bias plot for </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">samplename</span><span class="p">)</span>
+                <span class="n">y_lim</span><span class="o">=</span><span class="n">plt</span><span class="o">.</span><span class="n">gca</span><span class="p">()</span><span class="o">.</span><span class="n">get_ylim</span><span class="p">()</span>
+                <span class="n">x_lim</span><span class="o">=</span><span class="n">plt</span><span class="o">.</span><span class="n">gca</span><span class="p">()</span><span class="o">.</span><span class="n">get_xlim</span><span class="p">()</span>
+
+                <span class="k">if</span> <span class="n">fit_regression</span><span class="p">:</span>
+                    <span class="n">df_tmp</span><span class="o">=</span><span class="n">df</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span><span class="o">.</span><span class="n">dropna</span><span class="p">()</span>
+                    <span class="n">z</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">polyfit</span><span class="p">(</span><span class="n">df_tmp</span><span class="p">[</span><span class="n">x</span><span class="p">],</span> <span class="n">df_tmp</span><span class="p">[</span><span class="n">y</span><span class="p">],</span> <span class="mi">2</span><span class="p">)</span>
+                    <span class="n">f</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">poly1d</span><span class="p">(</span><span class="n">z</span><span class="p">)</span>
+                    <span class="n">x_new</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">xmin</span><span class="p">,</span><span class="n">xmax</span><span class="p">,</span><span class="mi">50</span><span class="p">)</span>
+                    <span class="n">y_new</span> <span class="o">=</span> <span class="n">f</span><span class="p">(</span><span class="n">x_new</span><span class="p">)</span>
+                    <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">x_new</span><span class="p">,</span> <span class="n">y_new</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;firebrick&quot;</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="p">)</span>
+                    <span class="n">r2</span><span class="o">=</span><span class="nb">round</span><span class="p">(</span><span class="n">polyfit</span><span class="p">(</span><span class="n">df_tmp</span><span class="p">[</span><span class="n">x</span><span class="p">],</span><span class="n">df_tmp</span><span class="p">[</span><span class="n">y</span><span class="p">],</span><span class="mi">2</span><span class="p">)[</span><span class="s2">&quot;determination&quot;</span><span class="p">],</span><span class="mi">3</span><span class="p">)</span>
+                    <span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;$R^</span><span class="si">{2}</span><span class="s1">$ = </span><span class="si">%s</span><span class="s1">&#39;</span><span class="o">%</span><span class="p">(</span><span class="n">r2</span><span class="p">,))</span>
+
+                <span class="c1"># Show the mean as a seperate line</span>
+                <span class="k">if</span> <span class="n">y</span><span class="o">==</span><span class="s2">&quot;bin nr.&quot;</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">y</span><span class="o">==</span><span class="n">x</span><span class="p">:</span>
+                    <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s2">&quot;bin nr.&quot;</span><span class="p">)[</span><span class="n">x</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">(),</span><span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="n">nr_of_bins</span><span class="p">),</span><span class="n">color</span><span class="o">=</span><span class="s2">&quot;pink&quot;</span><span class="p">,</span><span class="n">linewidth</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
+                <span class="k">elif</span> <span class="n">x</span><span class="o">==</span><span class="s2">&quot;bin nr.&quot;</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">y</span><span class="o">==</span><span class="n">x</span><span class="p">:</span>
+                    <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="n">nr_of_bins</span><span class="p">),</span><span class="n">df</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s2">&quot;bin nr.&quot;</span><span class="p">)[</span><span class="n">y</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span><span class="o">.</span><span class="n">values</span><span class="p">,</span><span class="n">color</span><span class="o">=</span><span class="s2">&quot;pink&quot;</span><span class="p">,</span><span class="n">linewidth</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">df_tmp</span><span class="o">=</span><span class="n">df</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+                    <span class="n">df_tmp</span><span class="p">[</span><span class="s2">&quot;tmp bin&quot;</span><span class="p">],</span><span class="n">borders</span><span class="o">=</span><span class="n">pd</span><span class="o">.</span><span class="n">cut</span><span class="p">(</span><span class="n">df_tmp</span><span class="p">[</span><span class="n">x</span><span class="p">],</span><span class="mi">50</span><span class="p">,</span><span class="n">retbins</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span> <span class="c1">#create 50 bins based on the x variable</span>
+                    <span class="n">midpoints</span><span class="o">=</span><span class="p">[(</span><span class="n">borders</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">+</span><span class="n">borders</span><span class="p">[</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">])</span><span class="o">/</span><span class="mi">2</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">borders</span><span class="p">)</span><span class="o">-</span><span class="mi">1</span><span class="p">)]</span>
+                    <span class="c1"># plot the mean of the y variable for each bin</span>
+                    <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">midpoints</span><span class="p">,</span><span class="n">df_tmp</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s2">&quot;tmp bin&quot;</span><span class="p">)[</span><span class="n">y</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">(),</span><span class="n">color</span><span class="o">=</span><span class="s2">&quot;pink&quot;</span><span class="p">,</span><span class="n">linewidth</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
+
+                <span class="n">plt</span><span class="o">.</span><span class="n">ylim</span><span class="p">(</span><span class="n">y_lim</span><span class="p">)</span>
+                <span class="n">plt</span><span class="o">.</span><span class="n">xlim</span><span class="p">(</span><span class="n">x_lim</span><span class="p">)</span>
+                <span class="n">plt</span><span class="o">.</span><span class="n">locator_params</span><span class="p">(</span><span class="n">nbins</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">colnr</span><span class="p">:</span>
+                    <span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
+
+        <span class="n">plt</span><span class="o">.</span><span class="n">gcf</span><span class="p">()</span><span class="o">.</span><span class="n">set_size_inches</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">x_varnames_list</span><span class="p">)</span> <span class="o">*</span> <span class="mi">3</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">y_varnames_list</span><span class="p">)</span> <span class="o">*</span> <span class="mi">3</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">subplots_adjust</span><span class="p">(</span><span class="n">hspace</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">wspace</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">filename</span><span class="o">==</span><span class="s2">&quot;auto&quot;</span><span class="p">:</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">out_dir</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">filename</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">filename</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">return_figure</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">plt</span><span class="o">.</span><span class="n">gcf</span><span class="p">()</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="Plotting.plot_fitted_model"><a class="viewcode-back" href="../../../liquorice.html#liquorice.utils.Plotting.Plotting.plot_fitted_model">[docs]</a>    <span class="k">def</span> <span class="nf">plot_fitted_model</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fit_gaussians_obj</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="n">FitGaussians</span><span class="o">.</span><span class="n">FitGaussians</span><span class="p">,</span><span class="kc">None</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+                          <span class="n">x_values</span><span class="p">:</span> <span class="n">none_or_list_of_int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">unfitted_y_values</span><span class="p">:</span> <span class="n">none_or_list_of_float</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+                          <span class="n">g1_y_values</span><span class="p">:</span> <span class="n">none_or_list_of_float</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+                          <span class="n">g2_y_values</span><span class="p">:</span> <span class="n">none_or_list_of_float</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">g3_y_values</span><span class="p">:</span> <span class="n">none_or_list_of_float</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+                          <span class="n">intercept_y_values</span><span class="p">:</span> <span class="n">none_or_list_of_float</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+                          <span class="n">combined_model_y_values</span><span class="p">:</span> <span class="n">none_or_list_of_float</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+                          <span class="n">unfitted_y_values_label</span><span class="p">:</span> <span class="n">none_or_list_of_float</span> <span class="o">=</span> <span class="s2">&quot;Corrected, aggregated coverage&quot;</span><span class="p">,</span>
+                          <span class="n">filename</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span><span class="kc">None</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;auto&quot;</span><span class="p">,</span>
+                          <span class="n">return_figure</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="kc">None</span><span class="p">,</span>
+                          <span class="n">matplotlib</span><span class="o">.</span><span class="n">figure</span><span class="o">.</span><span class="n">Figure</span><span class="p">]:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Plots the fitted model, i.e. the raw data and lines for G1, G2, G3, the intercept, and the combined model.</span>
+
+<span class="sd">        :param fit_gaussians_obj: object of class FitGaussians, on which fit_gaussian_models() has been called. This</span>
+<span class="sd">            contains all nessesary information for plotting, so all other parameters except **filename** are ignored if</span>
+<span class="sd">            this is set.</span>
+<span class="sd">        :param x_values: List of x coordinates - the coordinates of the bins&#39; centers relative to the center of the</span>
+<span class="sd">            region of interest. Required if fit_gaussians_obj is not set, ignored otherwise.</span>
+<span class="sd">        :param unfitted_y_values: List of y coordinates of the unfitted coverage data.</span>
+<span class="sd">            Required if fit_gaussians_obj is not set, ignored otherwise.</span>
+<span class="sd">        :param g1_y_values: List of y coordinates for the first, smallest gaussian.</span>
+<span class="sd">            Required if fit_gaussians_obj is not set, ignored otherwise.</span>
+<span class="sd">        :param g2_y_values: List of y coordinates for the second, middle gaussian.</span>
+<span class="sd">            Required if fit_gaussians_obj is not set, ignored otherwise.</span>
+<span class="sd">        :param g3_y_values: List of y coordinates for the first, largest gaussian.</span>
+<span class="sd">            Required if fit_gaussians_obj is not set, ignored otherwise.</span>
+<span class="sd">        :param intercept_y_values: List of y coordinates for the intercept.</span>
+<span class="sd">          Required if fit_gaussians_obj is not set, ignored otherwise.</span>
+<span class="sd">        :param combined_model_y_values: List of y coordinates for the fitted, combined model.</span>
+<span class="sd">            Required if fit_gaussians_obj is not set, ignored otherwise.</span>
+<span class="sd">        :param unfitted_y_values_label: Label for the unfitted_y_values. By default it is assumed that the corrected,</span>
+<span class="sd">            aggregated, unfitted coverage is given.</span>
+<span class="sd">        :param filename: Filename to which the figure should be saved. &quot;auto&quot; sets this to</span>
+<span class="sd">            &quot; :attr:`.out_dir`/fitted_gaussians.pdf &quot;. Set to `None` to avoid saving as</span>
+<span class="sd">            file. File extension determines in which format the plot is saved.</span>
+<span class="sd">        :param return_figure: If True, return a `matplotlib figure` that can be altered, plotted, or saved.</span>
+<span class="sd">        :return: A `matplotlib figure` if **return_figure** is True, nothing otherwise.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="n">fit_gaussians_obj</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">x_values</span><span class="o">=</span><span class="n">fit_gaussians_obj</span><span class="o">.</span><span class="n">x_values</span>
+            <span class="n">unfitted_y_values</span><span class="o">=</span><span class="n">fit_gaussians_obj</span><span class="o">.</span><span class="n">unfitted_y_values</span>
+            <span class="n">g1_y_values</span><span class="o">=</span><span class="n">fit_gaussians_obj</span><span class="o">.</span><span class="n">g1_y_values</span>
+            <span class="n">g2_y_values</span><span class="o">=</span><span class="n">fit_gaussians_obj</span><span class="o">.</span><span class="n">g2_y_values</span>
+            <span class="n">g3_y_values</span><span class="o">=</span><span class="n">fit_gaussians_obj</span><span class="o">.</span><span class="n">g3_y_values</span>
+            <span class="n">intercept_y_values</span><span class="o">=</span><span class="n">fit_gaussians_obj</span><span class="o">.</span><span class="n">intercept_y_values</span>
+            <span class="n">combined_model_y_values</span><span class="o">=</span><span class="n">fit_gaussians_obj</span><span class="o">.</span><span class="n">combined_model_y_values</span>
+
+        <span class="k">if</span> <span class="n">fit_gaussians_obj</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="nb">any</span><span class="p">([</span><span class="n">param</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">for</span> <span class="n">param</span> <span class="ow">in</span> <span class="p">[</span><span class="n">x_values</span><span class="p">,</span><span class="n">unfitted_y_values</span><span class="p">,</span><span class="n">g1_y_values</span><span class="p">,</span>
+            <span class="n">g2_y_values</span><span class="p">,</span><span class="n">g3_y_values</span><span class="p">,</span><span class="n">intercept_y_values</span><span class="p">,</span><span class="n">combined_model_y_values</span><span class="p">]]):</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;If fit_gaussians_obj is not specified (or set to None), than the parameters [x_values,&quot;</span>
+                            <span class="s2">&quot;unfitted_y_values,g1_y_values, g2_y_values,g3_y_values,intercept_y_values,&quot;</span>
+                            <span class="s2">&quot;combined_model_y_values] of this function must all be specified and be non-None values.&quot;</span><span class="p">)</span>
+
+        <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">x_values</span><span class="p">,</span><span class="n">combined_model_y_values</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Combined model&quot;</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mf">1.3</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">x_values</span><span class="p">,</span> <span class="n">g1_y_values</span><span class="p">,</span><span class="s2">&quot;:&quot;</span><span class="p">,</span><span class="n">color</span><span class="o">=</span><span class="s2">&quot;seagreen&quot;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;First gaussian&quot;</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">x_values</span><span class="p">,</span> <span class="n">g2_y_values</span><span class="p">,</span><span class="s2">&quot;-.&quot;</span><span class="p">,</span><span class="n">color</span><span class="o">=</span><span class="s2">&quot;purple&quot;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Second gaussian&quot;</span><span class="p">,</span><span class="n">alpha</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">x_values</span><span class="p">,</span> <span class="n">g3_y_values</span><span class="p">,</span><span class="s2">&quot;--&quot;</span><span class="p">,</span><span class="n">color</span><span class="o">=</span><span class="s2">&quot;orange&quot;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Third gaussian&quot;</span><span class="p">,</span><span class="n">alpha</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">x_values</span><span class="p">,</span> <span class="n">intercept_y_values</span> <span class="p">,</span><span class="s2">&quot;--&quot;</span><span class="p">,</span><span class="n">color</span><span class="o">=</span><span class="s2">&quot;black&quot;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Intercept&quot;</span><span class="p">,</span><span class="n">linewidth</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">x_values</span><span class="p">,</span><span class="n">unfitted_y_values</span><span class="p">,</span> <span class="s2">&quot;kx&quot;</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.35</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="n">unfitted_y_values_label</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Fitting of 3 Gaussian Dips and intercept to &quot;</span>
+                  <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">unfitted_y_values_label</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">+</span> <span class="n">unfitted_y_values_label</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span><span class="si">}</span><span class="s2"> for sample </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">samplename</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s2">&quot;Distance from center of RoI [bp]&quot;</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="n">unfitted_y_values_label</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
+        <span class="n">fig</span><span class="o">=</span><span class="n">plt</span><span class="o">.</span><span class="n">gcf</span><span class="p">()</span>
+        <span class="n">fig</span><span class="o">.</span><span class="n">set_size_inches</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span><span class="mi">5</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">filename</span><span class="o">==</span><span class="s2">&quot;auto&quot;</span><span class="p">:</span>
+            <span class="n">fig</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">out_dir</span><span class="si">}</span><span class="s2">/fitted_gaussians.pdf&quot;</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">filename</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">fig</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">return_figure</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">fig</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="Plotting.plot_corrected_vs_uncorrected_coverage"><a class="viewcode-back" href="../../../liquorice.html#liquorice.utils.Plotting.Plotting.plot_corrected_vs_uncorrected_coverage">[docs]</a>    <span class="k">def</span> <span class="nf">plot_corrected_vs_uncorrected_coverage</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x_values</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span>
+                                               <span class="n">uncorrected_y_values</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span>
+                                               <span class="n">corrected_y_values</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span>
+                                               <span class="n">uncorrected_y_intercept</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">corrected_y_intercept</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+                                               <span class="n">filename</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span><span class="kc">None</span><span class="p">]</span> <span class="o">=</span><span class="s2">&quot;auto&quot;</span><span class="p">,</span>
+                                               <span class="n">return_figure</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> \
+            <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span><span class="kc">None</span><span class="p">,</span> <span class="n">matplotlib</span><span class="o">.</span><span class="n">figure</span><span class="o">.</span><span class="n">Figure</span><span class="p">]:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Plots the aggregated coverages, both corrected and uncorrected.</span>
+
+<span class="sd">        :param x_values: List of x coordinates - the coordinates of the bins&#39; centers relative to the center of the</span>
+<span class="sd">            regions of interest.</span>
+<span class="sd">        :param uncorrected_y_values: List of aggregated, uncorrected coverage values.</span>
+<span class="sd">        :param corrected_y_values: List of aggregated, uncorrected coverage values.</span>
+<span class="sd">        :param uncorrected_y_intercept: Intercept value that should be subtracted from every value in</span>
+<span class="sd">            **uncorrected_y_values**</span>
+<span class="sd">        :param corrected_y_intercept: Intercept value that should be subtracted from every value in</span>
+<span class="sd">            **corrected_y_values**</span>
+<span class="sd">        :param filename: Filename to which the figure should be saved. &quot;auto&quot; sets this to</span>
+<span class="sd">            &quot; :attr:`.out_dir`/corrected_vs_uncorrected_coverage.pdf &quot;. Set to `None` to avoid saving as</span>
+<span class="sd">            file. File extension determines in which format the plot is saved.</span>
+<span class="sd">        :param return_figure: If True, return a `matplotlib figure` that can be altered, plotted, or saved.</span>
+<span class="sd">        :return: A `matplotlib figure` if **return_figure** is True, nothing otherwise.</span>
+
+<span class="sd">        Example:</span>
+
+<span class="sd">        .. code-block:: python</span>
+
+<span class="sd">            plotting.plot_corrected_vs_uncorrected_coverage(</span>
+<span class="sd">                x_values=fit_gaussians_obj.x_values,</span>
+<span class="sd">                uncorrected_y_values=fit_gaussians_obj_uncorrected.unfitted_y_values,</span>
+<span class="sd">                corrected_y_values=fit_gaussians_obj.unfitted_y_values,</span>
+<span class="sd">                uncorrected_y_intercept=fit_gaussians_obj_uncorrected.intercept_y_values[0],</span>
+<span class="sd">                corrected_y_intercept=fit_gaussians_obj.intercept_y_values[0])</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">uncorrected_y_values</span><span class="o">=</span><span class="p">[</span><span class="n">y</span><span class="o">-</span><span class="n">uncorrected_y_intercept</span> <span class="k">for</span> <span class="n">y</span> <span class="ow">in</span> <span class="n">uncorrected_y_values</span><span class="p">]</span>
+        <span class="n">corrected_y_values</span><span class="o">=</span><span class="p">[</span><span class="n">y</span><span class="o">-</span><span class="n">corrected_y_intercept</span> <span class="k">for</span> <span class="n">y</span> <span class="ow">in</span> <span class="n">corrected_y_values</span><span class="p">]</span>
+
+
+        <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">x_values</span><span class="p">,</span><span class="n">uncorrected_y_values</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;firebrick&quot;</span><span class="p">,</span><span class="n">label</span><span class="o">=</span><span class="s2">&quot;Uncorrected, aggregated coverage&quot;</span><span class="p">,</span>
+                 <span class="n">linewidth</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span><span class="n">alpha</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span><span class="n">marker</span><span class="o">=</span><span class="s2">&quot;x&quot;</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">x_values</span><span class="p">,</span> <span class="n">corrected_y_values</span><span class="p">,</span><span class="n">color</span><span class="o">=</span><span class="s2">&quot;navy&quot;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Corrected, aggregated coverage&quot;</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span>
+                 <span class="n">marker</span><span class="o">=</span><span class="s2">&quot;x&quot;</span><span class="p">)</span>
+
+        <span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s2">&quot;Distance from center of RoI [bp]&quot;</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s2">&quot;Coverage, normalized by intercept&quot;</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Corrected vs uncorrected coverage for sample </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">samplename</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">fontsize</span><span class="o">=</span><span class="mi">8</span><span class="p">)</span>
+
+        <span class="n">plt</span><span class="o">.</span><span class="n">locator_params</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="s1">&#39;y&#39;</span><span class="p">,</span> <span class="n">nbins</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">locator_params</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="s1">&#39;x&#39;</span><span class="p">,</span> <span class="n">nbins</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">filename</span><span class="o">==</span><span class="s2">&quot;auto&quot;</span><span class="p">:</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">gcf</span><span class="p">()</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">out_dir</span><span class="si">}</span><span class="s2">/corrected_vs_uncorrected_coverage.pdf&quot;</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">filename</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">gcf</span><span class="p">()</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">out_dir</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">filename</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">return_figure</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">plt</span><span class="o">.</span><span class="n">gcf</span><span class="p">()</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></div></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright 2021, Peter Peneder.
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>
