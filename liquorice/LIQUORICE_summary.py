@@ -602,8 +602,8 @@ def boxplot_score_summary(summary_df: pd.DataFrame,comparison_col: str,
     sns.swarmplot(x="Region-set",y=comparison_col,hue="Case/Control",data=summary_df,dodge=True,palette={"Control":"gainsboro","Case":"gainsboro"},size=3,edgecolor="grey")
 
     legend_elems=[
-        mpatches.Patch(color="seagreen", label='Case samples',alpha=alpha,linewidth=0),
-        mpatches.Patch(color="#CA4B47", label='Control samples',alpha=alpha,linewidth=0)]
+        mpatches.Patch(color="seagreen", label='Control samples',alpha=alpha,linewidth=0),
+        mpatches.Patch(color="#CA4B47", label='Case samples',alpha=alpha,linewidth=0)]
     plt.legend(handles=legend_elems,loc="best")
 
     plt.ylabel("Total dip area\n(AOC combined model)" if comparison_col=="Total dip area (AOC combined model)" else
