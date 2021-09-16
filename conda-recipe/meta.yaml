@@ -1,15 +1,15 @@
-{% set setup_data = load_setup_py_data(setup_file="../setup.py",from_recipe_dir=True) %}
-{% set description = setup_data['description'] %}
-{% set url = setup_data['url'] %}
-{% set name = setup_data['name'] %}
-{% set version = setup_data['version'] %}
+#{% set setup_data = load_setup_py_data(setup_file="../setup.py",from_recipe_dir=True) %}
+#{% set description = setup_data['description'] %}
+#{% set url = setup_data['url'] %}
+#{% set name = setup_data['name'] %}
+#{% set version = setup_data['version'] %}
 
 package:
   name: liquorice
-  version: {{ setup_data.get('version') }}
+  version: 0.5.0 #{{ setup_data.get('version') }}
 
 source:
-  url: {{ url }}/archive/refs/tags/v{{ version }}.tar.gz
+  url: https://github.com/epigen/LIQUORICE/archive/refs/tags/v0.5.0.tar.gz #{{ url }}/archive/refs/tags/v{{ version }}.tar.gz
   sha256: fdbbced331d810b982ac30513d4980b57cb0825318c3919c711640c1f61fcc4d
   #path: ..
 
@@ -55,11 +55,9 @@ test:
     - liquorice.LIQUORICE
 
 about:
-  home: "{{ url }}"
-  license_file:
-
-    LICENSE
+  home: https://github.com/epigen/LIQUORICE
+  license_file: LICENSE
   license: GPL-3.0
   license_family: GPL
-  summary: "{{ description }}"
+  summary: A tool for bias correction and quantification of changes in coverage around regions of interest in cfDNA WGS datasets
   description: See the package README.rst for more information.
