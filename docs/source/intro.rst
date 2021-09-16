@@ -72,8 +72,7 @@ could be, e.g., enhancers or DNaseI-hypersensitivity sites that are specific for
 Useful ressources to obtain such region-sets include `http://dnase.genome.duke.edu/ <http://dnase.genome.duke
 .edu/>`_ and `ENCODE <https://www.encodeproject.org/>`_.
 
-Here is an example on how we obtained liver-specific DNase-I-hypersensitivity sites from the `http://dnase.genome.duke.edu/celltype.php <http://dnase.genome.duke/celltype.php
-.edu/>`_ interface. First, we required all non-liver cells to be "closed", and we required hepatocytes to be "open" at a given DHS:
+Here is an example on how we obtained liver-specific DNase-I-hypersensitivity sites from the `http://dnase.genome.duke.edu/celltype.php <http://dnase.genome.duke.edu/celltype.php>`_ interface. First, we required all non-liver cells to be "closed", and we required hepatocytes to be "open" at a given DHS:
 
 .. image:: ../img/liverDHS_selection_1.png
   :width: 650
@@ -95,8 +94,7 @@ and http://dnase.genome.duke.edu/clusterDetail.php?clusterID=1115 ​
 
 We downloaded the .bed files (with all regions) from these clusters, and finally, we concatenated the downloaded files,
 merging the DHSs of these two clusters in order to get our final liver-specific DHS set. Note that the regions on the
-database are stored in hg19 coordinates - you can use
-LiftOver (https://genome.ucsc.edu/goldenPath/help/hgTracksHelp.html#Liftover) to convert the data to hg38.
+database are stored in hg19 coordinates - you can use `LiftOver <https://genome.ucsc.edu/goldenPath/help/hgTracksHelp.html#Liftover>`_ to convert the data to hg38.
 
 
 How to use ``LIQUORICE``
