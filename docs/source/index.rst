@@ -10,7 +10,7 @@
 Welcome to LIQUORICE's documentation!
 =====================================
 
-Please not that this release of LIQUORICE is currently work in progress - you may, e.g., not be able to install
+Please note that this release of LIQUORICE is currently work in progress - you may, e.g., not be able to install
 via bioconda yet. Also, beta-testing is currently ongoing.
 
 .. toctree::
