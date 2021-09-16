@@ -9,9 +9,9 @@ package:
   version: {{ setup_data.get('version') }}
 
 source:
-  #git_rev: v{{ version }}
-  #git_url: {{ url }}.git
-  path: ..
+  url: {{ url }}/archive/refs/tags/v{{ version }}.tar.gz
+  sha256: fdbbced331d810b982ac30513d4980b57cb0825318c3919c711640c1f61fcc4d
+  #path: ..
 
 build:
   number: 0
