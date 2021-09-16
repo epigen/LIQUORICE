@@ -3,8 +3,8 @@
   :alt: LIQUORICE logo
 
 .. image:: https://readthedocs.org/projects/liquorice/badge/?version=latest
-:target: https://liquorice.readthedocs.io/en/latest/?badge=latest
-:alt: Documentation Status
+  :target: https://liquorice.readthedocs.io/en/latest/?badge=latest
+  :alt: Documentation Status
 
 Thank you for your interest in LIQUORICE!
 
