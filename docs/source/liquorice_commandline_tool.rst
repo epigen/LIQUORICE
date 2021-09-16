@@ -173,7 +173,7 @@ Sources for input files
 
     .. code-block:: bash
 
-        wget https://github.com/peneder/LIQUORICE/raw/master/liquorice/create_mappability_bigwigs.sh
+        wget https://github.com/epigen/LIQUORICE/raw/master/liquorice/create_mappability_bigwigs.sh
         bash create_mappability_bigwigs.sh PATH_TO_GENOME_FASTA READLENGTH NR_OF_CORES_TO_BE_USED`.
 
 This will create a mappability bigwig file in the current directory.
@@ -196,14 +196,14 @@ Just follow the example below:
     # download and unzip the reference genome and reference mappability file
     wget https://hgdownload.soe.ucsc.edu/goldenPath/hg38/bigZips/p12/hg38.p12.fa.gz
     gunzip hg38.fa.gz
-    wget https://github.com/peneder/LIQUORICE/raw/master/liquorice/data/hg38.p12.fa.fai
-    wget https://github.com/peneder/LIQUORICE/raw/master/liquorice/data/hg38.fa.mappability_100bp.subsetted_for_testdata.bw
+    wget https://github.com/epigen/LIQUORICE/raw/master/liquorice/data/hg38.p12.fa.fai
+    wget https://github.com/epigen/LIQUORICE/raw/master/liquorice/data/hg38.fa.mappability_100bp.subsetted_for_testdata.bw
 
     # download .bam file of a healthy control liquid biopsy sample (pre-processed to keep the size small)
-    wget https://github.com/peneder/LIQUORICE/raw/master/liquorice/data/Ctrl_17_testdata.bam
+    wget https://github.com/epigen/LIQUORICE/raw/master/liquorice/data/Ctrl_17_testdata.bam
 
     # download .bed file for universally accessible DHSs
-    wget https://github.com/peneder/LIQUORICE/raw/master/liquorice/data/universal_DHSs.bed
+    wget https://github.com/epigen/LIQUORICE/raw/master/liquorice/data/universal_DHSs.bed
 
     # run LIQUORICE
     LIQUORICE --bamfile Ctrl_17_testdata.bam --refgenome_fasta "hg38.p12.fa" \

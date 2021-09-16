@@ -1,8 +1,6 @@
 #!/usr/bin/env bash
 
-### NOTE: Currently, this file is for internal testing purposes only.
-
-
+### NOTE: Currently, this file is for intenal use only.
 import subprocess
 
 param_dict={

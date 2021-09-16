@@ -10,7 +10,7 @@ package:
 
 source:
   #git_rev: v{{ version }}
-  #git_url: . #{{ url }}.git
+  #git_url: {{ url }}.git
   path: ..
 
 build:
