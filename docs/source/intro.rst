@@ -111,7 +111,7 @@ More details on parameters, test examples and usage examples can be found :ref:`
 
 Contact
 *******
-If you have any questions about ``LIQUORICE`` and how to apply it to your data, create an issue on github or contact peter.peneder@ccri.at - we are happy to hear from you.
+If you have any questions about ``LIQUORICE`` and how to apply it to your data, create an issue on `github <https://github.com/epigen/liquorice`_ or contact peter.peneder@ccri.at - we are happy to hear from you.
 
 Installation
 ============
