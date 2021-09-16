@@ -16,6 +16,5 @@ ray
 scikit-learn
 scipy
 swifter
-parallel
 seaborn
 pysam
