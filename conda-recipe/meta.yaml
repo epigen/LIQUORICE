@@ -44,6 +44,15 @@ requirements:
     - parallel
     - seaborn ==0.11.2
     - pysam ==0.16.0.1
+    -
+test:
+  commands:
+    - LIQUORICE --help
+    - LIQUORICE_summary --help
+  imports:
+    - liquorice
+    - liquorice.utils.Workflows
+    - liquorice.LIQUORICE
 
 about:
   home: "{{ url }}"
