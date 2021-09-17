@@ -18,5 +18,5 @@ wget https://github.com/epigen/LIQUORICE/raw/master/liquorice/data/universal_DHS
 LIQUORICE --bamfile Ctrl_17_testdata.bam --refgenome_fasta "hg38.p12.fa" \
         --mappability_bigwig "hg38.fa.mappability_100bp.subsetted_for_testdata.bw" \
         --bedpathlist "universal_DHSs.bed" \
-        --blacklist "hg38" --n_cpus "${N_CPUS}"
+        --blacklist "hg38" --n_cpus "${N_CPUS}" --extend_to 15000
 LIQUORICE_summary

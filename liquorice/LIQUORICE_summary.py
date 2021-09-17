@@ -303,7 +303,7 @@ def plot_overlay(dirname: str, summary_df: pd.DataFrame, control_name_list: typi
             Line2D([0], [1], lw=1.5, color="darkblue",label='Case samples with significantly weaker coverage drop, '
                                                             f'n={nr_samples["Significantly weaker coverage drop"]}', markersize=1),
             Line2D([0], [1], lw=1.5, color="silver", label='Case samples not sign. different, '
-                                                           f'n={nr_samples["n.s."]}', markersize=1),
+                                                           f'n={nr_samples["n.s."]+nr_samples["N/A"]}', markersize=1),
             Line2D([0], [1], lw=1.2, color="darkseagreen", label=f'Control samples, n={nr_samples["ctrl"]}',
                    markersize=1)]
 

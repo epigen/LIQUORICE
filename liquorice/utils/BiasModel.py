@@ -274,7 +274,8 @@ class BiasModel:
         y_pred=np.append(y_pred,y_pred_second_half)
 
         y_corr = self.df_to_correct[self.y] - y_pred
-        self.df_to_correct["corrected coverage"]=y_corr
+        # use .assign to avoid settingWithCopyWarning
+        self.df_to_correct=self.df_to_correct.assign(**{"corrected coverage":y_corr.values})
 
         r2=r2_score(self.df_to_correct[self.y],y_pred)
         logging.info(f"Cross-validated R^2 overall: {r2}")

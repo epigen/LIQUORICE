@@ -352,9 +352,15 @@ def main():
             logging.info(f"Did not detect an existing biasmodel under "
                          f"{os.path.realpath('biasmodel/trained_biasmodel.joblib')}.")
     elif not args.detect_existing_biasmodel and pathlib.Path("biasmodel/trained_biasmodel.joblib").exists():
-        logging.warning(f"Found an existing biasmodel under "
+        if not args.train_on_rois:
+            logging.warning(f"Found an existing biasmodel under "
                         f"{os.path.realpath('biasmodel/trained_biasmodel.joblib')}"
                         f". This model will be overwritten as --detect_existing_biasmodel was not specified.")
+        else:
+            logging.warning(f"Found an existing biasmodel under "
+                            f"{os.path.realpath('biasmodel/trained_biasmodel.joblib')}"
+                            f". This model will be ignored as --detect_existing_biasmodel was not specified."
+                            f"Instead, a seperate model will be trained on each region-set in --bedpathlist.")
 
     # Version in which a single bias-model is trained for the sample, based on a set of seperate training regions
     if not args.train_on_rois:

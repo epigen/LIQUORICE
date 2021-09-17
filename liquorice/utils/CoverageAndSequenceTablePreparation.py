@@ -2,8 +2,8 @@ from liquorice.utils import deeptoolsCountReadsPerBinDontCheckProperPairSAMflag 
 import pandas as pd
 import os
 import pybedtools
-if os.getenv("TMP") is not None:
-    pybedtools.set_tempdir(os.getenv("TMP"))
+if os.getenv("TMPDIR") is not None:
+    pybedtools.set_tempdir(os.getenv("TMPDIR"))
 import pyBigWig
 import logging
 import os
@@ -11,6 +11,7 @@ import typing
 from multiprocessing import Pool
 import pysam
 import numpy as np
+import sys
 os.environ["PYTHONPATH"] = os.path.abspath(os.path.join(os.path.dirname(__file__), '../..')) # required by Ray, which is
 # used by modin
 import modin.pandas as modinpd
@@ -341,7 +342,13 @@ class CoverageAndSequenceTablePreparation:
 
         if "sequence" not in self.skip_these_steps:
             logging.info("Retrieving genomic sequences for every bin ... ")
-            self.df["sequence"]=self.get_sequence_per_bin()
+            try:
+                self.df["sequence"]=self.get_sequence_per_bin()
+            except ValueError:
+                sys.exit("Could not retrieve all required genomic sequences. This can happen if --tmpdir does not have"
+                         "enough space left to store the temporary files produces by pybedtools. Try making some space"
+                         "or specify a different tmpdir with the --tmpdir flag "
+                         "(or change the value of the $TMP environment variable.")
 
         if "mappability" not in self.skip_these_steps:
             logging.info("Retrieving mappability information for every bin ... ")

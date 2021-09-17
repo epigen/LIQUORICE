@@ -159,6 +159,7 @@ using GNU parallel (http://dx.doi.org/10.5281/zenodo.16303), which is automatica
 Note that the memory usage will increase with the number of parallel jobs (set by the `-j` parameter of parallel).
 We usually allow for 3GB of RAM for each job executed in parallel and set the `-j` parameter accordingly ( `j` = <Total available Memory on the Computer/Server>/3 GB) when running LIQUORICE with default settings on a region-set of 6000 regions.
 Note that memory usage also depends on `extend_to`, `binsize`, `speed_mode`, and scales linearly with the number of regions in your region-sets.
+Finally: LIQUORICE's results will slightly differ based on whether or not you use `--n_cores 1` or `--n_cores <anything larger than 1>`. This is due to differences in the sampling of fragment lengths and nothing to worry about - both results are equally valid.
 
 Sources for input files
 ***********************
@@ -211,7 +212,7 @@ Just follow the example below:
     LIQUORICE --bamfile Ctrl_17_testdata.bam --refgenome_fasta "hg38.p12.fa" \
             --mappability_bigwig "hg38.fa.mappability_100bp.subsetted_for_testdata.bw" \
             --bedpathlist "universal_DHSs.bed" \
-            --blacklist "hg38" --n_cpus "${N_CPUS}"
+            --blacklist "hg38" --n_cpus "${N_CPUS}" --extend_to 15000
 
 
 Example usage of LIQUORICE and the summary tool

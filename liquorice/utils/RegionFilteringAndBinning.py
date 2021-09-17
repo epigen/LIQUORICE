@@ -2,8 +2,8 @@ import numpy as np
 import pandas as pd
 import pybedtools
 import os
-if os.getenv("TMP") is not None:
-    pybedtools.set_tempdir(os.getenv("TMP"))
+if os.getenv("TMPDIR") is not None:
+    pybedtools.set_tempdir(os.getenv("TMPDIR"))
 import logging
 import sys
 import typing
