@@ -1,17 +1,11 @@
-#{% set setup_data = load_setup_py_data(setup_file="../setup.py",from_recipe_dir=True) %}
-#{% set description = setup_data['description'] %}
-#{% set url = setup_data['url'] %}
-#{% set name = setup_data['name'] %}
-#{% set version = setup_data['version'] %}
-
 package:
   name: liquorice
-  version: 0.5.0 #{{ setup_data.get('version') }}
+  version: 0.5.1
 
 source:
-  url: https://github.com/epigen/LIQUORICE/archive/refs/tags/v0.5.0.tar.gz #{{ url }}/archive/refs/tags/v{{ version }}.tar.gz
-  sha256: fdbbced331d810b982ac30513d4980b57cb0825318c3919c711640c1f61fcc4d
-  #path: ..
+  #url: https://github.com/epigen/LIQUORICE/archive/refs/tags/v0.5.0.tar.gz
+  #sha256: fdbbced331d810b982ac30513d4980b57cb0825318c3919c711640c1f61fcc4d
+  path: ..
 
 build:
   number: 0
@@ -30,14 +24,14 @@ requirements:
     - deeptools >=3.5.0
     - lmfit >=1.0.1
     - matplotlib-base ==3.1.1
-    - modin[ray]
+    - modin[ray] # [linux]
     - modin  ==0.8.2
     - numpy >=1.19.5
     - pandas >=1.1.4
     - joblib >=1.0.0
     - pybedtools >=0.8.1
     - pybigwig >=0.3.17
-    - ray-core ==1.1.0
+    - ray-core ==1.1.0 # [linux]
     - scikit-learn >=0.24.0
     - scipy >=1.6.0
     - swifter >=1.0.6

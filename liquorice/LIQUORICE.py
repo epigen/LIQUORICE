@@ -287,25 +287,30 @@ def main():
     sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../..')))
     os.environ["PYTHONPATH"] = os.path.abspath(os.path.join(os.path.dirname(__file__), '../..'))
     sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-    import ray
-    # activate if ray version ==1.1.0 or higher
-    if ray.__version__.split(".")[0]=="1" and int(ray.__version__.split(".")[1])>=1:
-        is_mac = sys.platform.startswith("darwin")
-        maxlen_tmp_dir_path_in_bytes = (104 if is_mac else 108) - 1 - \
-                              len("/session_2021-09-13_18-13-19_866740_61434/sockets/plasma_store".encode('utf-8'))
-        len_path_to_tmpdir_in_bytes=len(args.tmpdir.split("://", 1)[-1].encode('utf-8'))
-        if len_path_to_tmpdir_in_bytes > maxlen_tmp_dir_path_in_bytes:
-            logging.warning(f"The path to the specified tmpdir ({args.tmpdir}) is too long for the library ray which is"
-                            f" used for parallel processing ({len_path_to_tmpdir_in_bytes} bytes observed, "
-                            f"{maxlen_tmp_dir_path_in_bytes} bytes allowed). "
-                            f"Will attempt to use ray's default, '/tmp', instead.")
-            ray.init(num_cpus=args.n_cpus)
+
+    try: # Can fail if OS==macOS
+        import ray
+        # activate if ray version ==1.1.0 or higher
+        if ray.__version__.split(".")[0]=="1" and int(ray.__version__.split(".")[1])>=1:
+            is_mac = sys.platform.startswith("darwin")
+            maxlen_tmp_dir_path_in_bytes = (104 if is_mac else 108) - 1 - \
+                                  len("/session_2021-09-13_18-13-19_866740_61434/sockets/plasma_store".encode('utf-8'))
+            len_path_to_tmpdir_in_bytes=len(args.tmpdir.split("://", 1)[-1].encode('utf-8'))
+            if len_path_to_tmpdir_in_bytes > maxlen_tmp_dir_path_in_bytes:
+                logging.warning(f"The path to the specified tmpdir ({args.tmpdir}) is too long for the library ray which is"
+                                f" used for parallel processing ({len_path_to_tmpdir_in_bytes} bytes observed, "
+                                f"{maxlen_tmp_dir_path_in_bytes} bytes allowed). "
+                                f"Will attempt to use ray's default, '/tmp', instead.")
+                ray.init(num_cpus=args.n_cpus)
+            else:
+                ray.init(num_cpus=args.n_cpus,_temp_dir=args.tmpdir)
         else:
-            ray.init(num_cpus=args.n_cpus,_temp_dir=args.tmpdir)
-    else:
-        logging.warning(f"Failed to initialize ray with the specified tmpdir '{args.tmpdir}' and num_cpus {args.n_cpus}."
-                        f" This happens if the ray version is lower than 1.1.0. Setup will be done by modin instead,"
-                        f" but this can mean the tmpdir will not be respected.")
+            logging.warning(f"Failed to initialize ray with the specified tmpdir '{args.tmpdir}' and num_cpus {args.n_cpus}."
+                            f" This happens if the ray version is lower than 1.1.0. Setup will be done by modin instead,"
+                            f" but this can mean the tmpdir will not be respected.")
+    except ModuleNotFoundError:
+        logging.info("Could not import ray library - this can happen if on macOS. If --n_cpus >1, will try to use dask instead.")
+        pass
     from liquorice.utils import GlobalFragmentSize
     from liquorice.utils import MeanSequencingDepth
     from liquorice.utils import Workflows
