@@ -282,7 +282,6 @@ def main():
 
     #  Multi-processing set-up and dependent imports:
     os.environ["MODIN_CPUS"] = str(args.n_cpus)
-    os.environ["MODIN_ENGINE"] = "ray"
     os.environ["OMP_NUM_THREADS"]= str(args.n_cpus)
     sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../..')))
     os.environ["PYTHONPATH"] = os.path.abspath(os.path.join(os.path.dirname(__file__), '../..'))
@@ -290,6 +289,7 @@ def main():
 
     try: # Can fail if OS==macOS
         import ray
+        os.environ["MODIN_ENGINE"] = "ray"
         # activate if ray version ==1.1.0 or higher
         if ray.__version__.split(".")[0]=="1" and int(ray.__version__.split(".")[1])>=1:
             is_mac = sys.platform.startswith("darwin")
@@ -297,7 +297,8 @@ def main():
                                   len("/session_2021-09-13_18-13-19_866740_61434/sockets/plasma_store".encode('utf-8'))
             len_path_to_tmpdir_in_bytes=len(args.tmpdir.split("://", 1)[-1].encode('utf-8'))
             if len_path_to_tmpdir_in_bytes > maxlen_tmp_dir_path_in_bytes:
-                logging.warning(f"The path to the specified tmpdir ({args.tmpdir}) is too long for the library ray which is"
+                logging.warning(f"The path to the specified tmpdir ({args.tmpdir}) is too long for the library ray which"
+                                f" is"
                                 f" used for parallel processing ({len_path_to_tmpdir_in_bytes} bytes observed, "
                                 f"{maxlen_tmp_dir_path_in_bytes} bytes allowed). "
                                 f"Will attempt to use ray's default, '/tmp', instead.")
@@ -305,11 +306,20 @@ def main():
             else:
                 ray.init(num_cpus=args.n_cpus,_temp_dir=args.tmpdir)
         else:
-            logging.warning(f"Failed to initialize ray with the specified tmpdir '{args.tmpdir}' and num_cpus {args.n_cpus}."
-                            f" This happens if the ray version is lower than 1.1.0. Setup will be done by modin instead,"
-                            f" but this can mean the tmpdir will not be respected.")
+            logging.warning(f"Failed to initialize ray with the specified tmpdir '{args.tmpdir}' and "
+                            f"num_cpus {args.n_cpus}."
+                            f" This happens if the ray version is lower than 1.1.0. Setup will be done by modin "
+                            f"instead, but this can mean the tmpdir will not be respected.")
+        n_cpus_workflows=args.n_cpus
     except ModuleNotFoundError:
-        logging.info("Could not import ray library - this can happen if on macOS. If --n_cpus >1, will try to use dask instead.")
+        os.environ["MODIN_ENGINE"] = "dask"
+        if args.n_cpus>1:
+            logging.warning("Could not import ray library - this happens if running on macOS. Parallelization is "
+                            "therefore only "
+                            "available for a subset of analysis tasks - have a look at the 'Parallelization` section of"
+                            " the documentation for more information: "
+                            "https://liquorice.readthedocs.io/en/latest/liquorice_commandline_tool.html#parallelization")
+        n_cpus_workflows=1
         pass
     from liquorice.utils import GlobalFragmentSize
     from liquorice.utils import MeanSequencingDepth
@@ -391,7 +401,7 @@ def main():
                 cna_seg_filepath=args.cna_seg_file,
                 mean_seq_depth=mean_seq_depth,
                 binsize=args.binsize,
-                n_cores=args.n_cpus,
+                n_cores=n_cpus_workflows,
                 biasmodel_output_path="trained_biasmodel.joblib",
                 extend_to=args.extend_to_biasmodel,
                 save_training_table=args.save_training_table,
@@ -426,7 +436,7 @@ def main():
                 mean_seq_depth=mean_seq_depth,
                 binsize=args.binsize,
                 extend_to=args.extend_to,
-                n_cores=args.n_cpus,
+                n_cores=n_cpus_workflows,
                 save_biasfactor_table=args.save_biasfactor_table,
                 use_default_fixed_sigma_values=True,
                 no_chr_prefix=args.no_chr_prefix,
@@ -464,7 +474,7 @@ def main():
                 mean_seq_depth=mean_seq_depth,
                 binsize=args.binsize,
                 extend_to=args.extend_to,
-                n_cores=args.n_cpus,
+                n_cores=n_cpus_workflows,
                 save_biasfactor_table=args.save_biasfactor_table,
                 use_default_fixed_sigma_values=True,
                 no_chr_prefix=args.no_chr_prefix,

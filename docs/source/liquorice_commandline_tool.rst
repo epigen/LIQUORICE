@@ -49,7 +49,7 @@ this also includes information on the significance of difference between a given
 A violinplot, *"boxplot_summary_by_dip_<comparison_metric=[area,depth]>.pdf"* is generated, in which the scores
 across groups of samples (if defined) and region-sets are summarized. (Which metric is used to determine the scores is
 determined by the `\-\-comparison_metric` parameter.)
-Additionally, for each region-set, the following files are generated (if `\-\-control_name_list` is specified) :
+Additionally, for each region-set, the following files are generated:
 
   - *<regionset>_summary_plot_overlay_of_samples_by_Dip_<comparison_metric=[area,depth].pdf*: Two side-by-side overlay plots (separate for control and case samples),
     showing the aggregated, bias-corrected coverage profile. Lines are colored by significance of differences between a
@@ -159,7 +159,7 @@ using GNU parallel (http://dx.doi.org/10.5281/zenodo.16303), which is automatica
 Note that the memory usage will increase with the number of parallel jobs (set by the `-j` parameter of parallel).
 We usually allow for 3GB of RAM for each job executed in parallel and set the `-j` parameter accordingly ( `j` = <Total available Memory on the Computer/Server>/3 GB) when running LIQUORICE with default settings on a region-set of 6000 regions.
 Note that memory usage also depends on `extend_to`, `binsize`, `speed_mode`, and scales linearly with the number of regions in your region-sets.
-Finally: LIQUORICE's results will slightly differ based on whether you use `--n_cores 1` or `--n_cores <anything larger than 1>`. This is due to differences in the sampling of fragment lengths and nothing to worry about - both results are equally valid.
+Finally: LIQUORICE's results will slightly differ based on whether you use `\-\-n_cores 1` or `\-\-n_cores <anything larger than 1>`. This is due to differences in the sampling of fragment lengths and nothing to worry about - both results are equally valid.
 
 Sources for input files
 ***********************
