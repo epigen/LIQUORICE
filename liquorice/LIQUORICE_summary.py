@@ -16,62 +16,177 @@ import typing
 import json
 import seaborn as sns
 import matplotlib.patches as mpatches
+from scipy import stats
+import pathlib
 
-def check_difference_to_control(row: pd.Series, control_df: pd.DataFrame, col: str, negative_is_strong: bool,
-                                zscore_treshold: int =2) -> str:
+
+def plot_control_distributions_and_test_normality(summary_df: pd.DataFrame,col: str,alpha: float=0.05,
+                                                  use_uncorrected_coverage: bool = False):
     """
-    For a row in a `pandas.DataFrame`, find control values for the same regionset and return if sample is significantly
-    different compared to the controls, as measured by metric **col**. Assumes controls are normally distributed.
+    For each region-set in **summary_df**, plot the distribution of the control sample's score measured by metric
+    **col** as histograms and probability plots
+    (https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.probplot.html).
+    Also run tests the Shapiro-Wilk test for normal distributions and prints a warning if this test detects significant
+    deviations from the normal distribution. Plotting and testing is skipped for every region-set where n<4.
+
+    :param summary_df: Input `pandas.DataFrame` with the columns "is_control" and **col**
+    :param col: Name of the column that should be used for plotting
+    :param use_uncorrected_coverage: If True, indicate in the file name that the uncorrected coverage has been used to
+        generate the underlying data.
+    :return:
+    """
+
+    control_df=summary_df[summary_df["is control"]=="yes"]
+
+    regionset_list = list(set(summary_df["region-set"]))
+    for regionnr, regionset in enumerate(regionset_list):
+
+        outpath=f"{regionset}_control_distribution_by_{'_'.join(col.split(' ')[1:3]).replace(':','')}" \
+                f"{'_using_uncorrected_coverage' if use_uncorrected_coverage else ''}.pdf"
+
+        if control_df[control_df['region-set'] == regionset].shape[0]<2:
+            print(f"WARNING: Only {control_df[control_df['region-set'] == regionset].shape[0]} control sample(s) are/is"
+                  f" available for "
+                  f"region-set {regionset}. Statistical comparisons for this region-set were skipped.")
+            continue
+
+        if control_df[control_df['region-set'] == regionset].shape[0]<4:
+            print(f"WARNING: Only {control_df[control_df['region-set'] == regionset].shape[0]} control samples are "
+                  f"available for "
+                  f"region-set {regionset}. Statistical comparisons for this region-set are likely inaccurate. "
+                  f"Tests for normal distributions and plotting of the control distributions will be skipped.")
+            continue
+
+        try:
+            normality_rejected_shapiro = stats.shapiro(control_df[control_df["region-set"] == regionset][col])[1]<alpha
+            if normality_rejected_shapiro:
+                print(f"\nWARNING: The  test for normality (Shapiro-Wilk) indicated that the control samples are "
+                      f"not normally distributed for "
+                      f"region-set '{regionset}' and metric '{col}'."
+                      f" Please beware that this may impact the validity of the statistical "
+                      f"comparisons. You can check the distribution of the control samples' scores in the plot '"
+                      f"{outpath}'.\n")
+        except ValueError:
+            print(f"WARNING: Only {control_df[control_df['region-set'] == regionset].shape[0]} control samples are "
+                  f"available for "
+                  f"region-set {regionset}. Statistical comparisons for this region-set may be inaccurate, and tests for"
+                  f" normal distribution could not be performed. You can check the distribution of the control samples' "
+                  f"scores in the plot '{outpath}'.\n")
+
+            #return np.nan,np.nan
+
+        plt.subplot(1,2,1)
+        plt.hist(control_df[control_df["region-set"] == regionset][col],bins=10)
+        plt.title(f"Distribution of control scores in region-set {regionset}", fontsize=15)
+        plt.xlabel(col)
+        plt.ylabel("Nr. of control samples")
+        plt.subplot(1,2,2)
+        stats.probplot(control_df[control_df["region-set"] == regionset][col], dist="norm",plot=plt)
+        plt.gcf().set_size_inches(16,8)
+        plt.savefig(outpath)
+        plt.close()
+
+
+
+def get_prediction_interval_per_row(row: pd.Series, control_df: pd.DataFrame, col: str, alpha: int =0.05) -> \
+                                    typing.Tuple[float, float]:
+    """
+    For a row in a `pandas.DataFrame`, find control values for the same regionset and return the prediction interval.
 
     :param row: A `pandas.Series` with the columns 'region-set', 'is control', and **col**, corresponding to a single
         sample.
     :param control_df: A `pandas.DataFrame` with at least the columns 'region-set', and **col**. Should only
         contain data of control samples.
     :param col: Use this column as a metric to determine differences.
+    :param alpha: Alpha level for the prediction interval. Default 0.05: 95% prediction interval
+    :return: A tuple (lower prediction interval,higher prediction interval), or (np.nan,np.nan) if calculation is not
+        possible.
+    """
+
+    std_ctrl = control_df[control_df["region-set"] == row["region-set"]].std()[col]
+
+    if std_ctrl!=std_ctrl:
+        return np.nan,np.nan
+
+    pi_lower,pi_higher=get_prediction_interval(control_df[control_df["region-set"] == row["region-set"]][col].values)
+
+    return pi_lower,pi_higher
+
+
+def get_prediction_interval(values: typing.List,alpha: int=0.05) -> typing.Tuple[float, float]:
+    """
+    Returns the upper and lower prediction interval for a list of values.
+
+    :param values: Scores for which the prediction interval shall be calculated
+    :param alpha: Alpha level for the prediction interval. Default 0.05: 95% prediction interval
+    :return: A tuple (lower_prediction_interval, upper_prediction_interval)
+    """
+
+    mean=np.mean(values)
+    std=np.std(values)
+    n=len(values)
+
+    t_higher=stats.t.ppf(1-alpha/2, n-1)
+    t_lower=stats.t.ppf(alpha/2, n-1)
+    pi_lower = mean + t_lower*std*np.sqrt(1+1/n) # Lower prediction interval
+    pi_higher = mean + t_higher*std*np.sqrt(1+1/n) # Upper prediction interval
+
+    return (pi_lower,pi_higher)
+
+
+def check_difference_to_control(row: pd.Series, control_df: pd.DataFrame, col: str,
+                                prediction_interval_control_col: str, negative_is_strong: bool,
+                                ) -> str:
+    """
+    For a row in a `pandas.DataFrame`, find control values for the same regionset and return if sample is significantly
+    different compared to the controls, as measured by metric **col**. A sample is deemed significantly different if
+     its score in metric **col** lies outside the prediction interval of the control group.
+
+    :param row: A `pandas.Series` with the columns 'region-set', 'is control', and **col**, corresponding to a single
+        sample.
+    :param control_df: A `pandas.DataFrame` with at least the columns 'region-set', and **col**. Should only
+        contain data of control samples.
+    :param col: Use this column as a metric to determine differences.
+    :param prediction_interval_control_col: Name of the column that contains the prediction interval of the control
+        group.
     :param negative_is_strong:  Set to `True` if a very negative value of the metric is associated with a strong dip
         signal, such as for the dip area.
-    :param zscore_treshold: Use this number as a treshold for significance: Significant samples must have a signal that
-        is outside <mean of controls> +- <zscore_treshold>*<standard deviation of controls>. The default of 2 roughly
-        corresponds to alpha=0.05 if the signal in the controls is normally distributed.
     :return: A string indicating the result of the comparison, or np.nan if row[col] is NaN.
     """
 
-    mean_ctrl = control_df[control_df["region-set"] == row["region-set"]].mean()[col]
+    if np.nan in row[prediction_interval_control_col]:
+        return "N/A"
+
+    pi_lower,pi_higher=row[prediction_interval_control_col]
     std_ctrl = control_df[control_df["region-set"] == row["region-set"]].std()[col]
+
     if row["is control"] == "yes" or std_ctrl!=std_ctrl:
         return "N/A"
 
-    # If a strong sample should have a very negative value, a sing. stronger sample needs to have a more negative
-    # value than controls MINUS Std
-    if (row[col] < (mean_ctrl - zscore_treshold * std_ctrl)) and negative_is_strong:
+    # If a strong sample should have a very negative value, a sign. stronger sample needs to have a more negative
+    # value than the lower PI
+    if (row[col] < pi_lower) and negative_is_strong:
         return "Significantly stronger coverage drop"
-    # If a strong sample should have a very negative value, a sing. weaker sample needs to have a more positive value
-    # than controls PLUS Std
-    elif (row[col] > (mean_ctrl + zscore_treshold * std_ctrl)) and negative_is_strong:
+    # If a strong sample should have a very negative value, a sign. weaker sample needs to have a more positive value
+    # than the upper PI
+    elif (row[col] > pi_higher) and negative_is_strong:
         return "Significantly weaker coverage drop"
 
-    # If a strong sample should have a very positive value, a sing. stronger sample needs to have a more positive value
-    # than controls PLUS Std
-    elif (row[col] > (mean_ctrl + zscore_treshold * std_ctrl)) and not negative_is_strong:
+    # If a strong sample should have a very positive value, a sign. stronger sample needs to have a more positive value
+    # than the upper PI
+    elif (row[col] > pi_higher) and not negative_is_strong:
         return "Significantly stronger coverage drop"
 
-    # If a strong sample should have a very positive value, a sing. weaker sample needs to have a more negative value
-    # than controls MINUS Std
-    elif (row[col] < (mean_ctrl - zscore_treshold * std_ctrl)) and not negative_is_strong:
+    # If a strong sample should have a very positive value, a sign. weaker sample needs to have a more negative value
+    # than the lower PI
+    elif (row[col] < pi_lower) and not negative_is_strong:
         return "Significantly weaker coverage drop"
 
-    elif row[col] > mean_ctrl and negative_is_strong:
-        return "n.s."
-    elif row[col] > mean_ctrl and not negative_is_strong:
-        return "n.s."
-    elif row[col] < mean_ctrl and negative_is_strong:
-        return "n.s."
-    elif row[col] < mean_ctrl and not negative_is_strong:
-        return "n.s."
-    elif row[col] == mean_ctrl:
-        return "equal to control mean"
     elif row[col] != row[col]:
         return np.nan
+
+    else:
+        return "n.s."
 
 
 def zscore_to_control(row: pd.Series, control_df: pd.DataFrame, col: str)  -> float:
@@ -88,6 +203,7 @@ def zscore_to_control(row: pd.Series, control_df: pd.DataFrame, col: str)  -> fl
     mean_ctrl = control_df[control_df["region-set"] == row["region-set"]].mean()[col]
     std_ctrl = control_df[control_df["region-set"] == row["region-set"]].std()[col]
     return round((row[col] - mean_ctrl) / std_ctrl, 2)
+
 
 def get_list_of_coveragefiles(dirname: str, regionset: str, use_uncorrected_coverage:bool =False) -> typing.List[str]:
     """
@@ -180,8 +296,8 @@ def plot_overlay(dirname: str, summary_df: pd.DataFrame, control_name_list: typi
                  significance_col: str = "Dip area: interpretation vs controls in same region set",
                  use_uncorrected_coverage: bool =False,alpha: float =0.5, linewidth: float =3):
     """
-    Summarize plots, create one plot per regionset. Control samples are compared to case samples, significant changes
-    (based on z-scores; assumes normal distribution of controls) are marked by color.
+    Summarize plots, create one plot per regionset. Case samples with significant differences to controls
+    (based on **significance_col**) are marked by color.
     **smooth_sigma** can be used to make the plots smoother and easier to compare - this is a visual
     effect only.
 
@@ -229,7 +345,7 @@ def plot_overlay(dirname: str, summary_df: pd.DataFrame, control_name_list: typi
 
             samplename = str(Path(coveragefile).parent.parent).split("/")[-1]
 
-           # avg_centersize=150
+            #avg_centersize=150
             regions_df=pd.read_csv("/".join(coveragefile.split("/")[:-1])+"/regions.bed",sep="\t",header=None)
             avg_centersize=int(round((regions_df[2]-regions_df[1]).mean()))
 
@@ -272,18 +388,21 @@ def plot_overlay(dirname: str, summary_df: pd.DataFrame, control_name_list: typi
                          f"Re-run LIQUORICE with consistent "
                          f"settings or move the inconsistent result folders to a different directory.")
 
+            plt.sca(ctrl_ax)
+            plt.gca().spines['top'].set_visible(False)
+            plt.gca().spines['right'].set_visible(False)
+            plt.sca(case_ax)
+            plt.gca().yaxis.set_visible(False)
+            plt.gca().spines['top'].set_visible(False)
+            plt.gca().spines['right'].set_visible(False)
+            plt.gca().spines['left'].set_visible(False)
+
             if samplename in control_name_list:
                 plt.sca(ctrl_ax)
-                plt.gca().spines['top'].set_visible(False)
-                plt.gca().spines['right'].set_visible(False)
                 plt.plot(x, y_norm, alpha=alpha, color="seagreen", linewidth=linewidth, zorder=9)
                 nr_samples["ctrl"] += 1
             else:
                 plt.sca(case_ax)
-                plt.gca().yaxis.set_visible(False)
-                plt.gca().spines['top'].set_visible(False)
-                plt.gca().spines['right'].set_visible(False)
-                plt.gca().spines['left'].set_visible(False)
 
                 if summary_df_this_sample_and_region[significance_col].values[0]!= \
                                  summary_df_this_sample_and_region[significance_col].values[0]:
@@ -302,7 +421,7 @@ def plot_overlay(dirname: str, summary_df: pd.DataFrame, control_name_list: typi
                                                               f'n={nr_samples["Significantly stronger coverage drop"]}', markersize=1),
             Line2D([0], [1], lw=1.5, color="darkblue",label='Case samples with significantly weaker coverage drop, '
                                                             f'n={nr_samples["Significantly weaker coverage drop"]}', markersize=1),
-            Line2D([0], [1], lw=1.5, color="silver", label='Case samples not sign. different, '
+            Line2D([0], [1], lw=1.5, color="silver", label='Case samples not sign. different or N/A, '
                                                            f'n={nr_samples["n.s."]+nr_samples["N/A"]}', markersize=1),
             Line2D([0], [1], lw=1.2, color="darkseagreen", label=f'Control samples, n={nr_samples["ctrl"]}',
                    markersize=1)]
@@ -373,9 +492,9 @@ def plot_as_subplots(dirname: str, summary_df: pd.DataFrame, control_name_list: 
                      significance_col: str = "Dip area: interpretation vs controls in same region set",
                      use_uncorrected_coverage: bool =False,y_min_fixed: float=None, y_max_fixed:float =None):
     """
-    Summarize plots, create one set of plots per regionset. Control samples are compared to case samples, significant
-    changes are marked by color. **smooth_sigma** can be used to make the plots smoother and easier to compare, this is
-    a visual effect only.
+    Summarize plots, create one set of plots per regionset. Case samples with significant differences to controls
+    (based on **significance_col**) are marked by color.
+     **smooth_sigma** can be used to make the plots smoother and easier to compare, this is a visual effect only.
 
     :param dirname: Path to LIQUORICE's working directory.
     :param summary_df: The output of the function :func:`create_summary_table_LIQUORICE`.
@@ -429,7 +548,7 @@ def plot_as_subplots(dirname: str, summary_df: pd.DataFrame, control_name_list: 
 
                 samplename = str(Path(coveragefile).parent.parent).split("/")[-1]
 
-                # avg_centersize=150
+                #avg_centersize=150
                 regions_df=pd.read_csv("/".join(coveragefile.split("/")[:-1])+"/regions.bed",sep="\t",header=None)
                 avg_centersize=int(round((regions_df[2]-regions_df[1]).mean()))
 
@@ -471,7 +590,7 @@ def plot_as_subplots(dirname: str, summary_df: pd.DataFrame, control_name_list: 
                     else:
                         significance_status=summary_df_this_sample_and_region[significance_col].values[0]
                     sign_to_color_dict={"Significantly stronger coverage drop":"firebrick",
-                        "Significantly weaker coverage drop":"darkblue", "n.s.":"grey","N/A":"black"}
+                        "Significantly weaker coverage drop":"darkblue", "n.s.":"grey","N/A":"grey"}
                     color=sign_to_color_dict[significance_status]
 
                 plt.plot(x, y, alpha=0.6, color=color, linewidth=1, zorder=1)
@@ -494,8 +613,7 @@ def plot_as_subplots(dirname: str, summary_df: pd.DataFrame, control_name_list: 
                                                                          'coverage drop',markersize=1),
                         Line2D([0], [1], lw=1.5, color="darkblue",label='Case samples with significantly weaker '
                                                                         'coverage drop',markersize=1),
-                        Line2D([0], [1], lw=1.5, color="grey",label='Case samples not sign. different '
-                                                                    '(or if no ctrls available)',markersize=1),
+                        Line2D([0], [1], lw=1.5, color="grey",label='Case samples not sign. different or N/A',markersize=1),
                         Line2D([0], [1], lw=1.2, color="darkseagreen", label='Control samples', markersize=1)]
                     plt.legend(handles=legend_elems, fontsize=20, loc="lower left", bbox_to_anchor=(0, 1.15), ncol=1)
 
@@ -520,12 +638,12 @@ def plot_as_subplots(dirname: str, summary_df: pd.DataFrame, control_name_list: 
 def create_summary_table_LIQUORICE(dirname: str, control_name_list: typing.List[str],
                                    these_regionsets_only: typing.List[str],
                                    use_uncorrected_coverage:bool =False,
-                                   zscore_treshold: int=2) -> pd.DataFrame:
+                                   prediction_interval_alpha: int=0.05) -> pd.DataFrame:
     """
     For a LIQUORICE result directory, creates and writes to csv a pd.DataFrame summarizing the coverage drop metrics
     for all samples and
-    region-sets. If **control_name_list** is given, compares the case samples to control samples, separately for each
-    region-set.
+    region-sets. If **control_name_list** is given, compares the case samples to control samples and assesses
+    significant differences, separately for each region-set.
 
     :param use_uncorrected_coverage: If True, summarize the coverage profile that is not corrected for biases by
      LIQUORICE instead of the corrected coverage.
@@ -533,9 +651,7 @@ def create_summary_table_LIQUORICE(dirname: str, control_name_list: typing.List[
     :param dirname: Output directory of LIQUORICE in which to search for fitted_gaussians_parameter_summary.csv
         (or uncorrected_fitted_gaussians_parameter_summary.csv) files
     :param control_name_list: Sample names of the controls, which will be used as reference for generating z-scores.
-    :param zscore_treshold: Use this number as a treshold for significance: Significant samples must have a signal that
-        is outside <mean of controls> +- <zscore_treshold>*<standard deviation of controls>. The default of 2 roughly
-        corresponds to alpha=0.05 if the signal in the controls is normally distributed.
+    :param prediction_interval_alpha: Alpha level for the prediction interval. Default 0.05: 95% prediction interval
     :return: A `pandas.DataFrame` in which all parameters saved in the 'fitted_gaussians_parameter_summary.csv'
         (or uncorrected_fitted_gaussians_parameter_summary.csv) files
         are summarized over all samples and region-sets. If control_name_list is not empty, additional columns of the
@@ -559,17 +675,29 @@ def create_summary_table_LIQUORICE(dirname: str, control_name_list: typing.List[
     control_summary_df = summary_df[summary_df["sample"].isin(control_name_list)].copy()
     summary_df = summary_df.assign(**{
         "is control": ["yes" if sample in control_name_list else "no" for sample in summary_df["sample"].values]})
+
     summary_df = summary_df.assign(**{
         "Dip area: z-score vs controls in same region set": summary_df.apply(
         lambda x: zscore_to_control(x, control_summary_df, "Total dip area (AOC combined model)"), axis=1),
+        "Dip area: Prediction interval of controls": summary_df.apply(
+            lambda x: get_prediction_interval_per_row(x, control_summary_df, "Total dip area (AOC combined model)",
+                                                      prediction_interval_alpha),axis=1)})
+    summary_df = summary_df.assign(**{
         "Dip area: interpretation vs controls in same region set": summary_df.apply(
             lambda x: check_difference_to_control(x, control_summary_df, "Total dip area (AOC combined model)",
-                                                  True,zscore_treshold=zscore_treshold), axis=1),
+                                                  "Dip area: Prediction interval of controls",
+                                                  True), axis=1)})
+
+    summary_df = summary_df.assign(**{
         "Dip depth: z-score vs controls in same region set": summary_df.apply(
             lambda x: zscore_to_control(x, control_summary_df, "Total dip depth"), axis=1),
+        "Dip depth: Prediction interval of controls": summary_df.apply(
+            lambda x: get_prediction_interval_per_row(x, control_summary_df, "Total dip depth",
+                                                      prediction_interval_alpha), axis=1)})
+    summary_df = summary_df.assign(**{
         "Dip depth: interpretation vs controls in same region set": summary_df.apply(
-            lambda x: check_difference_to_control(x, control_summary_df, "Total dip depth", False,
-            zscore_treshold=zscore_treshold), axis=1)})
+            lambda x: check_difference_to_control(x, control_summary_df, "Total dip depth",
+                                                  "Dip depth: Prediction interval of controls",False), axis=1)})
 
     return summary_df
 
@@ -583,37 +711,40 @@ def boxplot_score_summary(summary_df: pd.DataFrame,comparison_col: str,
     :param use_uncorrected_coverage: If True, indicate in the output filename that the uncorrected coverage scores are
         shown.
     """
-    sns.set_style("whitegrid")
-    alpha=0.6
+    with sns.axes_style("whitegrid"):
+        alpha=0.6
 
-    summary_df["Case/Control"]=["Case" if x =="no" else "Control" for x in summary_df["is control"]]
-    summary_df=summary_df.rename({"region-set":"Region-set"},axis=1)
-    # summary_df=summary_df.replace({"sknmc_specific":"EwS-specific DHSs",
-    #                                   "concat_haem_clusters_v2.0_LOhg38":"Blood-specific DHSs",
-    #                                   "liverDHS_LOhg38":"Liver-specific DHSs"})
+        summary_df["Case/Control"]=["Case" if x =="no" else "Control" for x in summary_df["is control"]]
+        summary_df=summary_df.rename({"region-set":"Region-set"},axis=1)
+        # summary_df=summary_df.replace({"sknmc_specific":"EwS-specific DHSs",
+        #                                   "concat_haem_clusters_v2.0_LOhg38":"Blood-specific DHSs",
+        #                                   "liverDHS_LOhg38":"Liver-specific DHSs"})
 
-    sns.violinplot(x="Region-set",y=comparison_col,hue="Case/Control",data=summary_df,
-                   palette={"Control":"seagreen","Case":"firebrick"},cut=0,inner=None,linewidth=0,scale="area",
-                   scale_hue=False)
-    for violin in plt.gca().collections:
-        violin.set_alpha(alpha)
+        sns.violinplot(x="Region-set",y=comparison_col,hue="Case/Control",data=summary_df,
+                       palette={"Control":"seagreen","Case":"firebrick"},cut=0,inner=None,linewidth=0,scale="area",
+                       scale_hue=False)
+        for violin in plt.gca().collections:
+            violin.set_alpha(alpha)
 
-    sns.swarmplot(x="Region-set",y=comparison_col,hue="Case/Control",data=summary_df,dodge=True,palette={"Control":"gainsboro","Case":"gainsboro"},size=3,edgecolor="grey")
+        sns.swarmplot(x="Region-set",y=comparison_col,hue="Case/Control",data=summary_df,dodge=True,
+                      palette={"Control":"gainsboro","Case":"gainsboro"},size=3,edgecolor="grey")
 
-    legend_elems=[
-        mpatches.Patch(color="seagreen", label='Control samples',alpha=alpha,linewidth=0),
-        mpatches.Patch(color="#CA4B47", label='Case samples',alpha=alpha,linewidth=0)]
-    plt.legend(handles=legend_elems,loc="best")
+        legend_elems=[
+            mpatches.Patch(color="seagreen", label='Control samples',alpha=alpha,linewidth=0),
+            mpatches.Patch(color="#CA4B47", label='Case samples',alpha=alpha,linewidth=0)]
+        plt.legend(handles=legend_elems,loc="best")
 
-    plt.ylabel("Total dip area\n(AOC combined model)" if comparison_col=="Total dip area (AOC combined model)" else
-               "Total dip depth")
-    plt.gcf().set_size_inches(13, 6.5)
-    plt.tight_layout()
-    sns.despine(left=True,bottom=True)
+        plt.ylabel("Total dip area\n(AOC combined model)" if comparison_col=="Total dip area (AOC combined model)" else
+                   "Total dip depth")
+        plt.gcf().set_size_inches(13, 6.5)
+        plt.tight_layout()
+        sns.despine(left=True,bottom=True)
 
 
-    fname=f"boxplot_summary_by_dip_{'area' if comparison_col=='Total dip area (AOC combined model)' else 'depth'}{'_using_uncorrected_coverage' if use_uncorrected_coverage else ''}.pdf"
-    plt.savefig(fname)
+        fname=f"boxplot_summary_by_dip_{'area' if comparison_col=='Total dip area (AOC combined model)' else 'depth'}" \
+              f"{'_using_uncorrected_coverage' if use_uncorrected_coverage else ''}.pdf"
+        plt.savefig(fname)
+        plt.close()
 
 def parse_args():
     """
@@ -641,11 +772,6 @@ def parse_args():
                                        required=False, nargs="+",
                                        default=[])
 
-    optional_keyword_args.add_argument('--comparison_metric',
-                                       help='Which metric should be used for determining significantly different '
-                                            'samples in the overlay plot.',
-                                       required=False, default="area", choices=["area", "depth"])
-
     optional_keyword_args.add_argument('--binsize',
                                        help="--binsize setting that was used for LIQUORICE. Default: infer "
                                             "automatically", default=None, type=int)
@@ -663,21 +789,23 @@ def parse_args():
         help="Per default the corrected coverages will be plotted. Set if you want to plot/summarize the uncorrected  "
              "coverage instead.", action="store_true")
 
-    optional_keyword_args.add_argument('--table_only', help="Only generate overview table, don't plot", default=False,
-                                       type=bool)
+    # optional_keyword_args.add_argument('--table_only', help="Only generate overview table, don't plot", default=False,
+    #                                    type=bool)
 
     optional_keyword_args.add_argument('--these_regionsets_only',
                                        help='List of region sets for which a summary should be calculated. Default: '
                                             'summarize all detected region-sets', required=False, nargs="+",
                                        default=False)
 
-    optional_keyword_args.add_argument('--zscore_treshold',
-                                       help='Use this number as a treshold for significance: Significant samples must'
-                                            'have a signal that is outside '
-                                            '<mean of controls> +- <zscore_treshold>*<standard deviation of controls>.'
-                                            'The default of 2 roughly corresponds to alpha=0.05 if the signal in the '
-                                            'controls is normally distributed', required=False,type=float,
-                                       default=2)
+    optional_keyword_args.add_argument('--prediction_interval_alpha',
+                                       help='Alpha level for the prediction interval. Samples are deemed significantly '
+                                            "different from the controls if their score lies outside the "
+                                            "prediction interval of the control group. "
+                                            "Note: Significance testing assumes a normal"
+                                            "distribution of the scores of the control group. If tests for normality "
+                                            "fail, assessment of significant differences is unavailable. "
+                                            'Default 0.05: 95 precent prediction interval.', required=False,type=float,
+                                       default=0.05)
     return parser
 
 
@@ -686,17 +814,17 @@ def main():
     Main function for the LIQUOIRCE_summary tool. Calls the argument parser, checks user input, and calls the functions
     :func:`verify_consistant_binning_settings`
     :func:`create_summary_table_LIQUORICE` (saving output to .csv),
-    :func:`plot_overlay`, :func:`plot_as_subplots`, and :func:`boxplot_score_summary`.
+    :func:`plot_overlay`, :func:`plot_as_subplots`, :func:`boxplot_score_summary` and
+    :func:`plot_control_distributions_and_test_normality`.
     """
 
     parser=parse_args()
     args = parser.parse_args()
     dirname = args.dirname
     control_name_list = args.control_name_list
-    comparison_metric = args.comparison_metric
     binsize = args.binsize
     extend_to = args.extend_to
-    table_only = args.table_only
+    table_only = False #args.table_only
     these_regionsets_only = args.these_regionsets_only
     use_uncorrected_coverage = args.use_uncorrected_coverage
     smooth_sigma = args.smooth_sigma
@@ -705,11 +833,13 @@ def main():
         sys.exit("ERROR: Please specify either both --binsize AND --extend_to or set none of them and let the script "
                  "extract these parameters from the <dirname>/<samplename>/<regionset name>/binning_settings.json "
                  "file.")
-
+    if len(set(control_name_list))!=len(control_name_list):
+        sys.exit("ERROR: The list of control sample names (--control_names_list) contained duplicate entries. Please "
+                 "remove the duplicates and try again.")
     summary_df = create_summary_table_LIQUORICE(dirname=dirname, control_name_list=control_name_list,
                                                 these_regionsets_only=these_regionsets_only,
                                                 use_uncorrected_coverage=use_uncorrected_coverage,
-                                                zscore_treshold=args.zscore_treshold)
+                                                prediction_interval_alpha=args.prediction_interval_alpha)
     summary_df.to_csv(f"summary_across_samples_and_ROIS{'_using_uncorrected_coverage' if use_uncorrected_coverage else ''}.csv", index=False)
 
     if not table_only:
@@ -723,24 +853,37 @@ def main():
         # if summary_df.shape[0] != nr_different_regionsets*nr_samples:
         #     sys.exit("ERROR: Cannot continue plotting because the data for some region-sets is available only for a "
         #              "subset of all samples. Please check the output ''")
-        plot_overlay(dirname=dirname, summary_df=summary_df, control_name_list=control_name_list, extend_to=extend_to,
-                     binsize=binsize,
-                     significance_col="Dip area: interpretation vs controls in same region set" if comparison_metric == "area"
-                                else "Dip depth: interpretation vs controls in same region set",
-                     use_uncorrected_coverage=use_uncorrected_coverage, smooth_sigma=smooth_sigma,
-                     normalize_by_intercept=True if not use_uncorrected_coverage else False)
 
-        plot_as_subplots(dirname=dirname, summary_df=summary_df, control_name_list=control_name_list, extend_to=extend_to,
+        for comparison_metric in ["area","depth"]:
+            plot_overlay(dirname=dirname,
+                         summary_df=summary_df,
+                         control_name_list=control_name_list,
+                         extend_to=extend_to,
                          binsize=binsize,
-                         significance_col="Dip area: interpretation vs controls in same region set" if comparison_metric == "area"
-                                    else "Dip depth: interpretation vs controls in same region set",
-                         use_uncorrected_coverage=use_uncorrected_coverage,
+                         significance_col="Dip area: interpretation vs controls in same region set" if
+                         comparison_metric == "area" else "Dip depth: interpretation vs controls in same region set",
+                         use_uncorrected_coverage=use_uncorrected_coverage, smooth_sigma=smooth_sigma,
                          normalize_by_intercept=True if not use_uncorrected_coverage else False)
 
-        boxplot_score_summary(summary_df=summary_df,
-                              comparison_col="Total dip depth" if comparison_metric=="depth"
-                              else "Total dip area (AOC combined model)",
-                              use_uncorrected_coverage=use_uncorrected_coverage)
+            plot_as_subplots(dirname=dirname, summary_df=summary_df, control_name_list=control_name_list,
+                             extend_to=extend_to,
+                             binsize=binsize,
+                             significance_col="Dip area: interpretation vs controls in same region set" if
+                             comparison_metric == "area" else "Dip depth: interpretation vs controls in same "
+                                                              "region set",
+                             use_uncorrected_coverage=use_uncorrected_coverage,
+                             normalize_by_intercept=True if not use_uncorrected_coverage else False)
+
+            boxplot_score_summary(summary_df=summary_df,
+                                  comparison_col="Total dip depth" if comparison_metric=="depth"
+                                  else "Total dip area (AOC combined model)",
+                                  use_uncorrected_coverage=use_uncorrected_coverage)
+
+            plot_control_distributions_and_test_normality(summary_df=summary_df,
+                                                          col="Total dip depth" if comparison_metric=="depth" else
+                                                          "Total dip area (AOC combined model)",
+                                                          use_uncorrected_coverage=use_uncorrected_coverage)
+
 
 
 if __name__ == "__main__":

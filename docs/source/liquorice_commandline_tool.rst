@@ -46,19 +46,47 @@ Output of LIQUORICE's summary tool
 In the current working directory, `LIQUORICE_summary` generates a file *"summary_across_samples_and_ROIs.csv"*, in which
 the individual *fitted_gaussians_parameter_summary.csv* files are summarized. If `\-\-control_name_list` is specified,
 this also includes information on the significance of difference between a given case sample and the control samples.
-A violinplot, *"boxplot_summary_by_dip_<comparison_metric=[area,depth]>.pdf"* is generated, in which the scores
-across groups of samples (if defined) and region-sets are summarized. (Which metric is used to determine the scores is
-determined by the `\-\-comparison_metric` parameter.)
+Two violinplots, *"boxplot_summary_by_dip_<comparison_metric=[area,depth]>.pdf"* are generated, in which the scores
+across groups of samples (if defined) and region-sets are summarized.
 Additionally, for each region-set, the following files are generated:
 
-  - *<regionset>_summary_plot_overlay_of_samples_by_Dip_<comparison_metric=[area,depth].pdf*: Two side-by-side overlay plots (separate for control and case samples),
+  - *<regionset>_summary_plot_overlay_of_samples_by_Dip_<comparison_metric=[area,depth]>.pdf*: Two side-by-side overlay plots (separate for control and case samples),
     showing the aggregated, bias-corrected coverage profile. Lines are colored by significance of differences between a
     given case sample and the control samples.
-  - *<regionset>_summary_plot_subplots_of_samples_by_Dip_<comparison_metric=[area,depth].pdf*: A pdf document (multi-page if necessary) in which the
+  - *<regionset>_summary_plot_subplots_of_samples_by_Dip_<comparison_metric=[area,depth]>.pdf*: A pdf document (multi-page if necessary) in which the
     aggregated, bias-corrected coverage profile is shown as a seperate plot for every sample. Lines are colored by
     significance of differences between a given case sample and the control samples.
+  - *<regionset>_control_distribution_dip_<comparison_metric=[area,depth]>.pdf*: Shows the distribution of scores of the
+    control samples as histograms and probability plots. This can help assess whether the control samples follow a normal distribution.
 
 If the option `\-\-use_uncorrected_coverage` is chosen, all output files will have the suffix "_using_uncorrected_coverage.<[pdf,csv]>".
+
+Assessment of significant differences
+*************************************
+
+"Case" samples are classified as "significantly different" from the control group if they have a score
+(dip area or dip depth) that is outside of the `prediction interval <https://en.wikipedia.org/wiki/Prediction_interval>`_
+of the control group.
+
+Here, the prediction interval is an estimate of an interval in which a future observation of a
+control sample will fall, with a certain probability (default: 95%), given the control samples that have already been
+observed. The prediction interval depends on the mean, standard deviation and number of samples of the control group -
+the smaller the standard deviation and the higher the sample number, the narrower the prediction interval will be
+(and therefore, the better significantly different "case" samples can be detected).
+
+The calculation assumes that the control samples's scores follow a normal distribution. `LIQUORICE_summary` performs the
+Shapiro-Wilk test for normal distribution: If this test detects significant deviations from a normal distribution,
+LIQUORICE_summary will display
+a warning. Note that test for normality may fail to detect relevant deviations from
+normal distributions when the sample size (number of control samples) is low.
+So, generally you should treat the results of the significance testing with care if you have only very few samples
+in the control group. You can also assess the distribution of control scores
+by looking at the plots named  *<regionset>_control_distribution_dip_<comparison_metric=[area,depth]>.pdf*.
+If the histogram looks very much unlike a normal distribution, and if the data points in the
+`probability plot <https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.probplot.html>`_
+strongly/systematically deviate from the reference line, the results of `LIQUORICE_summary`'s significance testing may be
+invalid.
+
 
 .. _usage_parameters_and_examples:
 
