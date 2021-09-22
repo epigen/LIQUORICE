@@ -302,9 +302,9 @@ def main():
                                 f" used for parallel processing ({len_path_to_tmpdir_in_bytes} bytes observed, "
                                 f"{maxlen_tmp_dir_path_in_bytes} bytes allowed). "
                                 f"Will attempt to use ray's default, '/tmp', instead.")
-                ray.init(num_cpus=args.n_cpus)
+                ray.init(num_cpus=args.n_cpus,include_dashboard=False)
             else:
-                ray.init(num_cpus=args.n_cpus,_temp_dir=args.tmpdir)
+                ray.init(num_cpus=args.n_cpus,_temp_dir=args.tmpdir,include_dashboard=False)
         else:
             logging.warning(f"Failed to initialize ray with the specified tmpdir '{args.tmpdir}' and "
                             f"num_cpus {args.n_cpus}."
@@ -312,7 +312,7 @@ def main():
                             f"instead, but this can mean the tmpdir will not be respected.")
         n_cpus_workflows=args.n_cpus
     except ModuleNotFoundError:
-        os.environ["MODIN_ENGINE"] = "dask"
+        #os.environ["MODIN_ENGINE"] = "dask"
         if args.n_cpus>1:
             logging.warning("Could not import ray library - this happens if running on macOS. Parallelization is "
                             "therefore only "

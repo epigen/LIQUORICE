@@ -24,20 +24,21 @@ requirements:
     - deeptools >=3.5.0
     - lmfit >=1.0.1
     - matplotlib-base ==3.1.1
-    - modin[ray] # [linux]
     - modin  ==0.8.2
     - numpy >=1.19.5
     - pandas >=1.1.4
     - joblib >=1.0.0
     - pybedtools >=0.8.1
     - pybigwig >=0.3.17
-    - ray-core ==1.1.0 # [linux]
     - scikit-learn >=0.24.0
     - scipy >=1.6.0
     - swifter >=1.0.6
     - parallel
     - seaborn ==0.11.2
     - pysam ==0.16.0.1
+  run_constrained:
+    - ray-core ==1.1.0
+    - ray ==1.1.0
 
 test:
   commands:

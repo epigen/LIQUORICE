@@ -121,8 +121,11 @@ LIQUORICE in its own conda environment to keep dependencies clean:
 
 .. code-block:: bash
 
-    # to install
-    conda create -e LIQUORICE -c bioconda LIQUORICE
+    # to install on Linux
+    conda create -e LIQUORICE -c bioconda -c conda-forge LIQUORICE ray-core
+
+    # to install on macOS
+    # conda create -e LIQUORICE -c bioconda -c conda-forge LIQUORICE ray-core
 
     # to activate the environment
     conda activate LIQUORICE # or: 'source activate LIQUORICE' for older conda versions
@@ -130,6 +133,10 @@ LIQUORICE in its own conda environment to keep dependencies clean:
     # to run
     LIQUORICE <flags and arguments>
 
+'ray-core' is an optional dependency of LIQUORICE that helps it run faster on multiple cores. It is not possible to
+install it via conda on macOS, so installing it can either be skipped (find details about an alternative parallelization
+approach :ref:`here <parallelization>`) or it can be installed as described `here <https://docs.ray.io/en/latest/installation.html>`
+(e.g. `pip install -U ray==1.1.0`). LIQUORICE has been tested for ray version 1.1.0.
 
 Citation
 ========

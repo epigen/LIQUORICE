@@ -165,6 +165,7 @@ If `\-\-all_bins_same_size` is specified, `LIQUORICE` does the following:
 Also here, we have decided to set the former option as default because it yielded somewhat better results for our own samples.
 We do note, however, that differences in bin-size might introduce some slight biases in the coverage profile. While we have nevertheless found that this option works well for us, we do encourage you to try both options for your own cohort.
 
+.. _parallelization:
 
 Parallelization
 ***************
