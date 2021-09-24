@@ -1,6 +1,6 @@
 package:
   name: liquorice
-  version: 0.5.1
+  version: 0.5.3
 
 source:
   #url: https://github.com/epigen/LIQUORICE/archive/refs/tags/v0.5.0.tar.gz
@@ -39,6 +39,10 @@ requirements:
   run_constrained:
     - ray-core ==1.1.0
     - ray ==1.1.0
+    - aioredis <2
+    - dask ==2021.9.0
+    - dask-core ==2021.9.0
+    - tornado ==6.1
 
 test:
   commands:

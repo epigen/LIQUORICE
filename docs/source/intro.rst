@@ -18,7 +18,7 @@ The fragmentation of cell-free DNA (cfDNA) obtained from liquid biopsies is non-
 the
 epigenetic state of its cell-of-origin. DNA in nucleosomes is protected from cleavage, resulting in an increase in
 sequencing coverage in genomic regions that are occupied by nucleosomes. If a set of genomic regions is
-specifically accessible in a cell-type of interest (such as a certain cancer type), an observed decrease in coverage
+specifically accessible in a cell-, tissue- or cancer type of interest, an observed decrease in coverage
 around these regions can indicate that cells of this type are present in the organism, and are releasing cfDNA
 into the bloodstream.
 
@@ -111,7 +111,11 @@ More details on parameters, test examples and usage examples can be found :ref:`
 
 Contact
 *******
-If you have any questions about ``LIQUORICE`` and how to apply it to your data, create an issue on `github <https://github.com/epigen/liquorice`_ or contact peter.peneder@ccri.at - we are happy to hear from you.
+If you have any questions about ``LIQUORICE`` and how to apply it to your data, create an issue on `github <https://github.com/epigen/liquorice>`_ or contact peter.peneder@ccri.at - we are happy to hear from you.
+
+Source code on Github
+*********************
+The github repository of ``LIQUORICE`` can be found at `https://github.com/epigen/liquorice <https://github.com/epigen/liquorice>`_.
 
 Installation
 ============
@@ -125,7 +129,7 @@ LIQUORICE in its own conda environment to keep dependencies clean:
     conda create -e LIQUORICE -c bioconda -c conda-forge LIQUORICE ray-core
 
     # to install on macOS
-    # conda create -e LIQUORICE -c bioconda -c conda-forge LIQUORICE ray-core
+    # conda create -e LIQUORICE -c bioconda -c conda-forge LIQUORICE
 
     # to activate the environment
     conda activate LIQUORICE # or: 'source activate LIQUORICE' for older conda versions

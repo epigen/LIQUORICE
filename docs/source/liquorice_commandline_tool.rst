@@ -198,8 +198,8 @@ Sources for input files
    We have found that higher sequencing depth improves results - from our own experience, we would recommend using a depth of at least 1x (or higher, if possible).
    For details, see Figure 6 of our  `recent publication <https://doi.org/10.1038/s41467-021-23445-w>`_.
 -  **mappability .bigwig files**: This reference file should match i) your reference genome (e.g. hg38, hg19, ...) and ii) the read-length of your samples.
-   We provide pre-calculated files for hg38 and readlengths 50,75,100, and 150 HERE TODOTODOTODOTODOTODO. If you require a different read length or reference genome, you can run
-   create_mappability_bigwigs.sh like so:
+   We provide pre-calculated files for hg38/hg19 and readlengths 35,50,75,100,150 and 250 `here <https://doi.org/10.5281/zenodo.5521424>`_.
+   If you require a different read length or reference genome, you can run create_mappability_bigwigs.sh like so:
 
     .. code-block:: bash
 
