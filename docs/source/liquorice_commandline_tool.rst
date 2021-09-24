@@ -204,7 +204,7 @@ Sources for input files
     .. code-block:: bash
 
         wget https://github.com/epigen/LIQUORICE/raw/master/liquorice/create_mappability_bigwigs.sh
-        bash create_mappability_bigwigs.sh PATH_TO_GENOME_FASTA READLENGTH NR_OF_CORES_TO_BE_USED`.
+        bash create_mappability_bigwigs.sh PATH_TO_GENOME_FASTA READLENGTH NR_OF_CORES_TO_BE_USED
 
 This will create a mappability bigwig file in the current directory.
 
