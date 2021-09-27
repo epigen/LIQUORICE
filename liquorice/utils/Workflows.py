@@ -242,7 +242,7 @@ def run_liquorice_on_regionset_with_pretrained_biasmodel(
     :param bam_filepath: Path to the .bam file containing the mapped reads for the sample. Does not need to be
         duplicate-filtered, this is done by the function that calculates the coverage.
     :param bed_filepath: path to a .bed file containing regions-of-interest that should be extended and split into bins.
-        This could be e.g. a list of DNAse hypersensitivity sites or enhancer peaks.
+        This could be e.g. a list of DNase I hypersensitivity sites or enhancer peaks.
     :param biasmodel_path: Path to a trained biasmodel.
     :param refgenome_filepath: Path to the reference genome .fa(.gz) file. Must have a .fai index in the same dirname.
     :param refgenome_chromsizes_filepath: Path to a tab-delimited file containing the chromosome sizes for the
@@ -472,7 +472,7 @@ def run_liquorice_train_biasmodel_on_same_regions(
     :param bam_filepath: Path to the .bam file containing the mapped reads for the sample. Does not need to be
         duplicate-filtered, this is done by the function that calculates the coverage.
     :param bed_filepath: path to a .bed file containing regions-of-interest that should be extended and split into bins.
-        This could be e.g. a list of DNAse hypersensitivity sites or enhancer peaks.
+        This could be e.g. a list of DNase I hypersensitivity sites or enhancer peaks.
     :param refgenome_filepath: Path to the reference genome .fa(.gz) file. Must have a .fai index in the same dirname.
     :param refgenome_chromsizes_filepath: Path to a tab-delimited file containing the chromosome sizes for the
         reference genome. The first column must be the chromosome name, the second column its size.

@@ -14,7 +14,7 @@ class RegionFilteringAndBinning:
     bin. The method :func:`.write_bin_bedfile` of this object can be used to create output.
 
     :param bed_filepath: path to a .bed file containing regions that should be extended and split into bins.
-        This could be e.g. a list of DNAse hypersensitivity sites or enhancer peaks.
+        This could be e.g. a list of DNase I hypersensitivity sites or enhancer peaks.
     :param binsize: Size of the bins. Use higher values to reduce noise, lower values to increase spatial
         resolution.
     :param extend_to: The regions will be extended by this value in both directions. Outmost bins will have their
@@ -210,8 +210,8 @@ class RegionFilteringAndBinning:
         bin ends :attr:`.extend_to` bp downstream of the core region end. Also assigns a bin nr. to every bin,
         starting with the most downstream bin.
         :param out_bedfile_path_bins: Path to which the output .bed file with bin coordinates should be written to.
-        :param out_bedfile_path_regions_that_passed_filter: If not `None`, write the regions that passed all filters and
-            that are the basis of the bins to this path (should end with .bed).
+        :param out_bedfile_path_regions_that_passed_filter: If not `None`, write the regions that passed all filters
+            and that are the basis of the bins to this path (should end with .bed).
         """
         logging.info(f"Splitting input bedfile '{self.bed_filepath}' into bins ...")
 

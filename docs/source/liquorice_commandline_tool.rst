@@ -17,10 +17,10 @@ there. For every region-set, a subfolder is created. Within these folders, the f
 
 -  *bins.bed*: Genomic coordinates of all bins that passed the filtering and were used to generate the result.
 -  *regions.bed*: Genomic coordinates of all regions that passed the filtering and were used to generate the bins.
--  *corrected_coverage_mean_per_bin.csv*: The bin-wise, aggregated, bias-corrected coverage values
--  *uncorrected_coverage_mean_per_bin.csv*: The bin-wise, aggregated, un-corrected coverage values
+-  *corrected_coverage_mean_per_bin.csv*: The bin-wise, aggregated, bias-corrected coverage values.
+-  *uncorrected_coverage_mean_per_bin.csv*: The bin-wise, aggregated, un-corrected coverage values.
 -  *corrected_vs_uncorrected_coverage.pdf*: A plot showing the aggregated coverage profiles, comparing corrected and uncorrected values.
--  *fitted_gaussians.pdf*: A plot showing the fitted model, its seperate elements, and the bin-wise, aggregated, bias-corrected coverage values
+-  *fitted_gaussians.pdf*: A plot showing the fitted model, its seperate elements, and the bin-wise, aggregated, bias-corrected coverage values.
 -  *fitted_gaussians_parameter_summary.csv*: A table summarizing the parameters of the fitted model. This includes the dip area and depth, the two main metrics that quantify the epigenetic signal.
 -  *GC_content__vs__corrected_coverage.pdf*: A heatmap-style correlation plot, showing the correlation between the GC content and the corrected coverage value in each bin.
 -  *GC_content__vs__coverage.pdf*: A heatmap-style correlation plot, showing the correlation between the GC content and the uncorrected coverage value in each bin.
@@ -127,15 +127,15 @@ Note that the larger the `--extend_to` parameter, and the smaller the `binsize` 
 
 If `\-\-bedpath_biasmodel` is not specified (default), `LIQUORICE` does the following:
 
--  Train a seperate bias-model for each region-set (i.e. for each entry in `\-\-bedpathlist`)
--  For a given region-set, each region is extended by `\-\-extend_to` in both directions and split into bins
+-  Train a seperate bias-model for each region-set (i.e. for each entry in `\-\-bedpathlist`).
+-  For a given region-set, each region is extended by `\-\-extend_to` in both directions and split into bins.
 -  As training data for the bias-model, all bins are used except (i) the 5 central bins that cover the core region, if `\-\-all_bins_same_size` is not specified; or (ii) the one central bin, if `\-\-all_bins_same_size` is specified.
--  All bins are used to determine the composite, bias-corrected coverage signature
+-  All bins are used to determine the composite, bias-corrected coverage signature.
 
 If `\-\-bedpath_biasmodel` is specified, `LIQUORICE` does the following:
 
-- Train a single, common bias-model for every region-set (i.e. for each entry in `\-\-bedpathlist`)
--  Each region in the .bed file specified under `\-\-bedpath_biasmodel` (or each region in `LIQUORICE`'s own set of 10000 random regions if `\-\-bedpath_biasmodel 10k_random` is specified) is extended by `\-\-extend_to_biasmodel` (default: 0) in both directions and split into bins
+- Train a single, common bias-model for every region-set (i.e. for each entry in `\-\-bedpathlist`).
+-  Each region in the .bed file specified under `\-\-bedpath_biasmodel` (or each region in `LIQUORICE`'s own set of 10000 random regions if `\-\-bedpath_biasmodel 10k_random` is specified) is extended by `\-\-extend_to_biasmodel` (default: 0) in both directions and split into bins.
 -  The resulting bins are used as training data for the bias-model.
 
 Note that if `\-\-use_this_biasmodel` is specified, neither of the above workflows is executed. Instead, the provided

@@ -10,9 +10,9 @@ class FitGaussians:
     An object that can be used for quantification of coverage drops by fitting gaussian functions and an intercept
     to the coverage values.
 
-    :param unfitted_y_values: A pandas `Series` of coverage values, one value per bin
-    (and sorted by increasing bin nr.). A suitable input is the result of
-    :func:`liquorice.utils.AggregateAcrossrRegions.aggregate_across_regions()`.
+    :param unfitted_y_values: A pandas `Series` of coverage values, one value per bin (and sorted by increasing bin
+        nr.). A suitable input is the result of
+        :func:`liquorice.utils.AggregateAcrossrRegions.aggregate_across_regions()`.
     :param extend_to: `extend_to` setting that was used when calculating the y values. Needed to calculate relative
         bin positions.
     :param binsize: `binsize` setting that was used when calculating the y values. Needed to calculate relative

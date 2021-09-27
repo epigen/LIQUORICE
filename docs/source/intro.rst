@@ -7,7 +7,7 @@ Introduction
 ============
 
 ``LIQUORICE`` is a command-line-tool and python package for bias correction and quantification of changes
-in coverage around regions of interest in cfDNA WGS datasets. ``LIQUORICE`` can be used to detect and quantify
+in sequencing coverage around regions of interest in cfDNA WGS datasets. ``LIQUORICE`` can be used to detect and quantify
 tissue or cancer-specific epigenetic signatures in liquid biopsies. This allows accurate quantification of the
 fraction of tumor-derived cell-free DNA, `as demonstrated in our recent publication <https://doi.org/10.1038/s41467-021-23445-w>`_.
 
@@ -18,7 +18,7 @@ The fragmentation of cell-free DNA (cfDNA) obtained from liquid biopsies is non-
 the
 epigenetic state of its cell-of-origin. DNA in nucleosomes is protected from cleavage, resulting in an increase in
 sequencing coverage in genomic regions that are occupied by nucleosomes. If a set of genomic regions is
-specifically accessible in a cell-, tissue- or cancer type of interest, an observed decrease in coverage
+specifically accessible in a cell-, tissue- or cancer type of interest, an observed decrease in sequencing coverage
 around these regions can indicate that cells of this type are present in the organism, and are releasing cfDNA
 into the bloodstream.
 
@@ -37,10 +37,10 @@ Potential application areas
 What ``LIQUORICE`` does
 ***********************
 
-``LIQUORICE`` addresses two problems regarding the quantification of epigenetic signatures from a coverage signal:
+``LIQUORICE`` addresses two problems regarding the quantification of epigenetic signatures from a sequencing coverage signal:
 
 -  Coverage is influenced by bias-factors, such as GC-content, mappability and other factors related to sequence composition
--  The coverage signal needs to be summarized over all regions in a region-set, and needs to be quantified as a number that is robust and comparable between samples.
+-  The coverage signal needs to be summarized over all regions in a region-set, and needs to be quantified as a number that is robust and comparable between samples
 
 In a first step, ``LIQUORICE`` trains a bias-model, which learns the association between bias-factors and coverage. Then,
 the trained model is used to correct the coverage signal in the regions of interest. Finally, the signal is
@@ -68,11 +68,11 @@ Region-sets
 ***********
 
 In the context of ``LIQUORICE``, we refer to a region-set as a set of genomic regions with similar properties. This
-could be, e.g., enhancers or DNaseI-hypersensitivity sites that are specific for a cell-type, cancer-type, or tissue.
+could be, e.g., enhancers or DNase I hypersensitivity sites that are specific for a cell-type, cancer-type, or tissue.
 Useful ressources to obtain such region-sets include `http://dnase.genome.duke.edu/ <http://dnase.genome.duke
 .edu/>`_ and `ENCODE <https://www.encodeproject.org/>`_.
 
-Here is an example on how we obtained liver-specific DNase-I-hypersensitivity sites from the `http://dnase.genome.duke.edu/celltype.php <http://dnase.genome.duke.edu/celltype.php>`_ interface. First, we required all non-liver cells to be "closed", and we required hepatocytes to be "open" at a given DHS:
+Here is an example on how we obtained liver-specific DNase I hypersensitivity sites from the `http://dnase.genome.duke.edu/celltype.php <http://dnase.genome.duke.edu/celltype.php>`_ interface. First, we required all non-liver cells to be "closed", and we required hepatocytes to be "open" at a given DHS:
 
 .. image:: ../img/liverDHS_selection_1.png
   :width: 650

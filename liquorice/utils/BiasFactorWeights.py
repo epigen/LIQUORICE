@@ -8,7 +8,7 @@ def get_GC_weights_binsize1(fragments: List[int]) -> List[float]:
 
     :param fragments: A list of fragment lengths that is representative of the sample's global fragment length
         distribution
-    :return: A list corresponding to the GC weight vector for a bin of size 1. It's length is `max(fragments)*2`, the
+    :return: A list corresponding to the GC weight vector for a bin of size 1. Its length is `max(fragments)*2`, the
         weight corresponding to the bin itself is at index `max(fragments)`. Values represent influence of a nucleotide
         at a given position on the bin's coverage.
     """

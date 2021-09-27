@@ -149,12 +149,12 @@ class BiasFactorHandler:
 
     def get_GC_bias_factor(self, sequence: str) -> float:
         """
-        Returns a number in the range 0-1 that represent's the bin's overall GC bias. Factors are scaled between
+        Returns a number in the range 0-1 that represents the bin's overall GC bias. Factors are scaled between
         0 and 1, 1 is highest (e.g. GC content: 0.. no G or C, 0.461... average GC content, 1... only G and C).
 
         :param sequence: Genomic sequence of the bin extended by *max(* :attr:`.fragments` *)* in both directions,
             such that its length matches :attr:`GC_weights`.
-        :return: A
+        :return: A number in the range 0-1 that represents the bin's overall GC bias.
         """
 
         if type(sequence)!=str:  # Required because swifter calls this function with a series as sequence once, and
@@ -213,7 +213,7 @@ class BiasFactorHandler:
         :param mappability: A vector of values between 0 and 1, representing the mappbility of positions in and around
             the bin of interest. Must correspond to the coordinates <Bin start coord> - *max(* :attr:`.fragments` *)* -
             :attr:`.readlength` to <Bin end coord> + *max(* :attr:`.fragments` *)* + :attr:`.readlength`
-        :return: A number in range 0-1 that represent's the bin's overall forward mappability. 1 ... highest
+        :return: A number in range 0-1 that represents the bin's overall forward mappability. 1 ... highest
         """
         mapp_fwd=mappability[self.readlength:]
         fwd_mappbias_of_bin=sum(np.array(mapp_fwd)*np.array(self.fwd_mapp_weights)) / self.total_fwd_mapp_weight
@@ -226,7 +226,7 @@ class BiasFactorHandler:
         :param mappability: A vector of values between 0 and 1, representing the mappbility of positions in and around
             the bin of interest. Must correspond to the coordinates <Bin start coord> - *max(* :attr:`.fragments` *)* -
             :attr:`.readlength` to <Bin end coord> + *max(* :attr:`.fragments` *)* + :attr:`.readlength`
-        :return: A number in range 0-1 that represent's the bin's overall reverse mappability. 1 ... highest
+        :return: A number in range 0-1 that represents the bin's overall reverse mappability. 1 ... highest
         """
         mapp_rev=mappability[:-self.readlength]
         rev_mappbias_of_bin=sum(np.array(mapp_rev)*np.array(self.rev_mapp_weights)) / self.total_rev_mapp_weight
@@ -243,8 +243,8 @@ class BiasFactorHandler:
             merged into single factors). Bias factors are scaled between 0 and 1. Higher values correspond to higher
             nucleotide content, mappability etc. Example: An average bin is expected to have a bias factor of 0.461
             for humans (i.e. genomic GC content).
-            Note that the input columns "mappability" and "sequence" will not be part of the returned dataframe
-             in order to reduce the memory usage of this function.
+            Note that the input columns "mappability" and "sequence" will not be part of the returned dataframe in
+            order to reduce the memory usage of this function.
         """
 
         if "mappability" not in self.skip_these_biasfactors:
