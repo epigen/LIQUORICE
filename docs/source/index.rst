@@ -7,7 +7,7 @@
   :width: 650
   :alt: LIQUORICE logo
 
-Welcome to LIQUORICE's documentation!
+Welcome to LIQUORICE's documentation! 
 =====================================
 
 Please note that this release of LIQUORICE is currently work in progress - you may, e.g., not be able to install
