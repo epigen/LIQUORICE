@@ -7,8 +7,7 @@
   :alt: Documentation Status
 
 .. image:: https://anaconda.org/bioconda/liquorice/badges/installer/conda.svg   
-  :target: https://conda.anaconda.org/bioconda/liquorice
-
+  :target: https://conda.anaconda.org/bioconda
 
 Thank you for your interest in LIQUORICE!
 
