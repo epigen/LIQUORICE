@@ -120,16 +120,19 @@ The github repository of ``LIQUORICE`` can be found at `https://github.com/epige
 Installation
 ============
 
+conda
+*****
+
 ``LIQUORICE`` can easily be installed via `conda <https://docs.conda.io/en/latest/>`_. We recommend installing
 LIQUORICE in its own conda environment to keep dependencies clean:
 
 .. code-block:: bash
 
     # to install on Linux
-    conda create -e LIQUORICE -c bioconda -c conda-forge LIQUORICE ray-core
+    conda create -n LIQUORICE -c bioconda -c conda-forge liquorice ray-core
 
     # to install on macOS
-    # conda create -e LIQUORICE -c bioconda -c conda-forge LIQUORICE
+    # conda create -n LIQUORICE -c bioconda -c conda-forge liquorice
 
     # to activate the environment
     conda activate LIQUORICE # or: 'source activate LIQUORICE' for older conda versions
@@ -139,8 +142,20 @@ LIQUORICE in its own conda environment to keep dependencies clean:
 
 'ray-core' is an optional dependency of LIQUORICE that helps it run faster on multiple cores. It is not possible to
 install it via conda on macOS, so installing it can either be skipped (find details about an alternative parallelization
-approach :ref:`here <parallelization>`) or it can be installed as described `here <https://docs.ray.io/en/latest/installation.html>`
+approach :ref:`here <parallelization>`) or it can be installed as described `here <https://docs.ray.io/en/latest/installation.html>`_
 (e.g. `pip install -U ray==1.1.0`). LIQUORICE has been tested for ray version 1.1.0.
+
+docker
+******
+
+You can also use the ``LIQUORICE`` docker image which is available `here <https://hub.docker.com/r/peneder/liquorice>`_.
+To pull, use
+
+.. code-block:: bash
+
+  docker pull peneder/liquorice
+
+
 
 Citation
 ========
