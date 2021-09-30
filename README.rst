@@ -7,8 +7,8 @@
   :alt: Documentation Status
 
 .. image:: https://anaconda.org/bioconda/liquorice/badges/installer/conda.svg   
-  :target: https://conda.anaconda.org/bioconda
-
+  :target: https://anaconda.org/bioconda/liquorice
+  
 Thank you for your interest in LIQUORICE!
 
 Please note that this release of LIQUORICE is currently work in progress - you may, e.g., not be able to install via bioconda yet.
