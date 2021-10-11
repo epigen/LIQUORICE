@@ -37,6 +37,7 @@ You can install ``LIQUORICE`` like so (:ref:`details <installation_anchor>`):
 You can test ``LIQUORICE`` on a small test dataset we provide:
 
 .. code-block:: bash
+
     # Set desired nr. of cpus
     N_CPUS=5
 
