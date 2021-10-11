@@ -117,6 +117,8 @@ Source code on Github
 *********************
 The github repository of ``LIQUORICE`` can be found at `https://github.com/epigen/liquorice <https://github.com/epigen/liquorice>`_.
 
+.. _installation_anchor:
+
 Installation
 ============
 
