@@ -21,7 +21,7 @@ Quickstart
 The tool takes uses four different files as input:
  - a FASTA file of the reference genome
  - an indexed BAM file containing the aligned paired-end whole-genome sequencing reads of a liquid biopsy sample
- - a BIGWIG mappability file,available for download for hg19 and hg38 `here <https://doi.org/10.5281/zenodo.5521424>`_
+ - a BIGWIG mappability file, available for download for hg19 and hg38 `here <https://doi.org/10.5281/zenodo.5521424>`_
  - one or more BED files representing a set of regions of interest (such as DNase I hypersensitivity sites or enhancer regions specific for a tissue or tumor). Read more :ref:`here <region_sets_anchor>`.
 
 You can install ``LIQUORICE`` like so (:ref:`details <installation_anchor>`):
@@ -35,6 +35,7 @@ You can install ``LIQUORICE`` like so (:ref:`details <installation_anchor>`):
     conda activate LIQUORICE # or: 'source activate LIQUORICE' for older conda versions
 
 You can test ``LIQUORICE`` on a small test dataset we provide:
+
 .. code-block:: bash
     # Set desired nr. of cpus
     N_CPUS=5
