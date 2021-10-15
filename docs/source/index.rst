@@ -18,7 +18,7 @@ Quickstart
 
 ``LIQUORICE`` is a command-line-tool and python package for bias correction and quantification of changes in sequencing coverage around regions of interest in cfDNA WGS datasets. 
 ``LIQUORICE`` can be used to detect and quantify tissue or cancer-specific epigenetic signatures in liquid biopsies. 
-The tool takes uses four different files as input:
+The tool takes four different files as input:
  - a FASTA file of the reference genome
  - an indexed BAM file containing the aligned paired-end whole-genome sequencing reads of a liquid biopsy sample
  - a BIGWIG mappability file, available for download for hg19 and hg38 `here <https://doi.org/10.5281/zenodo.5521424>`_
