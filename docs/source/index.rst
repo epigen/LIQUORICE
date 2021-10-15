@@ -34,7 +34,8 @@ You can install ``LIQUORICE`` like so (:ref:`details <installation_anchor>`):
     # to activate the environment
     conda activate LIQUORICE # or: 'source activate LIQUORICE' for older conda versions
 
-You can test ``LIQUORICE`` on a small test dataset we provide:
+You can test ``LIQUORICE`` on a small test dataset we provide by following the example below. Please note that the .bam and .bw file used in this example should only be used for testing purposes. 
+They have been processed to keep the file size small.
 
 .. code-block:: bash
 
