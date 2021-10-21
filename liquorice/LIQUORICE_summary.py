@@ -671,7 +671,7 @@ def create_summary_table_LIQUORICE(dirname: str, control_name_list: typing.List[
             summary_df = pd.read_csv(param_summary)
         else:
             summary_df = summary_df.append(pd.read_csv(param_summary))
-
+    summary_df["sample"] = summary_df["sample"].astype(str)
     control_summary_df = summary_df[summary_df["sample"].isin(control_name_list)].copy()
     summary_df = summary_df.assign(**{
         "is control": ["yes" if sample in control_name_list else "no" for sample in summary_df["sample"].values]})
@@ -767,7 +767,7 @@ def parse_args():
                                        default=".", required=False)
 
     optional_keyword_args.add_argument('--control_name_list',
-                                       help='List of samples that serve as reference control samples. Used to '
+                                       help='List of samples that serve as reference control samples. Used to'
                                             'infer z-scores. Please do not surround the list with quotation marks: ' 
                                             'Example: --control_name_list sample1 sample2 would be correct, '
                                             '--control_name_list "sample1 sample2" would be incorrect.',
