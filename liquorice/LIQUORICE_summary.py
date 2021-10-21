@@ -767,7 +767,7 @@ def parse_args():
                                        default=".", required=False)
 
     optional_keyword_args.add_argument('--control_name_list',
-                                       help='List of samples that serve as reference control samples. Used to'
+                                       help='List of samples that serve as reference control samples. Used to '
                                             'infer z-scores. Please do not surround the list with quotation marks: ' 
                                             'Example: --control_name_list sample1 sample2 would be correct, '
                                             '--control_name_list "sample1 sample2" would be incorrect.',
