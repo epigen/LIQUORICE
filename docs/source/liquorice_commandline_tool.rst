@@ -265,6 +265,9 @@ Example usage of LIQUORICE and the summary tool
         --blacklist "hg38" --n_cpus 8
     done
 
-    LIQUORICE_summary --control_name_list "${CONTROLS}"
+    LIQUORICE_summary --control_name_list ${CONTROLS}
+    # Please make sure to not put quotation marks around the list specified for --control-name-list. 
+    # Example: --control_name_list sample1 sample2 would be correct, --control_name_list "sample1 sample2" would be incorrect.
+
 
 
