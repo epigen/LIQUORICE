@@ -42,8 +42,7 @@ class BiasModel:
         computation time, but using too few bins will make the model less precise. Can be None, then all bins will be
         used.
     :param sklearn_model: A regressor that implements to functions .fit() and .predict() (e.g. from `sklearn`).
-        Default of None means using sklearn.ensemble.RandomForestRegressor with prior standard-scaling, and with
-        default settings.
+        Default of None means using sklearn.ensemble.HistGradientBoostingRegressor with default settings.
     :param n_jobs: How many jobs to run in parallel when training the model
     :param filename_performance_metrics: If **test_fraction** or **cross_validate_k** is set, save a .csv containing
         the performance metrics (r2, MSE) to this path.
