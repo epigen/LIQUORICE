@@ -12,6 +12,7 @@
 #
 import os
 import sys
+import shutil
 sys.path.insert(0, os.path.abspath('../../'))
 sys.path.insert(0, os.path.abspath('../../liquorice/'))
 sys.path.insert(0, os.path.abspath('../../liquorice/utils'))
@@ -66,4 +67,4 @@ html_theme_options = {
     'logo_only': True,
 }
 
-html_extra_path = "google25ad18a36b820a71.html"
+html_extra_path = ["extra"]
