@@ -1,11 +1,11 @@
 package:
   name: liquorice
-  version: 0.5.3
+  version: 0.5.4
 
 source:
-  #url: https://github.com/epigen/LIQUORICE/archive/refs/tags/v0.5.0.tar.gz
-  #sha256: fdbbced331d810b982ac30513d4980b57cb0825318c3919c711640c1f61fcc4d
-  path: ..
+  url: https://github.com/epigen/LIQUORICE/archive/refs/tags/v0.5.4.tar.gz
+  sha256: 476aae3c29516726cd4574b93ecb49bc89e85a931068bfba74a4d1b220361020
+  #path: ..
 
 build:
   number: 0
@@ -17,7 +17,7 @@ build:
 
 requirements:
   host:
-    - python
+    - python >=3.7
   run:
     - python >=3.7.9
     - biopython ==1.79
@@ -44,6 +44,7 @@ requirements:
     - dask-core ==2021.9.0
     - tornado ==6.1
 
+
 test:
   commands:
     - LIQUORICE --help
@@ -59,4 +60,4 @@ about:
   license: GPL-3.0
   license_family: GPL
   summary: A tool for bias correction and quantification of changes in coverage around regions of interest in cfDNA WGS datasets
-  description: See the package README.rst for more information.
+  description: See https://liquorice.readthedocs.io for more information.

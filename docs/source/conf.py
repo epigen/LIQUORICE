@@ -24,7 +24,7 @@ copyright = '2021, Peter Peneder'
 author = 'Peter Peneder'
 
 # The full version, including alpha/beta/rc tags
-release = '0.5.3'
+release = '0.5.4'
 
 
 # -- General configuration ---------------------------------------------------
@@ -65,3 +65,5 @@ html_logo = '../img/liquorice_logo_fitted_transparent.png'
 html_theme_options = {
     'logo_only': True,
 }
+
+html_extra_path = "google25ad18a36b820a71.html"
