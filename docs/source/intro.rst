@@ -7,7 +7,7 @@ Introduction
 ============
 
 ``LIQUORICE`` is a command-line-tool and python package for bias correction and quantification of changes
-in sequencing coverage around regions of interest in cfDNA WGS datasets. ``LIQUORICE`` can be used to detect and quantify
+in sequencing coverage around regions of interest whole-genome sequencing datasets of cell-free DNA. ``LIQUORICE`` can be used to detect and quantify
 tissue or cancer-specific epigenetic signatures in liquid biopsies. This allows accurate quantification of the
 fraction of tumor-derived cell-free DNA, `as demonstrated in our recent publication <https://doi.org/10.1038/s41467-021-23445-w>`_.
 
@@ -125,7 +125,7 @@ Installation
 conda
 *****
 
-``LIQUORICE`` can easily be installed via `conda <https://docs.conda.io/en/latest/>`_. We recommend installing
+``LIQUORICE`` can easily be installed via `conda <https://docs.conda.io/en/latest/>`_ (or `mamba <https://mamba.readthedocs.io/en/latest/>`_ , a faster alternative to conda). We recommend installing
 LIQUORICE in its own conda environment to keep dependencies clean:
 
 .. code-block:: bash

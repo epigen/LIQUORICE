@@ -7,10 +7,10 @@
   :width: 650
   :alt: LIQUORICE logo
 
-Welcome to LIQUORICE's documentation! 
-=====================================
+LIQUORICE: Detect epigenetic signatures in cell-free DNA / liquid biopsies
+==========================================================================
 
-You can navigate through the menu on the left to learn more about ``LIQUORICE``. A very condensed overview follows below:
+Welcome to  ``LIQUORICE``'s documentation! You can navigate through the menu on the left to learn more about the tool. A very condensed overview follows below:
 
 Quickstart
 ==========

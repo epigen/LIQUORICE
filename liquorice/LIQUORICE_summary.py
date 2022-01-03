@@ -803,10 +803,10 @@ def parse_args():
                                        help='Alpha level for the prediction interval. Samples are deemed significantly '
                                             "different from the controls if their score lies outside the "
                                             "prediction interval of the control group. "
-                                            "Note: Significance testing assumes a normal"
+                                            "Note: Significance testing assumes a normal "
                                             "distribution of the scores of the control group. If tests for normality "
                                             "fail, assessment of significant differences is unavailable. "
-                                            'Default 0.05: 95 precent prediction interval.', required=False,type=float,
+                                            'Default 0.05: 95 percent prediction interval.', required=False,type=float,
                                        default=0.05)
     return parser
 

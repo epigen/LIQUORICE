@@ -61,7 +61,7 @@ class FitGaussians:
         :param g3_max_sigma: Max σ value for the widest gaussian
         :param method: A method for fitting the combined model, used as parameter in lmfit's .fit() function.
         :return: A `pandas.DataFrame` containing several summary metrics based on the fitted model: The amplitude and σ
-            values for each of the three gaussians, the total depth of the fitted model at the central bin, the Baysian
+            values for each of the three gaussians, the total depth of the fitted model at the central bin, the Bayesian
             Information Criterion (measures model fit), and the area under the curve of the fitted model,
             calculated as the area between the fitted intercept and the fitted model.
             If :attr:`samplename` or :attr:`regionset_name` are not `None`, columns "sample" or "region-set" are
@@ -122,7 +122,7 @@ class FitGaussians:
                     if name.startswith(key[:2]):
                         sampledict["G"+str(index+1)+key[2:]]=value
 
-        sampledict["Baysian Information Criterion"]=comb_dipmodel.bic
+        sampledict["Bayesian Information Criterion"]=comb_dipmodel.bic
         sampledict["Total dip depth"]=-sum_g_heights
         sampledict["Intercept"]=comb_dipmodel.best_values["Const_c"]
 
