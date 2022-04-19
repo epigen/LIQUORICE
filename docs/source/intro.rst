@@ -164,5 +164,7 @@ Citation
 ========
 
 If you use ``LIQUORICE`` in any published work, please cite:
+
 `Peneder, P., Bock, C. & Tomazou, E. M. (2022). LIQUORICE: detection of epigenetic signatures in liquid biopsies based on whole-genome sequencing data. Bioinformatics Advances, 2(1), vbac017.`
+
 `Peneder, P., Stütz, A. M., Surdez, D., Krumbholz, M., Semper, S., Chicard, M., ... & Tomazou, E. M. (2021). Multimodal analysis of cell-free DNA whole-genome sequencing for pediatric cancers with low mutational burden. Nature communications, 12(1), 1-16.`
