@@ -9,7 +9,8 @@ Introduction
 ``LIQUORICE`` is a command-line-tool and python package for bias correction and quantification of changes
 in sequencing coverage around regions of interest whole-genome sequencing datasets of cell-free DNA. ``LIQUORICE`` can be used to detect and quantify
 tissue or cancer-specific epigenetic signatures in liquid biopsies. This allows accurate quantification of the
-fraction of tumor-derived cell-free DNA, `as demonstrated in our recent publication <https://doi.org/10.1038/s41467-021-23445-w>`_.
+fraction of tumor-derived cell-free DNA, `as demonstrated in our publication in Nature Communications <https://doi.org/10.1038/s41467-021-23445-w>`_.
+As a tool, ``LIQUORICE`` has recently been `published in Bioinformatics Advances <https://doi.org/10.1093/bioadv/vbac017>`_.
 
 Motivation
 **********
@@ -163,5 +164,5 @@ Citation
 ========
 
 If you use ``LIQUORICE`` in any published work, please cite:
-
+`Peneder, P., Bock, C. & Tomazou, E. M. (2022). LIQUORICE: detection of epigenetic signatures in liquid biopsies based on whole-genome sequencing data. Bioinformatics Advances, 2(1), vbac017.`
 `Peneder, P., Stütz, A. M., Surdez, D., Krumbholz, M., Semper, S., Chicard, M., ... & Tomazou, E. M. (2021). Multimodal analysis of cell-free DNA whole-genome sequencing for pediatric cancers with low mutational burden. Nature communications, 12(1), 1-16.`
