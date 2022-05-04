@@ -1,2 +1,12 @@
 v0.5.0
     Complete re-fractoring and overhaul.
+v0.5.1
+    Various minor bugfixes and improvements.
+v0.5.2
+    Improved ray import handling
+v0.5.3
+    Make ray-core an optional dependency in meta.yaml and provide details on this in docs
+v0.5.4
+    LIQUORICE_summary now handles samples with numerical names correctly
+v0.5.5
+    Fixes a bug so that now when --save_biasfactor_table is specified, the corrected coverage is saved as well. Adds the --save_corrected_coverage_table flag/parameter.

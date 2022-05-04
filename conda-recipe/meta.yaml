@@ -1,9 +1,9 @@
 package:
   name: liquorice
-  version: 0.5.4
+  version: 0.5.5
 
 source:
-  url: https://github.com/epigen/LIQUORICE/archive/refs/tags/v0.5.4.tar.gz
+  url: https://github.com/epigen/LIQUORICE/archive/refs/tags/v0.5.5.tar.gz
   sha256: 476aae3c29516726cd4574b93ecb49bc89e85a931068bfba74a4d1b220361020
   #path: ..
 

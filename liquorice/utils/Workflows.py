@@ -226,6 +226,7 @@ def run_liquorice_on_regionset_with_pretrained_biasmodel(
     binsize: int =500, extend_to: int =20000,
     use_default_fixed_sigma_values: bool =True,
     save_biasfactor_table: bool =False,
+    save_corrected_coverage_table: bool =False,
     no_chr_prefix: bool=False,
     percentile_split_core_rois:bool=False,
     use_this_roi_biasfactortable:typing.Union[None,str]=None) -> None:
@@ -272,8 +273,10 @@ def run_liquorice_on_regionset_with_pretrained_biasmodel(
     :param use_default_fixed_sigma_values: If `True`, use the following contraints for the sigma values of the small,
         medium, and large Gaussian, repectively: 149-150 bp, 757-758 bp, and 6078-6079 bp.
     :param n_cores: Maximum number of cores to use during steps that allow multiprocessing/multithreading.
-    :param save_biasfactor_table: If `True`, save a table of coverage and biasfactor values per bin as
+    :param save_biasfactor_table: If `True`, save a table of bin coordinates, bin number, coverage, corrected coverage and biasfactor values under
         "coverage_and_biasfactors_per_bin.csv".
+    :param save_corrected_coverage_table: If `True`, save a table of bin coordinates, bin number, coverage, and corrected coverage under
+        "coverage_per_bin.csv".
     :param no_chr_prefix: If True, set the list of allowed chromosomes to [str(i) for i in range(1,23)] instead of
         ["chr"+str(i) for i in range(1,23)]
     :param percentile_split_core_rois: If set, split the central region into 5 bins of variable size instead of always
@@ -352,6 +355,10 @@ def run_liquorice_on_regionset_with_pretrained_biasmodel(
         logging.info(f"Writing bins and their bias factors to .csv")
         liq_table[[col for col in liq_table.columns if not col in ["sequence","mappability"]]].to_csv(
             "coverage_and_biasfactors_per_bin.csv",index=False)
+    if save_corrected_coverage_table:
+        logging.info(f"Writing bins and their bias factors to .csv")
+        liq_table[["chromosome","start","end","bin nr.","coverage","corrected coverage"]].to_csv(
+            "coverage_per_bin.csv",index=False)
 
     # Set up an object for plotting
     plotting = Plotting.Plotting(
@@ -452,6 +459,7 @@ def run_liquorice_train_biasmodel_on_same_regions(
         save_training_table: bool = False,
         use_default_fixed_sigma_values: bool =True,
         save_biasfactor_table: bool =False,
+        save_corrected_coverage_table: bool =False,
         no_chr_prefix: bool=False,
         percentile_split_core_rois:bool=False,
         use_cross_validated_predictions:bool=False,
@@ -501,8 +509,10 @@ def run_liquorice_train_biasmodel_on_same_regions(
     :param use_default_fixed_sigma_values: If `True`, use the following contraints for the sigma values of the small,
         medium, and large Gaussian, repectively: 149-150 bp, 757-758 bp, and 6078-6079 bp.
     :param n_cores: Maximum number of cores to use during steps that allow multiprocessing/multithreading.
-    :param save_biasfactor_table: If `True`, save a table of coverage and biasfactor values per bin as
+    :param save_biasfactor_table: If `True`, save a table of bin coordinates, bin number, coverage, corrected coverage and biasfactor values under
         "coverage_and_biasfactors_per_bin.csv".
+    :param save_corrected_coverage_table: If `True`, save a table of bin coordinates, bin number, coverage, and corrected coverage under
+        "coverage_per_bin.csv".
     :param no_chr_prefix: If True, set the list of allowed chromosomes to [str(i) for i in range(1,23)] instead of
         ["chr"+str(i) for i in range(1,23)]
     :param biasmodel_output_path: Path to which the trained biasmodel should be saved to. Must have a
@@ -616,8 +626,12 @@ def run_liquorice_train_biasmodel_on_same_regions(
     # write csv
     if save_biasfactor_table:
         logging.info(f"Writing bins and their bias factors to .csv")
-        liq_table_with_corr_cov[[col for col in liq_table.columns if not col in ["sequence","mappability"]]].to_csv(
+        liq_table_with_corr_cov[[col for col in liq_table_with_corr_cov.columns if not col in ["sequence","mappability"]]].to_csv(
             "coverage_and_biasfactors_per_bin.csv",index=False)
+    if save_corrected_coverage_table:
+        logging.info(f"Writing bins and their bias factors to .csv")
+        liq_table_with_corr_cov[["chromosome","start","end","bin nr.","coverage","corrected coverage"]].to_csv(
+            "coverage_per_bin.csv",index=False)
 
     # Set up an object for plotting
     plotting = Plotting.Plotting(

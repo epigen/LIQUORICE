@@ -34,7 +34,7 @@ def parse_args():
     :return: An `argparse.ArgumentParser` object storing the arguments.
     """
     parser = argparse.ArgumentParser(description="LIQUORICE: A tool for bias correction and quantification of changes "
-                                                 " in coverage around regions of interest in cfDNA WGS datasets",
+                                                 " in coverage around regions of interest in cfDNA WGS datasets. Documentation: https://liquorice.readthedocs.io; Publication: https://doi.org/10.1093/bioadv/vbac017.",
                                      formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     required_keyword_args = parser.add_argument_group('Required named arguments')
 
@@ -186,9 +186,15 @@ def parse_args():
                                       "is not specified)",action="store_true")
 
     optional_keyword_args_output.add_argument(
-        '--save_biasfactor_table', help="If set, for each region-set, save a table of coverage and biasfactor values"
+        '--save_biasfactor_table', help="If set, for each region-set, save a table of bin coordinates, bin number, coverage, corrected coverage and biasfactor values"
                                         " per bin under "
-                                        "./<samplename>/<region-set name>/coverage_and_biasfactors_per_bin.csv",
+                                        "./<samplename>/<region-set name>/coverage_and_biasfactors_per_bin.csv. (Filesize can get quite large)",
+        action="store_true")
+
+    optional_keyword_args_output.add_argument(
+        '--save_corrected_coverage_table', help="If set, for each region-set, save a table of bin coordinates, bin number, coverage, and corrected coverage "
+                                        " per bin under "
+                                        "./<samplename>/<region-set name>/coverage_per_bin.csv",
         action="store_true")
 
     return parser
@@ -438,6 +444,7 @@ def main():
                 extend_to=args.extend_to,
                 n_cores=n_cpus_workflows,
                 save_biasfactor_table=args.save_biasfactor_table,
+                save_corrected_coverage_table=args.save_corrected_coverage_table,
                 use_default_fixed_sigma_values=True,
                 no_chr_prefix=args.no_chr_prefix,
                 percentile_split_core_rois=args.percentile_split_core_regions,
@@ -476,6 +483,7 @@ def main():
                 extend_to=args.extend_to,
                 n_cores=n_cpus_workflows,
                 save_biasfactor_table=args.save_biasfactor_table,
+                save_corrected_coverage_table=args.save_corrected_coverage_table,
                 use_default_fixed_sigma_values=True,
                 no_chr_prefix=args.no_chr_prefix,
                 save_training_table=args.save_training_table,
