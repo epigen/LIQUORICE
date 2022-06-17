@@ -19,6 +19,7 @@ old_settings = np.seterr(all='ignore')
 # The only change is that the SAM flag "is_proper_pair" is not checked when determining whether a read should be
 # extended to its full fragment length. Alignment tools such as bwa mem cannot cope well with the multimodal distribution
 # of cfDNA and therefore often wrongfully call fragments not "properly_paired" if they have a size of, e.g. 350 bp.
+# In version 0.5.6 onwards an additional check results in fragments called as not properly paired if they have a template length of 0 (column 9 in bam file).
 
 def countReadsInRegions_wrapper(args):
     """
@@ -778,6 +779,8 @@ class CountReadsPerBin(object):
             return False
         if abs(read.template_length) > maxPairedFragmentLength:
             return False
+        if abs(read.template_length)==0: # Added for LIQUORICE v0.5.6
+            return False                 # Added for LIQUORICE v0.5.6
         # check that the mates face each other (inward)
         if read.is_reverse is read.mate_is_reverse:
             return False

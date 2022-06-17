@@ -10,3 +10,6 @@ v0.5.4
     LIQUORICE_summary now handles samples with numerical names correctly
 v0.5.5
     Fixes a bug so that now when --save_biasfactor_table is specified, the corrected coverage is saved as well. Adds the --save_corrected_coverage_table flag/parameter.
+v0.5.6
+    Fixes a bug due to which, when reads with a template length (column 9 in the .bam file) of 0 were provided, in some cases the coverage calculation would fail with the error "AssertionError: fragment start greater than fragmentend for read <read name>".
+    Fragments are now assumed to be not "properly paired" when their insert size length is 0. This may slightly change the results of LIQUORICE in cases were reads with template lengths of 0 were provided.

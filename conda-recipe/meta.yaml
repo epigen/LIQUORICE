@@ -1,11 +1,12 @@
+{% set version = "0.5.6" %}
+
 package:
   name: liquorice
-  version: 0.5.5
+  version: {{ version }}
 
 source:
-  url: https://github.com/epigen/LIQUORICE/archive/refs/tags/v0.5.5.tar.gz
+  url: https://github.com/epigen/LIQUORICE/archive/refs/tags/v{{ version }}.tar.gz
   sha256: 272c022cb0ba2e19e12823cc4d28f6ad7296733aeab55a6bb522904ced44fb8f
-  #path: ..
 
 build:
   number: 0
@@ -43,6 +44,8 @@ requirements:
     - dask ==2021.9.0
     - dask-core ==2021.9.0
     - tornado ==6.1
+    - aiohttp ==3.7.4.post0
+    - prometheus_client==0.11.0
 
 
 test:
