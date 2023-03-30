@@ -257,7 +257,7 @@ Example usage of LIQUORICE and the summary tool
     BEDS="./regionsets"
     HG38="./hg38"
 
-    for SAMPLE in "$SAMPLES"
+    for SAMPLE in $SAMPLES
     do
     LIQUORICE --bamfile "${BAMS}/${SAMPLE}.bam" --refgenome_fasta "${HG38}/hg38.fa" \
         --mappability_bigwig "${HG38}/hg38_mappability_75bp.bw" \
